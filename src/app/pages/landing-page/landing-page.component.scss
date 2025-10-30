@@ -1,0 +1,231 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* header */
+.navbar-custom {   
+  border-top: 3px solid #212529;  
+  border-bottom: 1px solid #dee2e6;
+  background-color: #ffffff;
+}
+.navbar-brand-custom {
+    color: #0d464a;
+    font-weight: 600; 
+}
+
+.navbar-brand-custom:hover {
+    color: #0a383b; 
+}
+
+.navbar-custom .navbar-nav .nav-link {
+    color: #343a40;
+    font-weight: 500;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.navbar-custom .navbar-nav .nav-link:hover,
+.navbar-custom .navbar-nav .nav-link.active {
+    color: #0d464a;
+}
+
+/* Hero Section */
+.hero {
+  background-color: #e6e9ee;
+  color: #1a1a1a;
+  height: 100vh;
+}
+
+.hero h1 {
+  font-size: 2rem;
+  color: #1f3c45;
+}
+
+.hero p {
+  max-width: 600px;
+  margin: 0 auto;
+  color: #555;
+}
+
+.hero .btn-success {
+  background-color: #c6d136;
+  border: none;
+  color: #333;
+  font-weight: 500;
+}
+
+.hero .btn-success:hover {
+  background-color: #b7c02f;
+}
+
+.hero .btn-outline-secondary {
+  border-color: #ccc;
+  color: #333;
+}
+
+.hero .btn-outline-secondary:hover {
+  background-color: #f1f1f1;
+}
+
+/* Como Funciona Section */
+.how-to {
+  background-color: #f8efe6;
+}
+
+#title {
+  font-size: 40px;
+}
+
+mat-step {
+  font-size: 16px;
+}
+
+mat-stepper {
+  background-color: #f8efe6;
+}
+
+::ng-deep .mat-step {
+  background-color: #6d3b25;
+}
+
+::ng-deep .mat-step-header .mat-step-icon {
+  background-color: transparent;
+  border: #6d3b25 solid 0.5px ;
+  color: #6d3b25;
+}
+
+.text-brown {
+  color: #6d3b25;
+}
+
+.steps {
+  gap: 20px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #6d3b25;
+  font-weight: 500;
+}
+
+.line {
+  flex: 1;
+  height: 1px;
+  background-color: #cbbcb2;
+}
+
+.circle {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.how-to  p {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.display-5 {
+  color: #1C3B44;
+}
+
+/* ===== carousel ===== */
+
+.carousel-section {
+  background-color: #e6e9ee;
+}
+#carousel-color .active {
+  background-color: #6d3b25;
+}
+
+
+
+/* ===== Modelos Usados ===== */
+.modelos-usados {
+  background-color: #ffffff;
+  color: #0d1b1e;
+}
+
+.logo-meta {
+  width: 100px;
+}
+
+/* ===== Reseñas ===== */
+.resenas {
+  background-color: #ffffff;
+}
+
+.resenas .card {
+  background-color: #6d3b25;
+  border-radius: 8px;
+}
+
+.resenas .avatar {
+  width: 35px;
+  height: 35px;
+  opacity: 0.6;
+}
+
+#review-card-color {
+  background-color: #f8efe6;
+}
+
+
+/* ===== Footer ===== */
+.footer {
+  background-color: #ffffff;
+  color: #1d1d1d;
+}
+
+.footer img {
+  height: 25px;
+}
+
+.footer span {
+  color: #333;
+}
+
+footer {
+  margin-left: 0%;
+}
+
+.mat-stepper-horizontal {
+  margin-top: 8px;
+}
+
+.mat-mdc-form-field {
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    height: auto;
+    padding: 4rem 1rem;
+  }
+
+  .hero h1 {
+    font-size: 1.7rem;
+  }
+
+  .steps {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .line {
+    display: none;
+  }
+
+  .resenas .card {
+    margin-bottom: 1rem;
+  }
+
+  .footer {
+    text-align: center;
+  }
+}
+
+
