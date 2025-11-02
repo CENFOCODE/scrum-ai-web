@@ -1,97 +1,109 @@
-<div class="login-container">
-  <div class="d-flex align-items-center justify-content-center h-100">
-    <div class="login-card">
-      <div class="w-100">
-        <div class="text-center">
-          <a class="logo text-center" routerLink="/">
-            <img
-              width="40"
-              class="img-fluid mb-4"
-              src="../../../../assets/icons/logo@2x.png"
-              alt="Logo"
-            />
-          </a>
-        </div>
-        <div class="login-main">
-          <form (ngSubmit)="handleSignup($event)" autocomplete="off" #frm="ngForm">
-            <div class="mb-3">
-              <h4>Sign up account</h4>
-              <small style="color: #4f4f4f">
-                Enter your email & password to login
-              </small>
-            </div>
+<body class="bg-light">
 
-            <div class="d-flex align-items-center mb-3">
-              <div class="form-group px-1">
-                <label for="name" class="form-label mb-2">
-                  Name
-                </label>
-                <input #name="ngModel" type="text" class="form-control" id="name" name="name"
-                  placeholder="User" [(ngModel)]="user.name" [ngClass]="{
+<div class="container vh-100 d-flex align-items-center justify-content-center">
+  <div class="card shadow-sm border-0" style="width: 100%; max-width: 500px;">
+      <div class="card-body p-4 p-md-5">
+          <div class="mx-auto mb-4 bg-secondary-subtle rounded" style="width: 120px; height: 80px;">
+            <a href="/landing-page" rel="noopener noreferrer">
+            <img src="../../../../assets/img/logo/cenfocode-logo.png" alt="Cenfocode" class="logo-img">
+            </a>
+          </div>
+              <h1 class="title text-center">Registro de usuario</h1>
+              <p class="paragraph text-center">Ingresa tus datos para crear una nueva cuenta</p>
+          <form (ngSubmit)="handleSignup($event)" autocomplete="off" #frm="ngForm" >
+              <div class="example-container">
+                <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'" [style.margin.px]="0">
+                  <mat-label>Nombre</mat-label>
+                  <input matInput #name="ngModel" type="text" class="form-control" id="name" name="name"
+                  placeholder="Nombre" [(ngModel)]="user.name" [ngClass]="{
                     'is-invalid': name.invalid && name.touched,
                     'is-valid': name.valid && name.touched
                   }" required />
-                <div *ngIf="name.invalid" class="invalid-feedback">
+                    
+                  <div *ngIf="name.invalid" class="invalid-feedback">
                   Please add a valid name
-                </div>
+                  </div>
+                </mat-form-field>
               </div>
-              <div class="form-group px-1">
-                <label for="lastname" class="form-label mb-2">
-                  Lastname
-                </label>
-                <input #lastname="ngModel" type="text" class="form-control" id="lastname" name="lastname"
-                  placeholder="demo" [(ngModel)]="user.lastname" [ngClass]="{
-                    'is-invalid': lastname.invalid && lastname.touched,
-                    'is-valid': lastname.valid && lastname.touched
-                  }" required />
-                <div *ngIf="lastname.invalid" class="invalid-feedback">
-                  Please add a valid lastname
-                </div>
+                
+              <div class="example-container">
+                <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'">
+                  <mat-label>Apellidos</mat-label>  
+                  <input matInput #lastname="ngModel" type="text" class="form-control" id="lastname" name="lastname"
+                placeholder="Apellidos" [(ngModel)]="user.lastname" [ngClass]="{
+                  'is-invalid': lastname.invalid && lastname.touched,
+                  'is-valid': lastname.valid && lastname.touched
+                }" required >
+                  <div *ngIf="lastname.invalid" class="invalid-feedback">
+                Please add a valid lastname
+                  </div>
+                </mat-form-field>
               </div>
-            </div>
 
-            <div class="form-group mb-3">
-              <label for="email" class="form-label mb-2">
-                Email Address
-              </label>
-              <input #email="ngModel" type="text" class="form-control" id="email" name="email"
-                placeholder="agent@gmail.com" [(ngModel)]="user.email" [ngClass]="{
-                  'is-invalid': email.invalid && email.touched,
-                  'is-valid': email.valid && email.touched
-                }" required />
-              <div *ngIf="email.invalid" class="invalid-feedback">
-                Please add a valid email
+              <div class="example-container">
+                <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'">
+                  <mat-label>Email</mat-label>  
+                    <input matInput #email="ngModel" type="email" class="form-control" id="email" name="email"
+                    placeholder="Email" [(ngModel)]="user.email" [ngClass]="{
+                    'is-invalid': email.invalid && email.touched,
+                    'is-valid': email.valid && email.touched
+                    }" required >
+                    <div *ngIf="email.invalid" class="invalid-feedback">
+                    Please add a valid email
+                    </div>
+                </mat-form-field>
               </div>
-            </div>
 
-            <div class="form-group mb-5">
-              <label for="password" class="form-label mb-2">Password</label>
-              <div class="form-input position-relative">
-                <input #password="ngModel" type="password" class="form-control" id="password" name="password"
-                placeholder="*****" [(ngModel)]="user.password" [ngClass]="{
-                  'is-invalid': password.invalid && password.touched,
-                  'is-valid': password.valid && password.touched
-                }" required />
-                <div *ngIf="password.invalid" class="invalid-feedback">
-                  Please add a valid password
-                </div>
+              <div class="row g-2 mb-3 pt-15 pb-7 ">
+                  <div class="example-container col-md-6 pt-15 pb-7">
+                    <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'">
+                      <mat-label>Enter your password</mat-label>
+                      <input matInput #password="ngModel" type="password" class="form-control" id="password" name="password"
+                      placeholder="Contraseña" [(ngModel)]="user.password" [ngClass]="{
+                      'is-invalid': password.errors && password.touched,
+                      'is-valid': password.valid && password.touched,
+                      }" required 
+                      pattern="^(?=.*[A-Z])(?=.*\d).{8,}$">       
+                        <div *ngIf="password.errors?.['required']" class="invalid-feedback">
+                          La contraseña es obligatoria
+                        </div>
+                        <div *ngIf="password.errors?.['pattern']" class="invalid-feedback">
+                          Debe tener al menos 8 caracteres, una mayúscula y un número.
+                        </div>    
+                      </mat-form-field>
+                  </div>
+
+                  <div class="example-container col-md-6 pt-15 pb-7">
+                    <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'">
+                      <mat-label>Confirmar contraseña</mat-label>
+                      <input matInput #confirmPassword="ngModel" type="password" class="form-control" id="comfirmPassword" name="confirmPassword"
+                      placeholder="Confirmar Contraseña" [(ngModel)]="user.confirmPassword" [ngClass]="{
+                      'is-valid': confirmPassword.touched && user.password === user.confirmPassword,
+                      'is-invalid': confirmPassword.touched && user.password !== user.confirmPassword,
+                      }" required>
+                      
+                      <div class="invalid-feedback" *ngIf="confirmPassword.touched && user.password !== user.confirmPassword">
+                              Las contraseñas no coinciden.
+                      </div>
+                    </mat-form-field>
+                  </div>
               </div>
-            </div>
 
-            <div class="form-group mb-0">
-              <button class="btn btn-primary btn-block w-100" type="submit">
-                Sign up
-              </button>
-              @if(signUpError) {
-                <p class="text-danger">{{signUpError}}</p>
-              } @else if (validSignup){
-                <p class="text-success">User registered, please go to login</p>
-              }
-            </div>
-            <a href="/login">Go Login</a>
+              <div class="mb-3 d-flex align-items-center justify-content-center flex-column">
+                  <button type="submit" class="btn btn-register btn-lg px-4 pt-15 pb-7" [disabled]="frm.invalid || user.password !== user.confirmPassword">Registrarse</button>
+                  @if(signUpError) {
+              <p class="text-danger">{{signUpError}}</p>
+            } @else if (validSignup){
+              <p class="text-success">Usuario Registrado cone exito</p>
+            }
+              </div>
+              <div class="text-center">
+                  <small class="paragraph">
+                      ¿Tienes una cuenta registrada? 
+                      <a href="/login" class="login-link">Inicio de sesión</a>
+                  </small>
+              </div>
           </form>
-        </div>
       </div>
-    </div>
   </div>
 </div>
