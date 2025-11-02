@@ -15,13 +15,13 @@
                 <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'" [style.margin.px]="0">
                   <mat-label>Nombre</mat-label>
                   <input matInput #name="ngModel" type="text" class="form-control" id="name" name="name"
-                  placeholder="Nombre" [(ngModel)]="user.name" [ngClass]="{
-                    'is-invalid': name.invalid && name.touched,
-                    'is-valid': name.valid && name.touched
+                  [(ngModel)]="user.name" [ngClass]="{
+                  'is-invalid': name.invalid && name.touched,
+                  'is-valid': name.valid && name.touched
                   }" required />
                     
                   <div *ngIf="name.invalid" class="invalid-feedback">
-                  Please add a valid name
+                  Porfavor agrega un nombre válido
                   </div>
                 </mat-form-field>
               </div>
@@ -30,12 +30,12 @@
                 <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'">
                   <mat-label>Apellidos</mat-label>  
                   <input matInput #lastname="ngModel" type="text" class="form-control" id="lastname" name="lastname"
-                placeholder="Apellidos" [(ngModel)]="user.lastname" [ngClass]="{
+                  [(ngModel)]="user.lastname" [ngClass]="{
                   'is-invalid': lastname.invalid && lastname.touched,
                   'is-valid': lastname.valid && lastname.touched
-                }" required >
+                  }" required >
                   <div *ngIf="lastname.invalid" class="invalid-feedback">
-                Please add a valid lastname
+                  Porfavor agrega un apellido válido
                   </div>
                 </mat-form-field>
               </div>
@@ -43,65 +43,59 @@
               <div class="example-container">
                 <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'">
                   <mat-label>Email</mat-label>  
-                    <input matInput #email="ngModel" type="email" class="form-control" id="email" name="email"
-                    placeholder="Email" [(ngModel)]="user.email" [ngClass]="{
-                    'is-invalid': email.invalid && email.touched,
-                    'is-valid': email.valid && email.touched
-                    }" required >
-                    <div *ngIf="email.invalid" class="invalid-feedback">
-                    Please add a valid email
-                    </div>
+                  <input matInput #email="ngModel" type="email" class="form-control" id="email" name="email"
+                  [(ngModel)]="user.email" [ngClass]="{
+                  'is-invalid': email.invalid && email.touched,
+                  'is-valid': email.valid && email.touched
+                  }" required >
+                  <div *ngIf="email.invalid" class="invalid-feedback">
+                  Porfavor agrega un email válido
+                  </div>
                 </mat-form-field>
               </div>
 
               <div class="row g-2 mb-3 pt-15 pb-7 ">
-                  <div class="example-container col-md-6 pt-15 pb-7">
-                    <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'">
-                      <mat-label>Enter your password</mat-label>
-                      <input matInput #password="ngModel" type="password" class="form-control" id="password" name="password"
-                      placeholder="Contraseña" [(ngModel)]="user.password" [ngClass]="{
-                      'is-invalid': password.errors && password.touched,
-                      'is-valid': password.valid && password.touched,
-                      }" required 
-                      pattern="^(?=.*[A-Z])(?=.*\d).{8,}$">       
-                        <div *ngIf="password.errors?.['required']" class="invalid-feedback">
-                          La contraseña es obligatoria
-                        </div>
-                        <div *ngIf="password.errors?.['pattern']" class="invalid-feedback">
-                          Debe tener al menos 8 caracteres, una mayúscula y un número.
-                        </div>    
-                      </mat-form-field>
+                <div class="example-container col-md-6 pt-15 pb-7">
+                  <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'">
+                  <mat-label>Contraseña </mat-label>
+                  <input matInput #password="ngModel" type="password" class="form-control" id="password" name="password"
+                  [(ngModel)]="user.password" [ngClass]="{
+                  'is-invalid': password.errors && password.touched,
+                  'is-valid': password.valid && password.touched,}" required 
+                  pattern="^(?=.*[A-Z])(?=.*\d).{8,}$">       
+                  <div *ngIf="password.errors?.['required']" class="invalid-feedback">
+                    La contraseña es obligatoria
                   </div>
-
-                  <div class="example-container col-md-6 pt-15 pb-7">
-                    <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'">
-                      <mat-label>Confirmar contraseña</mat-label>
-                      <input matInput #confirmPassword="ngModel" type="password" class="form-control" id="comfirmPassword" name="confirmPassword"
-                      placeholder="Confirmar Contraseña" [(ngModel)]="user.confirmPassword" [ngClass]="{
-                      'is-valid': confirmPassword.touched && user.password === user.confirmPassword,
-                      'is-invalid': confirmPassword.touched && user.password !== user.confirmPassword,
-                      }" required>
-                      
-                      <div class="invalid-feedback" *ngIf="confirmPassword.touched && user.password !== user.confirmPassword">
-                              Las contraseñas no coinciden.
-                      </div>
-                    </mat-form-field>
+                  <div *ngIf="password.errors?.['pattern']" class="invalid-feedback">
+                    Debe tener al menos 8 caracteres, una mayúscula y un número.
+                  </div>    
+                  </mat-form-field>
                   </div>
+                <div class="example-container col-md-6 pt-15 pb-7">
+                  <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'">
+                  <mat-label>Confirmar contraseña</mat-label>
+                  <input matInput #confirmPassword="ngModel" type="password" class="form-control" id="comfirmPassword" name="confirmPassword"
+                  [(ngModel)]="user.confirmPassword" [ngClass]="{
+                  'is-valid': confirmPassword.touched && user.password === user.confirmPassword,
+                  'is-invalid': confirmPassword.touched && user.password !== user.confirmPassword,
+                  }" required>
+                  
+                  <div class="invalid-feedback" *ngIf="confirmPassword.touched && user.password !== user.confirmPassword">
+                    Las contraseñas no coinciden.
+                  </div>
+                  </mat-form-field>
+                </div>
               </div>
 
               <div class="mb-3 d-flex align-items-center justify-content-center flex-column">
-                  <button type="submit" class="btn btn-register btn-lg px-4 pt-15 pb-7" [disabled]="frm.invalid || user.password !== user.confirmPassword">Registrarse</button>
-                  @if(signUpError) {
-              <p class="text-danger">{{signUpError}}</p>
-            } @else if (validSignup){
-              <p class="text-success">Usuario Registrado cone exito</p>
-            }
+                <button type="submit" class="btn btn-register btn-lg px-4 pt-15 pb-7" [disabled]="frm.invalid || user.password !== user.confirmPassword">Registrarse</button>
+                @if(signUpError) {<p class="text-danger">{{signUpError}}</p>} @else if (validSignup){<p class="text-success">Usuario Registrado cone exito</p>}
               </div>
               <div class="text-center">
-                  <small class="paragraph">
-                      ¿Tienes una cuenta registrada? 
-                      <a href="/login" class="login-link">Inicio de sesión</a>
-                  </small>
+                <small class="paragraph">
+                ¿Tienes una cuenta registrada? 
+                <a href="/login" class="login-link">Inicio de sesión</a>
+                </small>
               </div>
           </form>
       </div>
