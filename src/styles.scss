@@ -53,7 +53,9 @@ body[class="dark-only"] {
 html, body { 
   height: 100%; 
 }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { 
+font-family: 'Poppins', sans-serif;
+}
 
 .error-snackbar .mdc-snackbar__surface{
   background-color: rgb(197, 49, 49) !important;
