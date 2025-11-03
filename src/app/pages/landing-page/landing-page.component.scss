@@ -47,11 +47,6 @@ header {
   background-size: cover
 }
 
-.hero h1 {
-  font-size: 2rem;
-  color: #1f3c45;
-}
-
 .hero p {
   max-width: 600px;
   margin: 0 auto;
@@ -254,10 +249,6 @@ footer {
   .hero {
     height: auto;
     padding: 4rem 1rem;
-  }
-
-  .hero h1 {
-    font-size: 1.7rem;
   }
 
   .steps {

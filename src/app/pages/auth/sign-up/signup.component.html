@@ -4,12 +4,12 @@
   <div class="card shadow-sm border-0" style="width: 100%; max-width: 500px;">
       <div class="card-body p-4 p-md-5">
           <div class="mx-auto mb-4 bg-secondary-subtle rounded" style="width: 120px; height: 80px;">
-            <a href="/landing-page" rel="noopener noreferrer">
+            <a href="/" rel="noopener noreferrer">
             <img src="../../../../assets/img/logo/cenfocode-logo.png" alt="Cenfocode" class="logo-img">
             </a>
           </div>
-              <h1 class="title text-center">Registro de usuario</h1>
-              <p class="paragraph text-center">Ingresa tus datos para crear una nueva cuenta</p>
+              <h1 class="text-center">Registro de usuario</h1>
+              <p class="text-center">Ingresa tus datos para crear una nueva cuenta</p>
           <form (ngSubmit)="handleSignup($event)" autocomplete="off" #frm="ngForm" >
               <div class="example-container">
                 <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'" [style.margin.px]="0">
@@ -93,10 +93,10 @@
                 @if(signUpError) {<p class="text-danger">{{signUpError}}</p>} @else if (validSignup){<p class="text-success">Usuario Registrado con exito</p>}
               </div>
               <div class="text-center">
-                <small class="paragraph">
+                <p>
                 ¿Tienes una cuenta registrada? 
                 <a href="/login" class="login-link">Inicio de sesión</a>
-                </small>
+              </p>
               </div>
           </form>
       </div>
