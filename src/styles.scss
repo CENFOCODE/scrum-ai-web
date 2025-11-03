@@ -49,34 +49,42 @@ body[class="dark-only"] {
 //start template styles
 @import "./assets/layout/layout.scss";
 //end template styles
-
-html, body { 
-  height: 100%; 
-}
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-.error-snackbar .mdc-snackbar__surface{
-  background-color: rgb(197, 49, 49) !important;
-}
-
-.success-snackbar .mdc-snackbar__surface{
-  background-color: rgb(54, 197, 49) !important;
-}
-
-
-.page-wrapper.compact-wrapper .page-body-wrapper div.sidebar-wrapper .sidebar-main .sidebar-links .simplebar-wrapper .simplebar-mask .simplebar-content-wrapper .simplebar-content > li .sidebar-link {
-  text-decoration: none;
-}
-
-
 .page-wrapper.compact-wrapper .page-body-wrapper div.sidebar-wrapper .sidebar-main .sidebar-links {
   height: calc(93vh - 115px) !important;
   left: -300px;
   z-index: 99;
   transition: color 1s ease;
-  /* overflow: auto; */
-  /* color: rgba(0, 0, 0, 0); */
   margin-top: 20px;
   margin-bottom: 30px;
 }
 
+h1 {
+  font-size: 40px;
+  font-weight: 600;
+}
+h2 {
+  font-size: 24px;
+}
+p {
+  font-size: 16px;
+}
+#title{
+  font-size: 40px;
+  font-weight: 600;
+}
+#subtitle{
+  font-size: 24px;
+}
+#paragraph{
+  font-size: 16px;
+}
+#title-mobile{
+  font-size: 24px;
+  font-weight: 600;
+}
+#subtitle-mobile{
+  font-size: 18px;
+}
+#paragraph-mobile{
+  font-size: 12px;
+}
