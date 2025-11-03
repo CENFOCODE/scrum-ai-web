@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, ChangeDetectionStrategy, signal} from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy, signal, ChangeDetectorRef, inject} from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
@@ -22,10 +22,12 @@ export class SigUpComponent {
   title = 'Sign Up';
   public signUpError!: String;
   public validSignup!: boolean;
+  private manualDetector: ChangeDetectorRef = inject(ChangeDetectorRef);
   @ViewChild('name') nameModel!: NgModel;
   @ViewChild('lastname') lastnameModel!: NgModel;
   @ViewChild('email') emailModel!: NgModel;
   @ViewChild('password') passwordModel!: NgModel;
+  
 
   hide = true;
 
@@ -58,7 +60,10 @@ export class SigUpComponent {
     }
     if (this.emailModel.valid && this.passwordModel.valid) {
       this.authService.signup(this.user).subscribe({
-        next: () => this.validSignup = true,
+        next: () => {
+          this.validSignup = true;
+          this.manualDetector.markForCheck();
+        },
         error: (err: any) => (this.signUpError = err.description),
       });
     }
