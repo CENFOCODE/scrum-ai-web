@@ -3,12 +3,7 @@
         <div class="login-card shadow-sm rounded">
             <div class="text-center">
                 <a class="logo text-center" routerLink="/">
-                    <img
-                        width="180"
-                        class="img-fluid mb-4"
-                        src="assets/img/logo/cenfocode-logo.png"
-                        alt="Logo"
-                    />
+                    <img width="180" class="img-fluid mb-4" src="assets/img/logo/cenfocode-logo.png" alt="Logo" />
                 </a>
             </div>
 
@@ -17,7 +12,17 @@
                     <div class="mb-3 text-center">
                         <h1>Inicio de sesión</h1>
                         <p>Ingresa tus datos para acceder a su cuenta</p>
+                          <!-- Google Identity Services button (nuevo método) -->
+
+                    <div id="g_id_onload"
+                        data-client_id="316836742682-8qljm4bfpqheogsg5eq7v96hl1gn4q65.apps.googleusercontent.com"
+                        data-callback="handleCredentialResponse">
+
                     </div>
+                    <!-- Esto le dice al SDK que aquí debe cargar el boton de Google -->
+                    <div class="g_id_signin" data-type="standard"></div>
+                    </div>
+                  
 
                     <div class="w-full">
                         <p-divider layout="horizontal" align="center">
@@ -28,39 +33,19 @@
                     <div class="d-flex flex-column form-container">
                         <mat-form-field appearance="outline">
                             <mat-label>Email</mat-label>
-                            <input
-                                matInput
-                                #email="ngModel"
-                                type="text"
-                                class="form-control"
-                                id="email"
-                                name="email"
-                                placeholder="example@outlook.com"
-                                [(ngModel)]="loginForm.email"
-                                (ngModelChange)="clearError()"
-                            />
+                            <input matInput #email="ngModel" type="text" class="form-control" id="email" name="email"
+                                placeholder="example@outlook.com" [(ngModel)]="loginForm.email"
+                                (ngModelChange)="clearError()" />
                         </mat-form-field>
 
                         <mat-form-field appearance="outline">
                             <mat-label>Contraseña</mat-label>
-                            <input
-                                matInput
-                                #password="ngModel"
-                                [type]="hide() ? 'password' : 'text'"
-                                class="form-control"
-                                id="password"
-                                name="password"
-                                [(ngModel)]="loginForm.password"
-                                (ngModelChange)="clearError()"
-                            />
-                            <button
-                                    mat-icon-button
-                                    matSuffix
-                                    (click)="clickEvent($event)"
-                                    [attr.aria-label]="'Mostrar u ocultar contraseña'"
-                                    [attr.aria-pressed]="hide()"
-                                    type="button"
-                            >
+                            <input matInput #password="ngModel" [type]="hide() ? 'password' : 'text'"
+                                class="form-control" id="password" name="password" [(ngModel)]="loginForm.password"
+                                (ngModelChange)="clearError()" />
+                            <button mat-icon-button matSuffix (click)="clickEvent($event)"
+                                [attr.aria-label]="'Mostrar u ocultar contraseña'" [attr.aria-pressed]="hide()"
+                                type="button">
                                 <mat-icon>{{hide() ? 'visibility_off' : 'visibility'}}</mat-icon>
                             </button>
                         </mat-form-field>
@@ -75,7 +60,7 @@
                             Ingresar
                         </button>
                         @if (loginError) {
-                            <p class="text-danger">{{ loginError }}</p>
+                        <p class="text-danger">{{ loginError }}</p>
                         }
                         <p>¿No está registrado?<a class="app-link" href="/signup"> Crear cuenta</a></p>
                     </div>
