@@ -14,9 +14,15 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { GiftComponent } from './pages/gift/gift.component';
 import { GiftListGiftsComponent } from './pages/gift-list-gifts/gift-list-gifts.component';
 import { GiftsComponent } from './pages/gifts/gifts.component';
+import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 
 
 export const routes: Routes = [
+  {
+    path: 'landingpage',
+    component: LandingPageComponent,
+    canActivate: [GuestGuard],
+  },
   {
     path: 'login',
     component: LoginComponent,
@@ -33,7 +39,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'landingpage',
     pathMatch: 'full',
   },
   {
