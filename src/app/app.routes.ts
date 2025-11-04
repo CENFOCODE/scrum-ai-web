@@ -14,12 +14,14 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { GiftComponent } from './pages/gift/gift.component';
 import { GiftListGiftsComponent } from './pages/gift-list-gifts/gift-list-gifts.component';
 import { GiftsComponent } from './pages/gifts/gifts.component';
-import { LandingCenfoComponent } from './pages/landing-cenfo/landing-cenfo.component';
+import { LandingCenfoComponent } from './pages/landing-cenfo/landing-cenfo.component';import { LandingPageComponent } from './pages/landing-page/landing-page.component';
+
 
 export const routes: Routes = [
   {
-    path: 'landingcenfo',
-    component: LandingCenfoComponent,
+    path: 'landingpage',
+    component: LandingPageComponent,
+    canActivate: [GuestGuard],
   },
   {
     path: 'login',
@@ -37,7 +39,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'landingcenfo',
+    redirectTo: 'landingpage',
     pathMatch: 'full',
   },
   {

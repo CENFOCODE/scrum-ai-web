@@ -1,0 +1,272 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #1C3B44;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* header */
+.navbar-custom {   
+  border-top: 3px solid #212529;  
+  border-bottom: 1px solid #dee2e6;
+  background-color: #ffffff;
+}
+.navbar-brand-custom {
+    color: #1f3c45;
+    font-weight: 600; 
+}
+
+.navbar-brand-custom:hover {
+    color: #D26A5D; 
+}
+
+.navbar-custom .navbar-nav .nav-link {
+    color: #1f3c45;
+    font-weight: 500;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.navbar-custom .navbar-nav .nav-link:hover,
+.navbar-custom .navbar-nav {
+    color: #D26A5D;
+}
+
+/* Hero Section */
+.hero {
+  background-image: url('/assets/img/landing-page/hero-img.jpg');
+  background-repeat: no-repeat;
+  color: #1f3c45;
+  height: 100vh;
+  background-size: cover
+}
+
+.hero p {
+  max-width: 600px;
+  margin: 0 auto;
+  color: #1f3c45;
+}
+
+.hero .btn-success {
+  background-color: #A4A33A;
+  border: none;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.hero .btn-success:hover {
+  background-color: #b7c02f;
+}
+
+.hero .btn-outline-secondary {
+  border-color: #1f3c45;
+  color: #1f3c45;
+}
+
+.hero .btn-outline-secondary:hover {
+  background-color: #f1f1f1;
+}
+
+/* Como Funciona Section */
+.how-to {
+  background-color: #EBE4DA;
+  padding-bottom: 50px;
+  min-height: 476px;
+  color: #6d3b25;
+}
+
+#title {
+  font-size: 40px;
+  font-weight: 600;
+}
+#subtitle {
+  font-size: 24px;
+}
+
+#title-AI {
+  font-size: 40px;
+  font-weight: 600;
+  color: #1C3B44;
+}
+
+mat-step {
+  font-size: 16px;
+}
+
+mat-stepper {
+  background-color: #EBE4DA;
+}
+
+::ng-deep .mat-step {
+  background-color: #6d3b25;
+}
+
+::ng-deep .mat-step-header .mat-step-icon {
+  background-color: transparent;
+  border: #6d3b25 solid 0.5px ;
+  color: #6d3b25;
+}
+
+.text-brown {
+  color: #6d3b25;
+}
+
+.steps {
+  gap: 20px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #6d3b25;
+  font-weight: 500;
+}
+
+.line {
+  flex: 1;
+  height: 1px;
+  background-color: #cbbcb2;
+}
+
+.circle {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.how-to  p {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.display-5 {
+  color: #1C3B44;
+}
+
+/* ===== carousel ===== */
+
+.carousel-section {
+  color: #1f3c45;
+  height: 100vh;
+  background-size: cover;
+  background-color: #ffffff;
+}
+#carousel-color .active {
+  background-color: #D26A5D;
+}
+
+.img-fluid {
+  height: 453px;
+}
+
+
+
+/* ===== Modelos Usados ===== */
+.modelos-usados {
+  background-color: #ffffff;
+  color: #0d1b1e;
+  min-height: 476px;
+}
+
+.logo-groq {
+  width: 200px;
+  margin-top: 30px;
+}
+
+/* ===== Reseñas ===== */
+
+.review-cards {
+  margin-top: 10px;
+  margin-bottom: 100px;
+}
+.resenas {
+  background-color: #ffffff;
+  color: #1C3B44;
+  padding-top: 15px;
+}
+
+.resenas .card {
+  background-color: #6d3b25;
+  border-radius: 8px;
+}
+
+.resenas .avatar {
+  width: 35px;
+  height: 35px;
+  opacity: 0.6;
+}
+
+#review-card-color {
+  background-color: #f8efe6;
+}
+
+
+/* ===== Footer ===== */
+
+.footer {
+color: #1C3B44;
+left: 0;
+bottom: 0;
+width: 100%; 
+}
+
+hr {
+border: 0;
+border-top: 1px solid #1C3B44;
+opacity: 1;
+margin-top: .1rem !important;
+margin-bottom: .1rem !important;
+}
+
+
+.footer img {
+  height: 25px;
+}
+
+.footer p {
+  font-size: 16px;
+}
+
+footer {
+  margin-left: 0%;
+}
+
+.mat-stepper-horizontal {
+  margin-top: 8px;
+}
+
+.mat-mdc-form-field {
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    height: auto;
+    padding: 4rem 1rem;
+  }
+
+  .steps {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .line {
+    display: none;
+  }
+
+  .resenas .card {
+    margin-bottom: 1rem;
+  }
+
+  .footer {
+    text-align: center;
+  }
+}
+
+
