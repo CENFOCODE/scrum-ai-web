@@ -44,6 +44,7 @@ body[class="dark-only"] {
   --view-grid-bg: var(--light-bg);
   --view-border-marker: #2c2c45d4;
 }
+
 // scss variables
 @import "./assets/utils/variables";
 //start template styles
@@ -62,29 +63,85 @@ h1 {
   font-size: 40px;
   font-weight: 600;
 }
+
 h2 {
   font-size: 24px;
 }
+
 p {
   font-size: 16px;
 }
-#title{
+
+#title {
   font-size: 40px;
   font-weight: 600;
 }
-#subtitle{
+
+#subtitle {
   font-size: 24px;
 }
-#paragraph{
+
+#paragraph {
   font-size: 16px;
 }
-#title-mobile{
+
+#title-mobile {
   font-size: 24px;
   font-weight: 600;
 }
-#subtitle-mobile{
+
+#subtitle-mobile {
   font-size: 18px;
 }
-#paragraph-mobile{
+
+#paragraph-mobile {
   font-size: 12px;
+}
+
+.app-link {
+  color: #d9534f;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.app-link:hover {
+  color: #c9302c;
+  text-decoration: none;
+}
+
+.primary-btn {
+  background-color: #9c9a40;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 18px;
+  border-radius: .3rem;
+}
+
+.primary-btn:hover {
+  background-color: #8a8835;
+  color: white;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #1C3B44;
+}
+
+@media (max-width: 768px) {
+
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  p {
+    font-size: 12px;
+  }
 }
