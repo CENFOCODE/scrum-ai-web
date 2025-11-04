@@ -16,6 +16,7 @@ import { GiftListGiftsComponent } from './pages/gift-list-gifts/gift-list-gifts.
 import { GiftsComponent } from './pages/gifts/gifts.component';
 import { LandingCenfoComponent } from './pages/landing-cenfo/landing-cenfo.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
+import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
 
 
 export const routes: Routes = [
@@ -37,6 +38,11 @@ export const routes: Routes = [
   {
     path: 'signup',
     component: SigUpComponent,
+    canActivate: [GuestGuard],
+  },
+    {
+    path: 'forgot-password',
+    component: ForgotPasswordComponent,
     canActivate: [GuestGuard],
   },
   {

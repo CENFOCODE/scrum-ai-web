@@ -102,6 +102,9 @@ loginWithGoogle(credential: string): Observable<ILoginResponse> {
   public signup(user: IUser): Observable<ILoginResponse> {
     return this.http.post<ILoginResponse>('auth/signup', user);
   }
+    public forgotPassword(email: string): Observable<IResponse<any>> {
+    return this.http.post<IResponse<any>>('auth/recover-password', { email });
+  }
 
   public logout() {
     this.accessToken = '';
