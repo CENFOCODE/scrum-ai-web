@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, NgZone, signal, ViewChild} from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
@@ -22,7 +22,7 @@ import { MatButtonModule } from "@angular/material/button";
         MatIconModule,
         MatButtonModule
     ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+ 
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
@@ -41,7 +41,8 @@ export class LoginComponent {
 
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private ngZone: NgZone
   ) {}
 
     clickEvent(event: MouseEvent) {
@@ -72,5 +73,33 @@ export class LoginComponent {
     }
   }
 
-    protected readonly event = event;
+  ngOnInit(): void {
+    (window as any).handleCredentialResponse = (response: any) =>
+      this.handleGoogleCredential(response);
+  }
+ public handleGoogleCredential(response: any): void {
+  if (!response?.credential) {
+    this.ngZone.run(() => {
+      this.loginError = 'No credential received from Google';
+    });
+    return;
+  }
+
+  this.authService.loginWithGoogle(response.credential).subscribe({
+    next: () => {
+      this.ngZone.run(() => {
+        this.router.navigateByUrl('/app/dashboard').then(success => {
+          console.log('Navigation success:', success);
+        });
+      });
+    },
+    error: (err: any) => {
+      this.ngZone.run(() => {
+        this.loginError = err?.error?.description ?? 'Login failed';
+      });
+    },
+  });
 }
+
+protected readonly event = event;
+} 

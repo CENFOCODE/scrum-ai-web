@@ -29,4 +29,12 @@
     padding-bottom: 20px;
     padding-top: -10px;
   }
+// Added styles for Google Sign-In button
+  .g_id_signin{
+    display: flex;
+    justify-content: center;
+    &:hover {
+      border-color: black;
+    }
+  }
 }
