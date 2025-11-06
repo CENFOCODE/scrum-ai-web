@@ -1,0 +1,86 @@
+<div id="csd-session" class="container-fluid py-3">
+  <div class="row">
+    <section id="csd-session-col" class="col-12">
+      <div id="csd-session-card" class="csd-card">
+
+        <!-- Header -->
+        <header id="csd-session-header" class="mb-3">
+          <h1 id="csd-title" class="mb-2">{{ selected().name }}</h1>
+          <p id="csd-intro" class="mb-0">
+            Lorem ipsum dolor sit amet consectetur adipiscing elit proin, et porttitor placerat vitae class sed curae vestibulum,
+            morbi dapibus rutrum nisi potenti id quis.
+          </p>
+        </header>
+
+        <div id="csd-grid" class="csd-grid">
+
+          <!-- Objectives -->
+          <div id="csd-objectives" class="csd-surface">
+            <h2 id="csd-objectives-title" class="mb-2">Objetivos</h2>
+            <p id="csd-objectives-text" class="mb-0">{{ selected().objectives }}</p>
+          </div>
+
+          <!-- Rol / difficulty -->
+          <div id="csd-options" class="csd-col">
+            <p id="csd-options-title" class="mb-2">
+              Antes de empezar, seleccione la dificultad y rol
+            </p>
+
+          <div id="csd-selects" class="csd-selects">
+          <!-- Difficulty -->
+          <mat-form-field id="csd-select-difficulty-ff" appearance="outline" class="csd-ff">
+          <mat-select
+            id="csd-select-difficulty"
+            [(ngModel)]="difficulty"
+            panelClass="csd-select-panel"
+            disableOptionCentering
+            placeholder="Dificultad">
+            <mat-option id="csd-opt-dif-1" [value]="'Fácil'">Principiante</mat-option>
+            <mat-option id="csd-opt-dif-2" [value]="'Media'">Intermedio</mat-option>
+            <mat-option id="csd-opt-dif-3" [value]="'Difícil'">Avanzado</mat-option>
+            </mat-select>
+            </mat-form-field>
+
+            <!-- Role -->
+            <mat-form-field id="csd-select-role-ff" appearance="outline" class="csd-ff">
+            <mat-select
+              id="csd-select-role"
+              [(ngModel)]="role"
+              panelClass="csd-select-panel"
+              disableOptionCentering
+              placeholder="Rol">
+              <mat-option id="csd-opt-role-1" [value]="'Scrum Master'">Scrum Master</mat-option>
+              <mat-option id="csd-opt-role-2" [value]="'Product Owner'">Product Owner</mat-option>
+              <mat-option id="csd-opt-role-3" [value]="'Developer'">Developer</mat-option>
+              <mat-option id="csd-opt-role-4" [value]="'Developer'">Stakeholder</mat-option>
+              </mat-select>
+              </mat-form-field>
+          </div>
+          </div>
+
+          <!-- Scene -->
+          <div id="csd-scenario" class="csd-surface">
+            <h2 id="csd-scenario-title" class="mb-2">Escenario</h2>
+            <p id="csd-scenario-text" class="mb-0">{{ selected().scenario }}</p>
+          </div>
+
+          <!-- Participants -->
+          <aside id="csd-participants" class="csd-surface">
+            <h2 id="csd-participants-title" class="mb-2">Participantes</h2>
+            <ul id="csd-participants-list" class="list-unstyled mb-0">
+              <li *ngFor="let it of selected().participants">{{ it }}</li>
+            </ul>
+          </aside>
+
+        </div>
+
+        <div id="csd-actions" class="d-flex justify-content-end mt-3">
+          <button id="csd-start-btn" class="primary-btn" type="button" (click)="start()">
+            Iniciar ceremonia
+          </button>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>

@@ -17,7 +17,7 @@ import { GiftsComponent } from './pages/gifts/gifts.component';
 import { LandingCenfoComponent } from './pages/landing-cenfo/landing-cenfo.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
-
+import { CreateSessionComponent } from './pages/create-session/create-session.component';
 
 export const routes: Routes = [
   {
@@ -48,6 +48,10 @@ export const routes: Routes = [
   {
     path: 'access-denied',
     component: AccessDeniedComponent,
+  },
+  {
+    path: 'create-session',
+    component: CreateSessionComponent,
   },
   {
     path: '',
