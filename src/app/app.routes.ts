@@ -18,6 +18,8 @@ import { CalculatorComponent } from './pages/calculator/calculator.component';
 import { GiftComponent } from './pages/gift/gift.component';
 import { GiftListGiftsComponent } from './pages/gift-list-gifts/gift-list-gifts.component';
 import { GiftsComponent } from './pages/gifts/gifts.component';
+import { WebsocketTestComponent } from './components/websocketTest/websocketTestComponent';
+import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 
 
 export const routes: Routes = [
@@ -166,7 +168,35 @@ export const routes: Routes = [
           name: 'Gifts',
           showInSidebar: true
         }
-      }
+      },
+      {
+        path: 'websocketTest',
+        component: WebsocketTestComponent,
+        data: { 
+          authorities: [
+            IRoleType.admin, 
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'WebSocket Test',
+          showInSidebar: false // si no querés que aparezca en el menú lateral
+        }
+      },
+      {
+        path: 'videoRoom',
+        component: VideoRoomComponent,
+        data: { 
+          authorities: [
+            IRoleType.admin, 
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'Video Room',
+          showInSidebar: false
+        }
+}
+
+
     ],
   },
 ];

@@ -1,0 +1,21 @@
+<div class="chat-container">
+  <h2>Scrum AI 💬</h2>
+
+  <div class="messages">
+    <div *ngFor="let msg of messages" [ngClass]="msg.from === 'Usuario' ? 'user' : 'ai'">
+      <strong>{{ msg.from }}:</strong> {{ msg.prompt }}
+    </div>
+  </div>
+
+  <div class="input-area">
+    <input
+      #userInput
+      type="text"
+      placeholder="Escribe tu pregunta..."
+      (keyup.enter)="sendMessage(userInput)"
+    />
+    <button (click)="sendMessage(userInput)" [disabled]="loading">
+      {{ loading ? 'Enviando...' : 'Enviar' }}
+    </button>
+  </div>
+</div>

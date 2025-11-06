@@ -1,0 +1,22 @@
+<div class="p-4">
+  <h2 class="text-xl font-semibold mb-2">Sala: {{ room || 'Ninguna' }}</h2>
+  <h3 class="text-sm mb-4">Usuario: {{ username }} ({{ role || 'Sin rol' }})</h3>
+
+  <div class="flex gap-2 mb-4">
+    <button (click)="createRoom()" class="px-3 py-1 bg-green-600 text-white rounded">Crear sala</button>
+    <button (click)="joinRoom()" class="px-3 py-1 bg-blue-600 text-white rounded">Unirse</button>
+    <button (click)="inviteUser()" class="px-3 py-1 bg-yellow-500 text-white rounded">Invitar</button>
+    <button (click)="endCall()" class="px-3 py-1 bg-red-600 text-white rounded">Finalizar</button>
+  </div>
+
+  <div class="grid grid-cols-3 gap-3">
+    <div>
+      <p class="text-sm text-center">Tú</p>
+      <video id="localVideo" autoplay playsinline muted class="w-full rounded"></video>
+    </div>
+
+    <div id="remoteContainer" class="col-span-2 grid grid-cols-2 gap-3">
+      <!-- Los videos remotos se agregan aquí dinámicamente -->
+    </div>
+  </div>
+</div>
