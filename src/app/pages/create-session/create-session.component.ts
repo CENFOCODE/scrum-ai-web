@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { RoleService } from '../../services/role.service';
+import { MatInputModule } from '@angular/material/input';
 
 type CeremonyKey = 'daily' | 'sprint-planning' | 'review' | 'retrospective';
 interface Ceremony {
@@ -35,7 +36,7 @@ interface Notice {
 @Component({
   selector: 'app-create-session',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatFormFieldModule, MatSelectModule],
+  imports: [CommonModule, FormsModule, MatFormFieldModule, MatSelectModule, MatInputModule],
   templateUrl: './create-session.component.html',
   styleUrls: ['./create-session.component.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -48,6 +49,7 @@ export class CreateSessionComponent {
 
   difficulty = signal<string>('');
   role = signal<number | null>(null);
+  inviteEmail = signal<string>('');
 
   roles = computed(() => this.roleService.roles$());
 

@@ -60,6 +60,13 @@
                 </mat-select>
               </mat-form-field>
             </div>
+            <!-- Email para invitar -->
+            <div class="mt-2">
+              <p class="invite-label">Invita a tu equipo</p>
+              <mat-form-field id="csd-invite-email-ff" appearance="outline" class="csd-ff">
+                <input matInput placeholder="Email" type="email" [(ngModel)]="inviteEmail" name="inviteEmail" />
+              </mat-form-field>
+            </div>
           </div>
 
           <!-- Scene -->
