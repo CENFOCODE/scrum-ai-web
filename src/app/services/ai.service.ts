@@ -5,22 +5,55 @@ import { BaseService } from './base-service';
 import { IAIResponse, IResponse } from '../interfaces';
 
 /**
- * Servicio Angular que conecta con el backend Spring Boot para enviar prompts a la IA (Groq).
+ * Servicio encargado de comunicarse con el backend para enviar prompts a la IA (Groq).
+ *
+ * Este servicio usa `BaseService`, lo cual permite:
+ *  - Construir automáticamente la URL base (`/ai`)
+ *  - Usar métodos dinámicos como `addCustomSource()`
+ *  - Estandarizar la estructura de respuesta IResponse<T>
+ *
+ * RELACIÓN CON EL BACKEND:
+ * ------------------------
+ * El backend expone el endpoint:
+ *
+ *    POST /ai/ask
+ *
+ * que procesa:
+ *    { prompt: string }
+ *
+ * y responde:
+ *    { answer: string }
+ *
+ * USO TÍPICO EN UN COMPONENTE:
+ * ----------------------------
+ * this.aiService.askAI({ prompt: this.input }).subscribe(res => {
+ *     this.feedback = res.data.answer;
+ * });
+ *
+ * DONDE SE USA:
+ * -------------
+ * - En las ceremonias: Daily, Planning, Retro, Review…
+ * - En pantallas de entrenamiento del Scrum Team
  */
 @Injectable({
   providedIn: 'root'
 })
 export class AiService extends BaseService<IAIResponse> {
+
+  /** Endpoint raíz del backend para IA → /ai */
   protected override source: string = 'ai';
 
   /**
-   * Envía un prompt al backend y retorna la respuesta de la IA.
-   * @param prompt Texto del usuario
-   * @returns Observable<string> Respuesta de la IA
+   * Envía un prompt al backend y retorna la respuesta generada por Groq.
+   *
+   * @param body Objeto que contiene el campo `prompt` enviado al modelo.
+   * @returns Observable con la estructura estándar del backend:
+   *          {
+   *            message: string,
+   *            data: { answer: string }
+   *          }
    */
-    askAI(body:{prompt: string}): Observable<IResponse<IAIResponse>> {
-        return this.addCustomSource("ask", body);
-
-    }
+  askAI(body: { prompt: string }): Observable<IResponse<IAIResponse>> {
+    return this.addCustomSource("ask", body);
+  }
 }
-

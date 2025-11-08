@@ -1,13 +1,20 @@
+/* ---------------------------------------------------------
+   CONTENEDOR PRINCIPAL DEL CHAT
+---------------------------------------------------------- */
 .chat-container {
   max-width: 600px;
   margin: 40px auto;
   padding: 20px;
-  background: #1c3b44;
+  background: #1c3b44; /* Azul petróleo */
   border-radius: 16px;
   color: #fff;
   font-family: Poppins, sans-serif;
 }
 
+/* ---------------------------------------------------------
+   CONTENEDOR DE MENSAJES
+   Fondo más oscuro + scroll
+---------------------------------------------------------- */
 .messages {
   background: #17323a;
   border-radius: 10px;
@@ -17,16 +24,25 @@
   overflow-y: auto;
 }
 
+/* ---------------------------------------------------------
+   MENSAJES DEL USUARIO
+---------------------------------------------------------- */
 .user {
   text-align: right;
-  color: #e36a5a;
+  color: #e36a5a; /* Coral */
 }
 
+/* ---------------------------------------------------------
+   MENSAJES DE LA IA
+---------------------------------------------------------- */
 .ai {
   text-align: left;
-  color: #a4a83a;
+  color: #a4a83a; /* Verde oliva */
 }
 
+/* ---------------------------------------------------------
+   INPUT + BOTÓN
+---------------------------------------------------------- */
 .input-area {
   display: flex;
   gap: 10px;
@@ -40,6 +56,9 @@ input {
   outline: none;
 }
 
+/* ---------------------------------------------------------
+   BOTÓN DE ENVÍO
+---------------------------------------------------------- */
 button {
   padding: 10px 20px;
   border: none;

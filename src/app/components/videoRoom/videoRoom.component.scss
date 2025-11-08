@@ -1,10 +1,24 @@
+/* ---------------------------------------------------------
+   CONTENEDOR DEL VIDEO
+   ---------------------------------------------------------
+   - Representa cada cuadro de video local o remoto.
+   - Tamaño fijo para layout consistente.
+   - object-fit: cover → asegura que el video no se deforme.
+--------------------------------------------------------- */
 .video-box {
   width: 100%;
   height: 300px;
-  background-color: #222;
-  border-radius: 10px;
-  object-fit: cover;
+  background-color: #222;      /* Fondo oscuro cuando no hay video */
+  border-radius: 10px;         /* Bordes suaves */
+  object-fit: cover;           /* Evita distorsión en cámaras */
 }
+
+/* ---------------------------------------------------------
+   BOTONES DE ACCIÓN (crear sala, unirse, invitar, finalizar)
+   ---------------------------------------------------------
+   - Peso de fuente elevado para mejor legibilidad.
+   - Mantiene la coherencia con tu identidad visual.
+--------------------------------------------------------- */
 button {
   font-weight: 500;
 }
