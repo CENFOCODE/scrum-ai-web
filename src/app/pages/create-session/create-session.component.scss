@@ -226,3 +226,55 @@ $cardBorder: rgba(28, 56, 68, 0.08);
     flex-wrap: wrap;
   }
 }
+
+/* Estilos Material dropdowns Create-session*/
+:root {
+  --csd-petroleo: #1C3844;
+}
+
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-label-text-color: var(--csd-petroleo);
+  --mdc-outlined-text-field-hover-label-text-color: var(--csd-petroleo);
+  --mdc-outlined-text-field-focus-label-text-color: var(--csd-petroleo);
+
+  --mdc-outlined-text-field-outline-color: var(--csd-petroleo);
+  --mdc-outlined-text-field-hover-outline-color: var(--csd-petroleo);
+  --mdc-outlined-text-field-focus-outline-color: var(--csd-petroleo);
+
+  --mdc-outlined-text-field-input-text-color: var(--csd-petroleo);
+  --mdc-theme-text-primary-on-background: var(--csd-petroleo);
+}
+
+.mat-mdc-input-element,
+.mat-mdc-input-element::placeholder,
+.mat-mdc-select-min-line,
+.mat-mdc-select-placeholder,
+.mdc-floating-label,
+.mdc-floating-label--float-above {
+  color: var(--csd-petroleo) !important;
+  opacity: 1;
+  font-weight: 500;
+}
+
+/* Arrow */
+.mat-mdc-select-arrow,
+.mat-mdc-select-arrow svg {
+  color: var(--csd-petroleo) !important;
+  fill: var(--csd-petroleo) !important;
+}
+
+.mat-mdc-select-trigger {
+  color: var(--csd-petroleo) !important;
+}
+
+/* Opciones dropdown */
+.cdk-overlay-container .mat-mdc-select-panel .mat-mdc-option,
+.cdk-overlay-container .mat-mdc-select-panel .mat-mdc-option .mdc-list-item__primary-text {
+  color: var(--csd-petroleo) !important;
+}
+
+.cdk-overlay-container .mat-mdc-select-panel .mat-mdc-option:hover,
+.cdk-overlay-container .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected {
+  background: color-mix(in srgb, var(--csd-petroleo) 10%, white) !important;
+  color: var(--csd-petroleo) !important;
+}
