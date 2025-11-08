@@ -2,11 +2,6 @@ body {
   background-color: #f8f9fa;
 }
 
-.backlog-container {
-  max-width: 1048px;
-  max-height: 843px;
-}
-
 a {
   color: #1C3B44;
   font-size: 13px;
@@ -15,8 +10,6 @@ a {
 .card {
   border: none;
   border-radius: 10px;
-  max-width: 1048px;
-  max-height: 843px;
 }
 ::ng-deep .p-breadcrumb {
   border: transparent;
