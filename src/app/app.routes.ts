@@ -82,6 +82,20 @@ export const routes: Routes = [
         }
       },
       {
+  path: 'create-session',
+  component: CreateSessionComponent,
+  data: {
+    authorities: [
+      IRoleType.admin,
+      IRoleType.superAdmin,
+      IRoleType.user,
+    ],
+    name: 'Create session',
+    showInSidebar: true
+  }
+},
+
+      {
         path: 'dashboard',
         component: DashboardComponent,
         data: { 

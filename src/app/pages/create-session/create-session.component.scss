@@ -3,6 +3,56 @@ $arena: #EBE4DA;
 $coral: #D26A5D;
 $cardBorder: rgba(28, 56, 68, 0.08);
 
+/*  Notificaciones   */
+.csd-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  color: #fff;
+
+  .csd-notice__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+  }
+
+  .csd-notice__text {
+    flex: 1 1 auto;
+  }
+
+  .csd-notice__close {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: opacity .15s ease-in-out;
+  }
+  .csd-notice__close:hover { opacity: .85; }
+}
+
+.csd-notice--success {
+  background: #9AA23B;
+  box-shadow: 0 2px 0 rgba(0,0,0,.08) inset;
+}
+
+.csd-notice--warning {
+  background: $coral;
+  box-shadow: 0 2px 0 rgba(0,0,0,.08) inset;
+}
+
+.csd-notice--error {
+  background: #4A1E1A;
+  box-shadow: 0 2px 0 rgba(0,0,0,.1) inset;
+}
 
 /* Container */
 #csd-session-card.csd-card {
