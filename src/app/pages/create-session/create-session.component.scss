@@ -1,0 +1,280 @@
+$petroleo: #1C3844;
+$arena: #EBE4DA;
+$coral: #D26A5D;
+$cardBorder: rgba(28, 56, 68, 0.08);
+
+/*  Notificaciones   */
+.csd-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  color: #fff;
+
+  .csd-notice__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+  }
+
+  .csd-notice__text {
+    flex: 1 1 auto;
+  }
+
+  .csd-notice__close {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: opacity .15s ease-in-out;
+  }
+  .csd-notice__close:hover { opacity: .85; }
+}
+
+.csd-notice--success {
+  background: #9AA23B;
+  box-shadow: 0 2px 0 rgba(0,0,0,.08) inset;
+}
+
+.csd-notice--warning {
+  background: $coral;
+  box-shadow: 0 2px 0 rgba(0,0,0,.08) inset;
+}
+
+.csd-notice--error {
+  background: #4A1E1A;
+  box-shadow: 0 2px 0 rgba(0,0,0,.1) inset;
+}
+
+/* Container */
+#csd-session-card.csd-card {
+  background: #fff;
+  border: 1px solid $cardBorder;
+  border-radius: .5rem;
+  padding: 28px 28px 20px;
+  max-width: 1140px;
+  margin: 0 auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+#csd-session-header { display: block; }
+#csd-title { color: $petroleo; }
+
+.csd-surface {
+  background: #D9D9D9;
+  border: 1px solid $cardBorder;
+  border-radius: .5rem;
+  padding: 18px;
+}
+.csd-surface--compact { padding: 14px; }
+
+/* Grid */
+#csd-grid.csd-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  column-gap: 24px;
+  row-gap: 16px;
+
+  #csd-objectives   { grid-column: 1; grid-row: 1; }
+  #csd-options      { grid-column: 2; grid-row: 1; background:#fff; border:none; }
+  #csd-scenario     { grid-column: 1; grid-row: 2; }
+  #csd-participants { grid-column: 2; grid-row: 2; }
+}
+
+/* Role / Difficulty */
+
+:host {
+  --csd-petroleo: #1C3844;
+  --csd-coral: #D26A5D;
+}
+
+:host ::ng-deep .csd-ff .mat-mdc-form-field-focus-overlay {
+  background: transparent !important;
+  opacity: 0 !important;
+  box-shadow: none !important;
+}
+:host ::ng-deep .csd-ff .mdc-text-field--outlined.mdc-text-field--focused {
+  box-shadow: none !important;
+  outline: none !important;
+}
+:host ::ng-deep .csd-ff .mdc-text-field--focused .mdc-notched-outline {
+  border-color: var(--csd-petroleo) !important;
+  box-shadow: none !important;
+}
+:host ::ng-deep .csd-ff .mdc-notched-outline__leading,
+:host ::ng-deep .csd-ff .mdc-notched-outline__notch,
+:host ::ng-deep .csd-ff .mdc-notched-outline__trailing {
+  border-color: var(--csd-petroleo) !important;
+}
+
+#csd-options #csd-selects {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px; 
+}
+
+/* Arrow */
+:host ::ng-deep .csd-ff .mat-mdc-select-arrow svg {
+  fill: var(--csd-petroleo) !important;
+}
+
+:host ::ng-deep .csd-ff .mat-mdc-select-min-line,
+:host ::ng-deep .csd-ff .mat-mdc-select-placeholder,
+:host ::ng-deep .csd-ff .mdc-floating-label,
+:host ::ng-deep .csd-ff .mdc-floating-label--float-above {
+  color: var(--csd-petroleo) !important;
+  font-weight: 500;
+  opacity: 1 !important;
+}
+
+/* Dropdown */
+:host ::ng-deep .cdk-overlay-container .csd-select-panel.mdc-menu-surface {
+  border: 1px solid color-mix(in srgb, var(--csd-petroleo) 25%, transparent) !important;
+  background: #fff !important;
+  border-radius: 10px !important;
+  padding: 6px 0 !important;
+  box-shadow:
+    0 10px 24px rgba(0,0,0,.10),
+    0  2px  8px rgba(0,0,0,.06) !important;
+}
+
+/* Dropdown */
+:host ::ng-deep .cdk-overlay-container .csd-select-panel .mat-mdc-option,
+:host ::ng-deep .cdk-overlay-container .csd-select-panel .mat-mdc-option .mdc-list-item__primary-text {
+  color: var(--csd-petroleo) !important;
+}
+
+/* States */
+:host ::ng-deep .cdk-overlay-container .csd-select-panel
+  .mat-mdc-option.mdc-list-item--selected .mdc-list-item__primary-text,
+:host ::ng-deep .cdk-overlay-container .csd-select-panel
+  .mat-mdc-option.mdc-list-item--activated .mdc-list-item__primary-text,
+:host ::ng-deep .cdk-overlay-container .csd-select-panel
+  .mat-mdc-option:hover .mdc-list-item__primary-text,
+:host ::ng-deep .cdk-overlay-container .csd-select-panel
+  .mat-mdc-option:focus .mdc-list-item__primary-text,
+:host ::ng-deep .cdk-overlay-container .csd-select-panel
+  .mat-mdc-option.mat-mdc-option-active .mdc-list-item__primary-text {
+  color: var(--csd-petroleo) !important;
+}
+
+:host ::ng-deep .cdk-overlay-container .csd-select-panel .mat-mdc-option.mdc-list-item--selected,
+:host ::ng-deep .cdk-overlay-container .csd-select-panel .mat-mdc-option.mdc-list-item--activated,
+:host ::ng-deep .cdk-overlay-container .csd-select-panel .mat-mdc-option:hover,
+:host ::ng-deep .cdk-overlay-container .csd-select-panel .mat-mdc-option.mat-mdc-option-active {
+  background: color-mix(in srgb, var(--csd-arena) 15%, transparent) !important;
+  color: var(--csd-petroleo) !important;
+}
+
+:host ::ng-deep .cdk-overlay-container .csd-select-panel .mat-mdc-option[aria-disabled="true"] {
+  color: color-mix(in srgb, var(--csd-petroleo) 55%, white) !important;
+  background: transparent !important;
+}
+
+:host ::ng-deep .cdk-overlay-container .csd-select-panel .mat-mdc-option:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Participants */
+#csd-participants {
+  #csd-participants-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      position: relative;
+      padding-left: 18px;
+      line-height: 1.6;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: $coral;
+      }
+    }
+  }
+}
+
+#csd-actions {
+  margin-top: 20px;
+}
+
+@media (max-width: 991.98px) {
+  #csd-grid.csd-grid {
+    grid-template-columns: 1fr;
+  }
+  #csd-options #csd-selects {
+    flex-wrap: wrap;
+  }
+}
+
+/* Estilos Material dropdowns Create-session*/
+:root {
+  --csd-petroleo: #1C3844;
+}
+
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-label-text-color: var(--csd-petroleo);
+  --mdc-outlined-text-field-hover-label-text-color: var(--csd-petroleo);
+  --mdc-outlined-text-field-focus-label-text-color: var(--csd-petroleo);
+
+  --mdc-outlined-text-field-outline-color: var(--csd-petroleo);
+  --mdc-outlined-text-field-hover-outline-color: var(--csd-petroleo);
+  --mdc-outlined-text-field-focus-outline-color: var(--csd-petroleo);
+
+  --mdc-outlined-text-field-input-text-color: var(--csd-petroleo);
+  --mdc-theme-text-primary-on-background: var(--csd-petroleo);
+}
+
+.mat-mdc-input-element,
+.mat-mdc-input-element::placeholder,
+.mat-mdc-select-min-line,
+.mat-mdc-select-placeholder,
+.mdc-floating-label,
+.mdc-floating-label--float-above {
+  color: var(--csd-petroleo) !important;
+  opacity: 1;
+  font-weight: 500;
+}
+
+/* Arrow */
+.mat-mdc-select-arrow,
+.mat-mdc-select-arrow svg {
+  color: var(--csd-petroleo) !important;
+  fill: var(--csd-petroleo) !important;
+}
+
+.mat-mdc-select-trigger {
+  color: var(--csd-petroleo) !important;
+}
+
+/* Opciones dropdown */
+.cdk-overlay-container .mat-mdc-select-panel .mat-mdc-option,
+.cdk-overlay-container .mat-mdc-select-panel .mat-mdc-option .mdc-list-item__primary-text {
+  color: var(--csd-petroleo) !important;
+}
+
+.cdk-overlay-container .mat-mdc-select-panel .mat-mdc-option:hover,
+.cdk-overlay-container .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected {
+  background: color-mix(in srgb, var(--csd-petroleo) 10%, white) !important;
+  color: var(--csd-petroleo) !important;
+}

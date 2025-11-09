@@ -19,6 +19,8 @@ import { LandingPageComponent } from './pages/landing-page/landing-page.componen
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
 import { WebsocketTestComponent } from './components/websocketTest/websocketTestComponent';
 import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
+import { CreateSessionComponent } from './pages/create-session/create-session.component';
+import { ScenarioComponent } from './pages/scenario/scenario.component';
 
 
 export const routes: Routes = [
@@ -52,6 +54,10 @@ export const routes: Routes = [
     component: AccessDeniedComponent,
   },
   {
+    path: 'create-session',
+    component: CreateSessionComponent,
+  },
+  {
     path: '',
     redirectTo: 'landingpage',
     pathMatch: 'full',
@@ -79,6 +85,20 @@ export const routes: Routes = [
           showInSidebar: true
         }
       },
+      {
+  path: 'create-session',
+  component: CreateSessionComponent,
+  data: {
+    authorities: [
+      IRoleType.admin,
+      IRoleType.superAdmin,
+      IRoleType.user,
+    ],
+    name: 'Create session',
+    showInSidebar: true
+  }
+},
+
       {
         path: 'dashboard',
         component: DashboardComponent,
@@ -132,6 +152,19 @@ export const routes: Routes = [
             IRoleType.user,
           ],
           name: 'Gifts',
+          showInSidebar: true
+        }
+      },
+       {
+        path: 'scenario',
+        component: ScenarioComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'Scenario',
           showInSidebar: true
         }
       },
