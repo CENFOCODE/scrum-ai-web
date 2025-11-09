@@ -1,100 +1,133 @@
-<div class="logo-wrapper">
-  <a routerLink="/">
-    <img
-      class="img-fluid"
-      src="../../../../../assets/icons/logo@2x.png"
-      width="50"
-      alt="Logo"
-    />
-  </a>
+<!--<div class="logo-wrapper">-->
+<!--  <a routerLink="/">-->
+<!--    <img-->
+<!--      class="img-fluid"-->
+<!--      src="../../../../../assets/icons/logo@2x.png"-->
+<!--      width="50"-->
+<!--      alt="Logo"-->
+<!--    />-->
+<!--  </a>-->
 
-  <div class="back-btn" (click)="layoutService.toggleSidebar()">
-    <i class="fa-solid fa-arrow-left"></i>
-  </div>
+<!--  <div class="back-btn" (click)="layoutService.toggleSidebar()">-->
+<!--    <i class="fa-solid fa-arrow-left"></i>-->
+<!--  </div>-->
 
-  <div class="toggle-sidebar" (click)="layoutService.toggleSidebar()">
-    <i class="fa-solid fa fa-thumb-tack"></i>
-  </div>
-</div>
+<!--  <div class="toggle-sidebar" (click)="layoutService.toggleSidebar()">-->
+<!--    <i class="fa-solid fa fa-thumb-tack"></i>-->
+<!--  </div>-->
+<!--</div>-->
 
-<div class="logo-icon-wrapper">
-  <a href="javascript:void(0)">
-    <img
-      class="img-fluid"
-      src="../../../../../assets/icons/logo@2x.png"
-      width="35"
-      alt=""
-    />
-  </a>
-</div>
+<!--<div class="logo-icon-wrapper">-->
+<!--  <a href="javascript:void(0)">-->
+<!--    <img-->
+<!--      class="img-fluid"-->
+<!--      src="../../../../../assets/icons/logo@2x.png"-->
+<!--      width="35"-->
+<!--      alt=""-->
+<!--    />-->
+<!--  </a>-->
+<!--</div>-->
 
-<nav class="sidebar-main">
-  <div
-    id="left-arrow"
-    class="left-arrow"
-    [ngClass]="{ 'd-none': !showLeftArrow }"
-  >
-    <!-- <app-feather-icon icon="arrow-left"></app-feather-icon> -->
-  </div>
+<!--<nav class="sidebar-main">-->
+<!--  <div-->
+<!--    id="left-arrow"-->
+<!--    class="left-arrow"-->
+<!--    [ngClass]="{ 'd-none': !showLeftArrow }"-->
+<!--  >-->
+<!--    &lt;!&ndash; <app-feather-icon icon="arrow-left"></app-feather-icon> &ndash;&gt;-->
+<!--  </div>-->
 
-  <div id="sidebar-menu" style="margin-left: 0px">
-    <ul class="sidebar-links custom-scrollbar">
-      <div class="simplebar-wrapper">
-        <div class="simplebar-mask">
-          <div class="simplebar-offset">
-            <div class="simplebar-content-wrapper">
-              <div class="simplebar-content">
-                <li class="back-btn">
-                  <a href="javascript:void(0)">
-                    <img
-                      class="img-fluid"
-                      src="../../../../../assets/img/login/login-bg.jpg"
-                      alt="Logo"
-                    />
-                  </a>
+<!--  <div id="sidebar-menu" style="margin-left: 0px">-->
+<!--    <ul class="sidebar-links custom-scrollbar">-->
+<!--      <div class="simplebar-wrapper">-->
+<!--        <div class="simplebar-mask">-->
+<!--          <div class="simplebar-offset">-->
+<!--            <div class="simplebar-content-wrapper">-->
+<!--              <div class="simplebar-content">-->
+<!--                <li class="back-btn">-->
+<!--                  <a href="javascript:void(0)">-->
+<!--&lt;!&ndash;                    <img&ndash;&gt;-->
+<!--&lt;!&ndash;                      class="img-fluid"&ndash;&gt;-->
+<!--&lt;!&ndash;                      src="../../../../../assets/img/login/login-bg.jpg"&ndash;&gt;-->
+<!--&lt;!&ndash;                      alt="Logo"&ndash;&gt;-->
+<!--&lt;!&ndash;                    />&ndash;&gt;-->
+<!--                  </a>-->
 
-                  <div
-                    class="mobile-back text-end"
-                    (click)="layoutService.toggleSidebar()"
-                  >
-                    <span>Atrás</span>
-                    <i class="fa fa-angle-right ps-2" ></i>
-                  </div>
-                </li>
+<!--                  <div-->
+<!--                    class="mobile-back text-end"-->
+<!--                    (click)="layoutService.toggleSidebar()"-->
+<!--                  >-->
+<!--                    <span>Atrás</span>-->
+<!--                    <i class="fa fa-angle-right ps-2" ></i>-->
+<!--                  </div>-->
+<!--                </li>-->
 
-                <li class="sidebar-main-title">
-                  <div>
-                    <h6>General</h6>
-                  </div>
-                </li>
+<!--                <li class="sidebar-main-title">-->
+<!--                  <div>-->
+<!--                    <h6>General</h6>-->
+<!--                  </div>-->
+<!--                </li>-->
 
-                @for (route of permittedRoutes; track $index) {
-                  @if (route.data && route.data['showInSidebar']) {
-                  <li class="sidebar-list">
-                    <a
-                      routerLink="{{route.path}}"
-                      routerLinkActive="active"
-                      class="sidebar-link sidebar-title"
-                    >
-                        <span>{{route.data['name']}}</span>
-                      </a>
-                    </li>
-                  }
-                }
+<!--                @for (route of permittedRoutes; track $index) {-->
+<!--                  @if (route.data && route.data['showInSidebar']) {-->
+<!--                  <li class="sidebar-list">-->
+<!--                    <a-->
+<!--                      routerLink="{{route.path}}"-->
+<!--                      routerLinkActive="active"-->
+<!--                      class="sidebar-link sidebar-title"-->
+<!--                    >-->
+<!--                        <span>{{route.data['name']}}</span>-->
+<!--                      </a>-->
+<!--                    </li>-->
+<!--                  }-->
+<!--                }-->
 
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </ul>
-  </div>
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </ul>-->
+<!--  </div>-->
 
-  <div
-    class="right-arrow"
-    id="right-arrow"
-    [ngClass]="{ 'd-none': !showRigthArrow }"
-  >
-    <!-- <app-feather-icon icon="arrow-right"></app-feather-icon> -->
-  </div>
+<!--  <div-->
+<!--    class="right-arrow"-->
+<!--    id="right-arrow"-->
+<!--    [ngClass]="{ 'd-none': !showRigthArrow }"-->
+<!--  >-->
+<!--    &lt;!&ndash; <app-feather-icon icon="arrow-right"></app-feather-icon> &ndash;&gt;-->
+<!--  </div>-->
+<!--</nav>-->
+
+<nav class="sidebar" [class.closed]="!visible">
+
+  <button class="sidebar-toggle" (click)="toggle.emit()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-layout-sidebar" viewBox="0 0 16 16">
+      <path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5-1v12h9a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zM4 2H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h2z"/>
+    </svg>
+  </button>
+
+  <ul class="menu">
+    <li>
+<!--      <i class="fa-solid fa-pen-to-square"></i>-->
+      <span class="label">Crear sesión</span>
+    </li>
+    <li>
+<!--      <i class="fa-solid fa-pen-to-square"></i>-->
+      <span class="label">Historial de sesiones</span>
+    </li>
+
+    <div class="px-3">
+      <p-divider layout="horizontal" align="center"></p-divider>
+    </div>
+
+    <li>
+      <span class="label">Sesiones pausadas</span>
+    </li>
+  </ul>
+
 </nav>
+
+
+
+

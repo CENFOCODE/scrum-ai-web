@@ -124,6 +124,20 @@ p {
   color: white;
 }
 
+.my-user-menu .p-menuitem-link {
+  text-decoration: none !important;
+  //border-radius: 6px;
+}
+
+.my-user-menu .p-menuitem-link:hover {
+  background: #EBE4DA !important;
+}
+
+ul {
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
   margin: 0;

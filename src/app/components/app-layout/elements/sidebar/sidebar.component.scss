@@ -1,0 +1,49 @@
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  top: 56px;
+  bottom: 0;
+  width: 240px;
+  background: #fff;
+  transition: width .3s ease;
+  padding-top: 40px; // Para que no tape el topbar visualmente
+
+
+  .menu li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    cursor: pointer;
+    white-space: nowrap; // evita que el texto haga wrap
+  }
+
+  &.closed {
+    width: 60px;
+
+    .menu li {
+      justify-content: center; // centra solo los íconos
+    }
+
+    .menu .label {
+      display: none; // ← ← ← oculta el texto!
+    }
+  }
+}
+
+.sidebar.closed {
+  width: 60px;
+}
+
+.sidebar-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  color: #1C3B44;
+}

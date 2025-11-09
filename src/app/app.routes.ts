@@ -30,15 +30,15 @@ export const routes: Routes = [
     component: LandingCenfoComponent,
     canActivate: [GuestGuard],
   },
-  {
-    path: 'login',
-    component: LoginComponent,
-    canActivate: [GuestGuard],
-  },
+  // {
+  //   path: 'login',
+  //   component: LoginComponent,
+  //   // canActivate: [GuestGuard],
+  // },
   {
     path: 'signup',
     component: SigUpComponent,
-    canActivate: [GuestGuard],
+    // canActivate: [GuestGuard],
   },
     {
     path: 'forgot-password',
@@ -57,7 +57,7 @@ export const routes: Routes = [
   {
     path: 'app',
     component: AppLayoutComponent,
-    canActivate: [AuthGuard],
+    // canActivate: [GuestGuard],
     children: [
       {
         path: 'app',
@@ -67,12 +67,12 @@ export const routes: Routes = [
       {
         path: 'users',
         component: UsersComponent,
-        canActivate:[AdminRoleGuard],
+        // canActivate:[AdminRoleGuard],
         data: { 
-          authorities: [
-            IRoleType.admin, 
-            IRoleType.superAdmin
-          ],
+          // authorities: [
+          //   IRoleType.admin,
+          //   IRoleType.superAdmin
+          // ],
           name: 'Users',
           showInSidebar: true
         }
@@ -81,11 +81,11 @@ export const routes: Routes = [
         path: 'dashboard',
         component: DashboardComponent,
         data: { 
-          authorities: [
-            IRoleType.admin, 
-            IRoleType.superAdmin,
-            IRoleType.user
-          ],
+          // authorities: [
+          //   IRoleType.admin,
+          //   IRoleType.superAdmin,
+          //   IRoleType.user
+          // ],
           name: 'Dashboard',
           showInSidebar: true
         }
@@ -94,11 +94,11 @@ export const routes: Routes = [
         path: 'profile',
         component: ProfileComponent,
         data: { 
-          authorities: [
-            IRoleType.admin, 
-            IRoleType.superAdmin,
-            IRoleType.user
-          ],
+          // authorities: [
+          //   IRoleType.admin,
+          //   IRoleType.superAdmin,
+          //   IRoleType.user
+          // ],
           name: 'profile',
           showInSidebar: false
         }

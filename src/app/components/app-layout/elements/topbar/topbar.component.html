@@ -1,25 +1,47 @@
-<div class="page-header" [ngClass]="{ close_icon: !layoutService.sidebarOpen }">
-  <div class="header-wrapper row m-0">
-    <div class="header-logo-wrapper col-auto p-0">
-      <div class="logo-wrapper">
-        <a routerLink="/">
-          <img class="img-fluid" src="../../../../../assets/icons/logo@2x.png" alt="Logo" />
-        </a>
-      </div>
+<!--<div class="page-header" [ngClass]="{ close_icon: !layoutService.sidebarOpen }">-->
+<!--  <div class="header-wrapper row m-0">-->
+<!--    <div class="header-logo-wrapper col-auto p-0">-->
+<!--      <div class="logo-wrapper">-->
+<!--        <a routerLink="/">-->
+<!--          <img class="img-fluid" src="../../../../../assets/icons/logo@2x.png" alt="Logo" />-->
+<!--        </a>-->
+<!--      </div>-->
 
-      <div class="toggle-sidebar" (click)="layoutService.toggleSidebar()">
-        <i class="fa-solid fa-bars"></i>
-      </div>
-    </div>
+<!--      <div class="toggle-sidebar" (click)="layoutService.toggleSidebar()">-->
+<!--        <i class="fa-solid fa-bars"></i>-->
+<!--      </div>-->
+<!--    </div>-->
 
-    <div
-      class="nav-right col-xxl-7 col-xl-6 col-md-7 col-8 pull-right right-header p-0 ms-auto"
-    >
-      <ul class="nav-menus mb-0">
-        <li class="profile-nav onhover-dropdown pe-0 py-0">
-          <app-my-account></app-my-account>
-        </li>
-      </ul>
-    </div>
+<!--    <div-->
+<!--      class="nav-right col-xxl-7 col-xl-6 col-md-7 col-8 pull-right right-header p-0 ms-auto"-->
+<!--    >-->
+<!--      <ul class="nav-menus mb-0">-->
+<!--        <li class="profile-nav onhover-dropdown pe-0 py-0">-->
+<!--          <app-my-account></app-my-account>-->
+<!--        </li>-->
+<!--      </ul>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
+
+<header class="topbar d-flex justify-content-between align-items-center px-5">
+  <div class="d-flex align-items-center gap-3">
+    <span class="logo">Scrum AI</span>
   </div>
-</div>
+
+  <div class="d-flex align-items-center gap-4">
+    <i
+      class="pi pi-bell text-3xl"
+      pBadge
+      [badgeStyle]="{'background-color': '#D26A5D' }"
+    >
+    </i>
+    <p-avatar
+      icon="pi pi-user"
+      [style]="{ 'background-color': '#EBE4DA' }"
+      shape="circle"
+      (click)="menu.toggle($event)"
+    />
+    <p-menu #menu [model]="items" [popup]="true" styleClass="my-user-menu" />
+  </div>
+</header>
