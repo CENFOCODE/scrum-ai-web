@@ -17,6 +17,7 @@ import { GiftsComponent } from './pages/gifts/gifts.component';
 import { LandingCenfoComponent } from './pages/landing-cenfo/landing-cenfo.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
+import { CreateSessionComponent } from './pages/create-session/create-session.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
 
 
@@ -51,6 +52,10 @@ export const routes: Routes = [
     component: AccessDeniedComponent,
   },
   {
+    path: 'create-session',
+    component: CreateSessionComponent,
+  },
+  {
     path: '',
     redirectTo: 'landingpage',
     pathMatch: 'full',
@@ -78,6 +83,20 @@ export const routes: Routes = [
           showInSidebar: true
         }
       },
+      {
+  path: 'create-session',
+  component: CreateSessionComponent,
+  data: {
+    authorities: [
+      IRoleType.admin,
+      IRoleType.superAdmin,
+      IRoleType.user,
+    ],
+    name: 'Create session',
+    showInSidebar: true
+  }
+},
+
       {
         path: 'dashboard',
         component: DashboardComponent,
