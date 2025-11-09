@@ -76,12 +76,46 @@ export class LoginComponent {
   ngOnInit(): void {
     (window as any).handleCredentialResponse = (response: any) =>
       this.handleGoogleCredential(response);
+    console.log('Google callback set');
+    this.initializeGoogleSignIn();
+
   }
- public handleGoogleCredential(response: any): void {
-  if (!response?.credential) {
-    this.ngZone.run(() => {
-      this.loginError = 'No credential received from Google';
+
+  initializeGoogleSignIn(): void {
+    if ((window as any).google !== 'undefined') {
+       this.renderGoogleButton();
+    } else {
+      setTimeout(() => this.initializeGoogleSignIn(), 1000);
+  }
+}
+
+  renderGoogleButton(): void {
+    try{
+     
+    (window as any).google.accounts.id.initialize({
+      client_id:
+        '316836742682-8qljm4bfpqheogsg5eq7v96hl1gn4q65.apps.googleusercontent.com',
+      callback: (response: any) => this.handleGoogleCredential(response),
     });
+    (window as any).google.accounts.id.renderButton(
+      document.querySelector('.g_id_signin'),
+      { theme: 'outline', size: 'large' } 
+    );
+    }
+   catch (error) {
+      console.error('Error rendering Google button:', error);
+    }
+
+  }
+
+
+  
+
+  public handleGoogleCredential(response: any): void {
+    if (!response?.credential) {
+      this.ngZone.run(() => {
+        this.loginError = 'No credential received from Google';
+      });
     return;
   }
 

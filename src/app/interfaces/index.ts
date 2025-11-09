@@ -52,6 +52,17 @@ export interface IRole {
   updatedAt: string;
 }
 
+export interface IRole {
+  id: number;
+  name: string;
+}
+
+export interface IUserRoleAssign {
+  userId: number;
+  roleId: number;
+  simulationId?: number;
+}
+
 
 export interface IOrder {
   id?: number;
@@ -89,4 +100,23 @@ export interface IGift {
   createdAt?: string;
   updatedAt?: string;
   giftList?: IGiftList;
+}
+
+export interface ICeremony {
+  id?: number;
+  ceremonyType?: string;
+  startTime?: Date;
+  summary?: string;
+}
+
+export interface IScenario {
+  id?: number;
+  backlog?: string;
+  ceremonyType?: string;
+  description?: string;
+  difficultyLevel?: string;
+  estimatedDuration?: number;
+  goals?: string;
+  name?: string;
+  team?: string;
 }
