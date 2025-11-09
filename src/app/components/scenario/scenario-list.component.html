@@ -1,0 +1,24 @@
+<!--Por cada card hay un elemento de la lista de escenarios para esto hay que iterar en un ciclo for en card-title contiene el nombre del escenario, en text la descripción del escenario-->
+
+<div class="container-fluid">
+  <div class="row">
+    @for (scenario of scenarioList; track $index) {
+      <div class="col-12 col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <p class="card-title mb-0">{{ scenario.ceremonyType }}</p>
+              <p class="time mb-0">{{ scenario.estimatedDuration }}m</p>
+            </div>
+            <p class="card-text flex-grow-1">{{ scenario.description }}</p>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+<div class="containerButton">
+    <button type="button" class="btn btn-custom">Confirmar Selección</button>
+  
+</div>
+
