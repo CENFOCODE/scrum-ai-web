@@ -18,6 +18,7 @@ import { LandingCenfoComponent } from './pages/landing-cenfo/landing-cenfo.compo
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
 import { DailyComponent } from './pages/daily/daily.component';
+import { ScenarioComponent } from './pages/scenario/scenario.component';
 
 
 export const routes: Routes = [
@@ -144,6 +145,19 @@ export const routes: Routes = [
             IRoleType.user,
           ],
           name: 'Gifts',
+          showInSidebar: true
+        }
+      },
+       {
+        path: 'scenario',
+        component: ScenarioComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'Scenario',
           showInSidebar: true
         }
       }
