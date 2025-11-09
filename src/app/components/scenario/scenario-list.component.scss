@@ -25,5 +25,13 @@
         border-color: #A4A33A;
         box-shadow: 0 12px 16px rgba(134, 134, 86, 0.904);
     }
+    
+   
+    &.selected {
+        color: #EBE4DA;
+        background-color: #A4A33A;
+        border-color: #A4A33A;
+        box-shadow: 0 12px 16px rgba(134, 134, 86, 0.904);
+    }
 }
 

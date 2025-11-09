@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { Router, ActivatedRoute } from '@angular/router';
 import { RoleService } from '../../services/role.service';
 import { MatInputModule } from '@angular/material/input';
+import { IScenario } from '../../interfaces';
 
 type CeremonyKey = 'daily' | 'sprint-planning' | 'review' | 'retrospective';
 interface Ceremony {
@@ -43,6 +45,12 @@ interface Notice {
 })
 export class CreateSessionComponent {
   public roleService: RoleService = inject(RoleService);
+  private router: Router = inject(Router);
+  private route: ActivatedRoute = inject(ActivatedRoute);
+
+  // ID de la ceremonia seleccionada
+  scenarioId: number | null = null;
+  selectedScenario: IScenario | null = null;
 
   history: string[] = ['Daily', 'Sprint planning'];
   paused: string[] = ['Sprint planning', 'Daily', 'Retrospective'];
@@ -54,6 +62,20 @@ export class CreateSessionComponent {
   roles = computed(() => this.roleService.roles$());
 
   displayedCeremony = computed<Ceremony>(() => {
+    // Si hay un scenario seleccionado, usar sus datos
+    if (this.selectedScenario) {
+      return {
+        key: 'daily',
+        name: this.selectedScenario.ceremonyType || 'Ceremonia Seleccionada',
+        intro: this.selectedScenario.ceremonyType || 'Ceremonia seleccionada desde la lista',
+        short: '',
+        objectives: this.selectedScenario.goals || 'Sin objetivos definidos',
+        scenario: this.selectedScenario.description || 'Sin descripción disponible',
+        participants: ['Scrum Master', 'Product Owner', 'Development Team'],
+      };
+    }
+
+    // Fallback al comportamiento original
     const scr = this.roleService.scrum$();
     if (!scr) return defaultCeremony;
     return {
@@ -70,6 +92,21 @@ export class CreateSessionComponent {
   notice = signal<Notice | null>(null);
 
   constructor() {
+    // Obtener el scenario seleccionado del state de navegación
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.selectedScenario = navigation.extras.state['selectedScenario'];
+    }
+
+    // Obtener el ID de la ceremonia seleccionada
+    this.route.queryParams.subscribe(params => {
+      this.scenarioId = params['scenarioId'] ? Number(params['scenarioId']) : null;
+      
+      if (this.scenarioId) {
+        console.log('ID de ceremonia recibido:', this.scenarioId);
+      }
+    });
+    
     this.roleService.getScrumData();
   }
 
@@ -91,6 +128,7 @@ export class CreateSessionComponent {
       ceremony: this.displayedCeremony().name,
       difficulty: this.difficulty(),
       roleId: this.role(),
+      scenarioId: this.scenarioId
     });
   }
 
