@@ -17,8 +17,6 @@ export class ScenarioComponent {
 
     constructor() {
         this.scenarioService.getAll();
-        effect(() => {
-            console.log('scenarios updated', this.scenarioService.scenario$());
-        });
+        
     }
 }
