@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="row">
     <!-- Planning -->
-    <div class="col-12 col-md-6 col-lg-4 mb-4">
+    <div class="col-12 col-md-6 col-lg-6 mb-4">
       <div class="card h-100"
            [class.selected]="selectedScenario === 'Planning'"
            (click)="selectScenario('Planning')"
@@ -19,7 +19,7 @@
     </div>
 
     <!-- Daily -->
-    <div class="col-12 col-md-6 col-lg-4 mb-4">
+    <div class="col-12 col-md-6 col-lg-6 mb-4">
       <div class="card h-100"
            [class.selected]="selectedScenario === 'Daily'"
            (click)="selectScenario('Daily')"
@@ -37,7 +37,7 @@
     </div>
 
     <!-- Review -->
-    <div class="col-12 col-md-6 col-lg-4 mb-4">
+    <div class="col-12 col-md-6 col-lg-6 mb-4">
       <div class="card h-100"
            [class.selected]="selectedScenario === 'Review'"
            (click)="selectScenario('Review')"
@@ -55,7 +55,7 @@
     </div>
 
     <!-- Retrospective -->
-    <div class="col-12 col-md-6 col-lg-4 mb-4">
+    <div class="col-12 col-md-6 col-lg-6 mb-4">
       <div class="card h-100"
            [class.selected]="selectedScenario === 'Retrospective'"
            (click)="selectScenario('Retrospective')"
