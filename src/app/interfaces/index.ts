@@ -96,5 +96,5 @@ export interface IGift {
 
 export interface IAIResponse {
   answer?: string;
-  errorcito?: string;
+  error?: string;
 }
