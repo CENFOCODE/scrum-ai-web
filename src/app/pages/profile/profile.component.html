@@ -1,76 +1,85 @@
+<body class="bg-light">
+  <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh; padding: 40px 0;">
+    <div class="card shadow-sm border-0" style="width: 1180px; min-height: 805px;">
+      <div class="card-body p-5">
 
-<div class="row info-container">
-  <div class="col-6">
-    <div class="shadow-sm bg-body rounded px-4 py-4 h-100">
-      <div>
-        <i class="fa-solid fa-user-tie"></i>
-      </div>
-      <div class="border-bottom my-3">
-        <label>Name:</label>
-        <p>{{profileService.user$().name}}</p>
-      </div>
-      <div class="border-bottom my-3">
-        <label>Lastname:</label>
-        <p>{{profileService.user$().lastname}}</p>
-      </div>
-      <div class="border-bottom my-3">
-        <label>email:</label>
-        <p>{{profileService.user$().email}}</p>
-      </div>
-      <div class=" my-3">
-        <label>Last update:</label>
-        <p>{{profileService.user$().updatedAt | date:'dd/MM/YYYY'}}</p>
+        <div class="mb-4">
+          <h1 class="text-start mb-2">Perfil de usuario</h1>
+          <p class="text-start text-muted mb-0">Sobre ti</p>
+        </div>
+
+        <form (ngSubmit)="updateProfile()" autocomplete="off" #frm="ngForm">
+
+          <div class="example-container mb-3" style="max-width: 400px;">
+            <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'" class="w-100">
+              <mat-label>Nombre</mat-label>
+              <input matInput #name="ngModel" type="text" class="form-control" id="name" name="name"
+                [(ngModel)]="user.name" required />
+            </mat-form-field>
+          </div>
+
+          <div class="example-container mb-3" style="max-width: 400px;">
+            <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'" class="w-100">
+              <mat-label>Apellidos</mat-label>
+              <input matInput #lastname="ngModel" type="text" class="form-control" id="lastname" name="lastname"
+                [(ngModel)]="user.lastname" required>
+            </mat-form-field>
+          </div>
+
+          <div class="example-container mb-3" style="max-width: 400px;">
+            <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'" class="w-100">
+              <mat-label>Email</mat-label>
+              <input matInput #email="ngModel" type="email" class="form-control" id="email" name="email"
+                [(ngModel)]="user.email" required>
+            </mat-form-field>
+          </div>
+
+          <div class="example-container mb-3" style="max-width: 400px;">
+            <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'" class="w-100">
+              <mat-label>Contraseña</mat-label>
+              <input matInput #password="ngModel" type="password" class="form-control" id="password" name="password"
+                placeholder="Dejar en blanco para no cambiar" [(ngModel)]="user.password" 
+                pattern="^(?=.*[A-Z])(?=.*\d).{8,}$">
+              <div *ngIf="password.errors?.['pattern'] && password.touched" class="invalid-feedback d-block">
+                Debe tener al menos 8 caracteres, una mayúscula y un número.
+              </div>
+            </mat-form-field>
+          </div>
+
+          <div class="example-container mb-3" *ngIf="user.password && user.password.length > 0" style="max-width: 400px;">
+            <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'" class="w-100">
+              <mat-label>Confirmar contraseña</mat-label>
+              <input matInput #confirmPassword="ngModel" type="password" class="form-control" id="confirmPassword" 
+                name="confirmPassword" [(ngModel)]="user.confirmPassword">
+              <div *ngIf="confirmPassword.touched && user.password !== user.confirmPassword" class="invalid-feedback d-block">
+                Las contraseñas no coinciden.
+              </div>
+            </mat-form-field>
+          </div>
+
+          <div class="mb-3" *ngIf="successMessage || errorMessage">
+            <p class="text-success mb-0" *ngIf="successMessage">{{successMessage}}</p>
+            <p class="text-danger mb-0" *ngIf="errorMessage">{{errorMessage}}</p>
+          </div>
+
+          
+          <div class="mb-4">
+            <button type="submit" class="btn btn-register btn-lg px-5 py-2" 
+              [disabled]="frm.invalid || isLoading || (user.password && user.password !== user.confirmPassword)">
+              {{ isLoading ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+          </div>
+        </form>
+
+        <div class="mt-5">
+          <h2 class="text-start mb-4" style="font-size: 1.25rem; font-weight: 600;">Logros</h2>
+          <div class="badges-grid">
+            <div *ngFor="let badge of badges" class="badge-item">
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
-  </div>
-  <div class="col-6">
-    <div class="row">
-      <div class="col-12 shadow-sm bg-body rounded px-4 py-4 mb-3">
-        <label>Rol:</label>
-        <div class="border-bottom my-3">
-          <label>Name:</label>
-          <p>{{profileService.user$().role?.name}}</p>
-        </div>
-        <div class="border-bottom my-3">
-          <label>Description:</label>
-          <p>{{profileService.user$().role?.description}}</p>
-        </div>
-        <div class=" my-3">
-          <label>Last update:</label>
-          <p>{{profileService.user$().role?.updatedAt | date:'dd/MM/YYYY'}}</p>
-        </div>
-      </div>
-      <div class="col-12 shadow-sm bg-body rounded px-4 py-4">
-        <label>Last actions:</label>
-        <div>
-          <table class="table">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Date</th>
-                <th scope="col">Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">1</th>
-                <td>10/06/2024</td>
-                <td>Deleted user</td>
-              </tr>
-              <tr>
-                <th scope="row">1</th>
-                <td>10/06/2024</td>
-                <td>Deleted user</td>
-              </tr>
-              <tr>
-                <th scope="row">1</th>
-                <td>10/06/2024</td>
-                <td>Deleted user</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+  </div>
+</body>

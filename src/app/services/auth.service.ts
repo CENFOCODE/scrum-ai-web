@@ -86,7 +86,10 @@ loginWithGoogle(credential: string): Observable<ILoginResponse> {
   public hasAnyRole(roles: any[]): boolean {
     return roles.some(role => this.hasRole(role));
   }
-
+public setUser(user: IUser): void {
+    this.user = user;
+    this.save();
+  }
   public getPermittedRoutes(routes: any[]): any[] {
     let permittedRoutes: any[] = [];
     for (const route of routes) {
