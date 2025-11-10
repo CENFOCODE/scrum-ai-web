@@ -60,6 +60,10 @@ body[class="dark-only"] {
   margin-bottom: 30px;
 }
 
+a {
+  text-decoration: none;
+}
+
 h1 {
   font-size: 40px;
   font-weight: 600;
@@ -71,6 +75,11 @@ h2 {
 
 p {
   font-size: 16px;
+}
+
+small {
+  font-size: 13px;
+  color: #1C3B44;
 }
 
 #title {
@@ -122,6 +131,15 @@ p {
 .primary-btn:hover {
   background-color: #8a8835;
   color: white;
+}
+
+.btn-outline-secondary {
+  border-color: #1f3c45;
+  color: #1f3c45;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #f1f1f1;
 }
 
 .my-user-menu .p-menuitem-link {

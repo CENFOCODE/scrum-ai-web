@@ -17,6 +17,7 @@ import { GiftsComponent } from './pages/gifts/gifts.component';
 import { LandingCenfoComponent } from './pages/landing-cenfo/landing-cenfo.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
+import { DailyComponent } from './pages/daily/daily.component';
 import { CreateSessionComponent } from './pages/create-session/create-session.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
 
@@ -123,6 +124,19 @@ export const routes: Routes = [
           showInSidebar: false
         }
       },
+      {
+        path: 'daily',
+        component: DailyComponent,
+        data: { 
+          authorities: [
+            IRoleType.superAdmin,
+            IRoleType.user
+          ],
+          name: 'daily',
+          showInSidebar: false
+        }
+      },
+      
      
     
    
