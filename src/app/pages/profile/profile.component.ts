@@ -8,6 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { IUser } from '../../interfaces';
 import { Subject, takeUntil } from 'rxjs';
 import { finalize } from 'rxjs/operators';
+import { AlertService } from '../../services/alert.service';
+
 
 @Component({
   selector: 'app-profile',
@@ -75,6 +77,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.user.email ?? '')) {
+     
       this.errorMessage = 'Por favor ingresa un email válido.';
       return;
     }
@@ -129,5 +132,12 @@ if (password.trim()) {
             'Error al actualizar el perfil. Por favor intenta nuevamente.';
         }
       });
+  }
+
+  isGoogleAccont(): boolean {
+    if(this.user.authProvider == 'google'){
+      return true;
+    }
+    return false;
   }
 }

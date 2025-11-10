@@ -26,7 +26,7 @@
             </mat-form-field>
           </div>
 
-          <div class="example-container mb-3" style="max-width: 400px;">
+          <div *ngIf="!isGoogleAccont()" class="example-container mb-3" style="max-width: 400px;">
             <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'" class="w-100">
               <mat-label>Email</mat-label>
               <input matInput #email="ngModel" type="email" class="form-control" id="email" name="email"
@@ -34,7 +34,7 @@
             </mat-form-field>
           </div>
 
-          <div class="example-container mb-3" style="max-width: 400px;">
+          <div *ngIf="!isGoogleAccont()" class="example-container mb-3" style="max-width: 400px;">
             <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'" class="w-100">
               <mat-label>Contraseña</mat-label>
               <input matInput #password="ngModel" type="password" class="form-control" id="password" name="password"
@@ -46,7 +46,7 @@
             </mat-form-field>
           </div>
 
-          <div class="example-container mb-3" *ngIf="user.password && user.password.length > 0" style="max-width: 400px;">
+          <div *ngIf="!isGoogleAccont() && user.password && user.password.length > 0" class="example-container mb-3" style="max-width: 400px;">
             <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'" class="w-100">
               <mat-label>Confirmar contraseña</mat-label>
               <input matInput #confirmPassword="ngModel" type="password" class="form-control" id="confirmPassword" 

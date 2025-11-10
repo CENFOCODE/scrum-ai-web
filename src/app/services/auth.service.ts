@@ -33,6 +33,7 @@ export class AuthService {
     if (exp) this.expiresIn = JSON.parse(exp);
     const user = localStorage.getItem('auth_user');
     if (user) this.user = JSON.parse(user);
+    
   }
 
   public getUser(): IUser | undefined {
