@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { Router } from '@angular/router';
 import { RoleService } from '../../services/role.service';
 import { MatInputModule } from '@angular/material/input';
 
@@ -43,6 +44,10 @@ interface Notice {
 })
 export class CreateSessionComponent {
   public roleService: RoleService = inject(RoleService);
+  private router: Router = inject(Router);
+
+  // Datos de la ceremonia seleccionada para crear simulación
+  ceremonyData: any = null;
 
   history: string[] = ['Daily', 'Sprint planning'];
   paused: string[] = ['Sprint planning', 'Daily', 'Retrospective'];
@@ -54,6 +59,20 @@ export class CreateSessionComponent {
   roles = computed(() => this.roleService.roles$());
 
   displayedCeremony = computed<Ceremony>(() => {
+    // Si hay datos de ceremonia seleccionada, usar esos datos
+    if (this.ceremonyData) {
+      return {
+        key: 'daily',
+        name: this.ceremonyData.ceremonyType || 'Ceremonia Seleccionada',
+        intro: this.ceremonyData.ceremonyType || 'Ceremonia seleccionada para simulación',
+        short: '',
+        objectives: this.ceremonyData.goals || 'Sin objetivos definidos',
+        scenario: this.ceremonyData.description || 'Sin descripción disponible',
+        participants: ['Scrum Master', 'Product Owner', 'Development Team'],
+      };
+    }
+
+    // Fallback al comportamiento original
     const scr = this.roleService.scrum$();
     if (!scr) return defaultCeremony;
     return {
@@ -70,6 +89,13 @@ export class CreateSessionComponent {
   notice = signal<Notice | null>(null);
 
   constructor() {
+    // Obtener los datos de la ceremonia seleccionada para crear simulación
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.ceremonyData = navigation.extras.state['ceremonyData'];
+      console.log('Datos de ceremonia recibidos:', this.ceremonyData);
+    }
+    
     this.roleService.getScrumData();
   }
 
@@ -84,13 +110,16 @@ export class CreateSessionComponent {
 
     this.notice.set({
       type: 'success',
-      text: 'Rol registrado correctamente'
+      text: 'Ceremonia configurada correctamente'
     });
 
-    console.log('Start session', {
-      ceremony: this.displayedCeremony().name,
+    console.log('Crear nueva simulación:', {
+      ceremonyType: this.ceremonyData?.ceremonyType,
+      description: this.ceremonyData?.description,
+      estimatedDuration: this.ceremonyData?.estimatedDuration,
       difficulty: this.difficulty(),
       roleId: this.role(),
+      inviteEmail: this.inviteEmail()
     });
   }
 
