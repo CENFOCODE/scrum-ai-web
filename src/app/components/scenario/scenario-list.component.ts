@@ -48,7 +48,7 @@ export class ScenarioListComponent {
     if (this.selectedScenario) {
       const selectedData = this.scenarioData[this.selectedScenario as keyof typeof this.scenarioData];
       
-      // Enviar datos para que tu compañero cree una nueva ceremonia/simulación
+      
       this.router.navigate(['/app/create-session'], { 
         state: { 
           ceremonyData: selectedData
