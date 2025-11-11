@@ -14,10 +14,9 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'https://frore-paz-comprehensibly.ngrok-free.dev',
-  wsUrl: 'wss://frore-paz-comprehensibly.ngrok-free.dev/webrtc'
+  apiUrl: 'https://7b8124c893aa.ngrok-free.app',
+  wsUrl: 'wss://7b8124c893aa.ngrok-free.app/webrtc'
 };
-
 
 /**
  * 🚀 Environment de Producción

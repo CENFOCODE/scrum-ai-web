@@ -22,8 +22,8 @@ import { Injectable } from '@angular/core';
 @Injectable({ providedIn: 'root' })
 export class SocketService {
   /** URL del WebSocket remoto (ngrok/Cloudflare del backend) */
-  private readonly WS_URL = 'wss://frore-paz-comprehensibly.ngrok-free.dev/webrtc';
-
+  private readonly WS_URL = 'wss://7b8124c893aa.ngrok-free.app/webrtc';
+  
   /** Instancia WebSocket */
   private socket!: WebSocket;
 

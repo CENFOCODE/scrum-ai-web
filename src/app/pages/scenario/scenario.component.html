@@ -1,12 +1,19 @@
 
 <body>
-    <div class="shadow-lg p-3 mb-5 bg-body-tertiary rounded">
+    <!-- Vista de selección de escenarios -->
+    <div *ngIf="!showCreateSession" class="shadow-lg p-3 mb-5 bg-body-tertiary rounded">
         <h1>Seleccione el escenario</h1>
         <p>Lorem ipsum dolor sit amet consectetur adipiscing elit proin, et porttitor placerat vitae class sed curae vestibulum, morbi dapibus rutrum nisi potenti id quis. </p>
-        <app-scenario-list></app-scenario-list>
+        <app-scenario-list
+            [scenarios]="scenarioService.scenario$()"
+            (ceremonySelected)="onCeremonySelected($event)">
+        </app-scenario-list>
     </div>
-    
+
+    <!-- Vista de creación de sesión -->
+    <div *ngIf="showCreateSession && selectedCeremony">
+        <app-create-session 
+            [ceremonyData]="selectedCeremony" >
+        </app-create-session>
+    </div>
 </body>
-
-
-
