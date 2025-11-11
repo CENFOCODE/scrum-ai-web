@@ -17,6 +17,8 @@ import { GiftsComponent } from './pages/gifts/gifts.component';
 import { LandingCenfoComponent } from './pages/landing-cenfo/landing-cenfo.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
+import { WebsocketTestComponent } from './components/websocketTest/websocketTestComponent';
+import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 import { DailyComponent } from './pages/daily/daily.component';
 import { CreateSessionComponent } from './pages/create-session/create-session.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
@@ -179,7 +181,35 @@ export const routes: Routes = [
           name: 'Scenario',
           showInSidebar: true
         }
-      }
+      },
+      {
+        path: 'websocketTest',
+        component: WebsocketTestComponent,
+        data: { 
+          authorities: [
+            IRoleType.admin, 
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'WebSocket Test',
+          showInSidebar: false // si no querés que aparezca en el menú lateral
+        }
+      },
+      {
+        path: 'videoRoom',
+        component: VideoRoomComponent,
+        data: { 
+          authorities: [
+            IRoleType.admin, 
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'Video Room',
+          showInSidebar: false
+        }
+}
+
+
     ],
   },
 ];

@@ -1,0 +1,93 @@
+<div class="p-4">
+
+  <!-- ---------------------------------------------------------
+       ENCABEZADO DE LA SALA
+       ---------------------------------------------------------
+       Muestra:
+       - ID de la sala actual
+       - Usuario conectado
+       - Rol asignado
+  ----------------------------------------------------------- -->
+  <h2 class="text-xl font-semibold mb-2">
+    Sala: {{ room || 'Ninguna' }}
+  </h2>
+
+  <h3 class="text-sm mb-4">
+    Usuario: {{ username }} ({{ role || 'Sin rol' }})
+  </h3>
+
+
+  <!-- ---------------------------------------------------------
+       BOTONES PRINCIPALES DE ACCIÓN
+       ---------------------------------------------------------
+       Acciones WebRTC esenciales:
+       - Crear sala
+       - Unirse a sala
+       - Enviar invitación
+       - Finalizar llamada
+       (No contienen lógica WebRTC; solo disparan métodos TS)
+  ----------------------------------------------------------- -->
+  <div class="flex gap-2 mb-4">
+    <button (click)="createRoom()" class="px-3 py-1 bg-green-600 text-white rounded">
+      Crear sala
+    </button>
+
+    <button (click)="joinRoom()" class="px-3 py-1 bg-blue-600 text-white rounded">
+      Unirse
+    </button>
+
+    <button (click)="inviteUser()" class="px-3 py-1 bg-yellow-500 text-white rounded">
+      Invitar
+    </button>
+
+    <button (click)="endCall()" class="px-3 py-1 bg-red-600 text-white rounded">
+      Finalizar
+    </button>
+  </div>
+
+
+  <!-- ---------------------------------------------------------
+       SECCIÓN DE VIDEOS
+       ---------------------------------------------------------
+       Layout de 3 columnas:
+       - Columna 1 → Video local
+       - Columnas 2 y 3 → Videos remotos (dinámicos)
+  ----------------------------------------------------------- -->
+  <div class="grid grid-cols-3 gap-3">
+
+    <!-- -----------------------------
+         VIDEO LOCAL
+         -----------------------------
+         El video local SIEMPRE se dibuja aquí.
+    --------------------------------- -->
+    <div>
+      <p class="text-sm text-center">Tú</p>
+
+      <!-- Video local (autoplay + muted para evitar eco) -->
+      <video
+        id="localVideo"
+        autoplay
+        playsinline
+        muted
+        class="w-full rounded"
+      ></video>
+    </div>
+
+
+    <!-- ---------------------------------------------------------
+         CONTENEDOR DE VIDEOS REMOTOS
+         ---------------------------------------------------------
+         Angular NO dibuja aquí directamente.
+         Los elementos <video> se insertan dinámicamente desde TS:
+
+         -> videoRoom.component.ts → attachRemoteVideo()
+    ----------------------------------------------------------- -->
+    <div
+      id="remoteContainer"
+      class="col-span-2 grid grid-cols-2 gap-3"
+    >
+      <!-- Los videos remotos se agregan aquí dinámicamente -->
+    </div>
+
+  </div>
+</div>
