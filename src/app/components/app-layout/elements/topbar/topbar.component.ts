@@ -1,15 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../../services/auth.service';
 import { IUser } from '../../../../interfaces';
 import { LayoutService } from '../../../../services/layout.service';
-import { MyAccountComponent } from '../../../my-account/my-account.component';
 import { BadgeModule } from "primeng/badge";
 import { AvatarModule } from "primeng/avatar";
 import { MenuModule } from "primeng/menu";
 import { ButtonModule } from "primeng/button";
 import { MenuItem } from "primeng/api";
+import {OverlayPanelModule} from "primeng/overlaypanel";
+import { TooltipModule } from 'primeng/tooltip';
+
 
 
 @Component({
@@ -17,12 +19,12 @@ import { MenuItem } from "primeng/api";
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
-    MyAccountComponent,
     BadgeModule,
     AvatarModule,
     MenuModule,
-    ButtonModule
+    ButtonModule,
+    OverlayPanelModule,
+    TooltipModule
   ],
   templateUrl: './topbar.component.html',
   styleUrl: 'topbar.component.scss'
@@ -31,10 +33,15 @@ export class TopbarComponent implements OnInit {
   public user?: IUser;
   items: MenuItem[] | undefined;
 
+  notifications = [
+    { id: 1, message: 'Invitacion recibida!', isRead: false, createdAt: new Date() },
+    { id: 2, message: 'Logro desbloqueado', isRead: false, createdAt: new Date() },
+  ];
+
+  // notifications: any[] = [];
 
   constructor(
     public router: Router,
-    public layoutService: LayoutService,
     public authService: AuthService
   ) {}
 
@@ -66,5 +73,13 @@ export class TopbarComponent implements OnInit {
   public logout(): void {
     this.authService.logout();
     this.router.navigateByUrl('/login');
+  }
+
+  get unreadCount() {
+    return this.notifications.filter(n => !n.isRead).length;
+  }
+
+  markAllAsRead() {
+    this.notifications = this.notifications.map(n => ({ ...n, isRead: true }));
   }
 }

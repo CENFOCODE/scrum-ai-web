@@ -1,41 +1,42 @@
-<!--<div class="page-header" [ngClass]="{ close_icon: !layoutService.sidebarOpen }">-->
-<!--  <div class="header-wrapper row m-0">-->
-<!--    <div class="header-logo-wrapper col-auto p-0">-->
-<!--      <div class="logo-wrapper">-->
-<!--        <a routerLink="/">-->
-<!--          <img class="img-fluid" src="../../../../../assets/icons/logo@2x.png" alt="Logo" />-->
-<!--        </a>-->
-<!--      </div>-->
-
-<!--      <div class="toggle-sidebar" (click)="layoutService.toggleSidebar()">-->
-<!--        <i class="fa-solid fa-bars"></i>-->
-<!--      </div>-->
-<!--    </div>-->
-
-<!--    <div-->
-<!--      class="nav-right col-xxl-7 col-xl-6 col-md-7 col-8 pull-right right-header p-0 ms-auto"-->
-<!--    >-->
-<!--      <ul class="nav-menus mb-0">-->
-<!--        <li class="profile-nav onhover-dropdown pe-0 py-0">-->
-<!--          <app-my-account></app-my-account>-->
-<!--        </li>-->
-<!--      </ul>-->
-<!--    </div>-->
-<!--  </div>-->
-<!--</div>-->
-
 <header class="topbar d-flex justify-content-between align-items-center px-5">
-  <div class="d-flex align-items-center gap-3">
+  <a class="d-flex align-items-center gap-3" href="/">
     <span class="logo">Scrum AI</span>
-  </div>
+  </a>
 
-  <div class="d-flex align-items-center gap-4">
+  <div class="d-flex align-items-center gap-3">
     <i
-      class="pi pi-bell text-3xl"
+      *ngIf="unreadCount > 0"
+      class="pi pi-bell pointer"
+      (click)="notificationPanel.toggle($event)"
       pBadge
-      [badgeStyle]="{'background-color': '#D26A5D' }"
-    >
-    </i>
+      [badgeStyle]="{ 'background-color': '#D26A5D' }"
+    ></i>
+    <i
+      *ngIf="unreadCount === 0"
+      class="pi pi-bell pointer"
+      (click)="notificationPanel.toggle($event)"
+    ></i>
+
+    <p-overlayPanel #notificationPanel [dismissable]="true">
+      <div class="notif-header d-flex flex-row justify-content-between align-items-center pb-1">
+        <span class="title">Notificaciones</span>
+        <i class="pi pi-check mark-icon" (click)="markAllAsRead()"></i>
+      </div>
+
+      <ng-container *ngIf="notifications.length === 0; else list">
+        <p class="empty">No hay notificaciones</p>
+      </ng-container>
+
+      <div class="notification-panel">
+        <ng-template #list styleClass="notif-item">
+          <div [class.read]="n.isRead" class="notif-item d-flex" *ngFor="let n of notifications">
+            <span>{{ n.message }}</span>
+            <small>{{ n.createdAt | date:'MMM d, HH:mm' }}</small>
+          </div>
+        </ng-template>
+      </div>
+    </p-overlayPanel>
+
     <p-avatar
       icon="pi pi-user"
       [style]="{ 'background-color': '#EBE4DA' }"

@@ -1,9 +1,20 @@
 .topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 58px;
   background: #fff;
+  z-index: 1000;
+  border-bottom: 1px solid #e6e6e6;
 }
 
 header{
+  a{
+    text-decoration: none;
+    color: #1C3B44;
+  }
+
   i, p-avatar {
     cursor: pointer;
     font-size: 20px;
@@ -13,4 +24,57 @@ header{
     font-weight: 700;
     font-size: 20px;
   }
+}
+
+.my-user-menu{
+  top: 38.6667px;
+}
+
+.notification-panel {
+  width: 260px;
+  //padding: 10px;
+}
+
+::ng-deep .p-overlaypanel:after,
+::ng-deep .p-overlaypanel:before {
+  display: none !important;
+}
+
+.title{
+  font-weight: 700;
+  color: #374151;
+}
+
+.notif-item {
+  background-color: #e6e6e6;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 20px;
+  border-bottom: 1px solid #eee;
+  margin: 0 -10px;
+}
+
+.read {
+  background-color: white;
+}
+
+.empty {
+  opacity: 0.6;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.mark-icon {
+  font-size: 1rem;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.mark-icon:hover {
+  opacity: 1;
+}
+
+.p-overlaypanel .p-overlaypanel-content{
+  padding: 100px;
 }

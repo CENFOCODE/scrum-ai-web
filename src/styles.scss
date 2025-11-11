@@ -51,14 +51,6 @@ body[class="dark-only"] {
 //start template styles
 @import "./assets/layout/layout.scss";
 //end template styles
-.page-wrapper.compact-wrapper .page-body-wrapper div.sidebar-wrapper .sidebar-main .sidebar-links {
-  height: calc(93vh - 115px) !important;
-  left: -300px;
-  z-index: 99;
-  transition: color 1s ease;
-  margin-top: 20px;
-  margin-bottom: 30px;
-}
 
 a {
   text-decoration: none;
