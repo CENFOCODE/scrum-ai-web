@@ -13,9 +13,8 @@
  */
 
 export const environment = {
-  production: false,
-  apiUrl: 'https://frore-paz-comprehensibly.ngrok-free.dev',
-  wsUrl: 'wss://frore-paz-comprehensibly.ngrok-free.dev/webrtc'
+  production: true,
+  apiUrl: 'http://localhost:8080'
 };
 
 
