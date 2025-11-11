@@ -14,8 +14,8 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'https://7b8124c893aa.ngrok-free.app',
-  wsUrl: 'wss://7b8124c893aa.ngrok-free.app/webrtc'
+  apiUrl: 'http://localhost:8080',
+  wsUrl: 'wss://wai-fossillike-imperatorially.ngrok-free.dev/webrtc'
 };
 
 /**
