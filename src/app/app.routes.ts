@@ -19,6 +19,7 @@ import { LandingPageComponent } from './pages/landing-page/landing-page.componen
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
 import { WebsocketTestComponent } from './components/websocketTest/websocketTestComponent';
 import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
+import { DailyComponent } from './pages/daily/daily.component';
 import { CreateSessionComponent } from './pages/create-session/create-session.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
 
@@ -125,6 +126,19 @@ export const routes: Routes = [
           showInSidebar: false
         }
       },
+      {
+        path: 'daily',
+        component: DailyComponent,
+        data: { 
+          authorities: [
+            IRoleType.superAdmin,
+            IRoleType.user
+          ],
+          name: 'daily',
+          showInSidebar: false
+        }
+      },
+      
      
     
    
