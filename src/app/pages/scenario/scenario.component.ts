@@ -1,14 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { Component, effect, inject } from "@angular/core";
 import { ScenarioService } from "../../services/scenario.service";
-import { ScenarioListComponent } from "../../components/scenario/scenario-list/scenario-list.component";
-import { CreateSessionComponent } from "../../components/scenario/create-session/create-session.component";
-import { IScenario } from "../../interfaces";
+import { ScenarioListComponent } from "../../components/scenario/scenario-list.component";
 
 @Component({
   selector: 'app-scenario',
   standalone: true,
-  imports: [CommonModule, ScenarioListComponent, CreateSessionComponent],
+  imports: [CommonModule, ScenarioListComponent],
   templateUrl: './scenario.component.html',
   styleUrls: ['./scenario.component.scss'],
 })
@@ -16,22 +14,9 @@ import { IScenario } from "../../interfaces";
 export class ScenarioComponent {
     
     public scenarioService: ScenarioService = inject(ScenarioService);
-    
-    // Estado para controlar qué componente mostrar
-    selectedCeremony: IScenario | null = null;
-    showCreateSession = false;
 
     constructor() {
         this.scenarioService.getAll();
+        
     }
-
-    // Manejar la selección de ceremonia desde scenario-list
-    onCeremonySelected(ceremony: IScenario) {
-        this.selectedCeremony = ceremony;
-        this.showCreateSession = true;
-        console.log('Ceremonia seleccionada:', ceremony);
-    }
-
-   
-   
 }

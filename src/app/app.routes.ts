@@ -55,6 +55,10 @@ export const routes: Routes = [
     component: AccessDeniedComponent,
   },
   {
+    path: 'create-session',
+    component: CreateSessionComponent,
+  },
+  {
     path: '',
     redirectTo: 'landingpage',
     pathMatch: 'full',
@@ -82,6 +86,19 @@ export const routes: Routes = [
           showInSidebar: true
         }
       },
+      {
+  path: 'create-session',
+  component: CreateSessionComponent,
+  data: {
+    authorities: [
+      IRoleType.admin,
+      IRoleType.superAdmin,
+      IRoleType.user,
+    ],
+    name: 'Create session',
+    showInSidebar: true
+  }
+},
 
       {
         path: 'dashboard',
