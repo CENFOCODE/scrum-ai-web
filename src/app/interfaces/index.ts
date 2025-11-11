@@ -1,7 +1,10 @@
 export interface ILoginResponse {
-  accessToken: string;
-  expiresIn: number
+  authUser: IUser;
+  token: string;
+  expiresIn: number;
 }
+
+
 
 export interface IResponse<T> {
   data: T;
@@ -100,6 +103,11 @@ export interface IGift {
   createdAt?: string;
   updatedAt?: string;
   giftList?: IGiftList;
+}
+
+export interface IAIResponse {
+  answer?: string;
+  error?: string;
 }
 
 export interface ICeremony {
