@@ -20,7 +20,7 @@ import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-pas
 import { WebsocketTestComponent } from './components/websocketTest/websocketTestComponent';
 import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 import { DailyComponent } from './pages/daily/daily.component';
-import { CreateSessionComponent } from './pages/create-session/create-session.component';
+
 import { ScenarioComponent } from './pages/scenario/scenario.component';
 
 
@@ -54,10 +54,7 @@ export const routes: Routes = [
     path: 'access-denied',
     component: AccessDeniedComponent,
   },
-  {
-    path: 'create-session',
-    component: CreateSessionComponent,
-  },
+
   {
     path: '',
     redirectTo: 'landingpage',
@@ -86,19 +83,7 @@ export const routes: Routes = [
           showInSidebar: true
         }
       },
-      {
-  path: 'create-session',
-  component: CreateSessionComponent,
-  data: {
-    authorities: [
-      IRoleType.admin,
-      IRoleType.superAdmin,
-      IRoleType.user,
-    ],
-    name: 'Create session',
-    showInSidebar: true
-  }
-},
+    
 
       {
         path: 'dashboard',
