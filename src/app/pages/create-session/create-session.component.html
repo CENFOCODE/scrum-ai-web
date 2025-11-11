@@ -25,19 +25,17 @@
           <button type="button" class="csd-notice__close" (click)="closeNotice()">Cerrar</button>
         </div>
 
-      
-
         <!-- Header -->
         <header id="csd-session-header" class="mb-3">
-          <h1 id="csd-title" class="mb-2">{{ scrumData().ceremony }}</h1>
-          <p id="csd-intro" class="mb-0">{{ scrumData().intro }}</p>
+          <h1 id="csd-title" class="mb-2">{{ displayedCeremony().name }}</h1>
+          <p id="csd-intro" class="mb-0">{{ displayedCeremony().intro }}</p>
         </header>
 
         <div id="csd-grid" class="csd-grid">
           <!-- Objectives -->
           <div id="csd-objectives" class="csd-surface">
             <h2 id="csd-objectives-title" class="mb-2">Objetivos</h2>
-            <p id="csd-objectives-text" class="mb-0">{{ scrumData().objective }}</p>
+            <p id="csd-objectives-text" class="mb-0">{{ displayedCeremony().objectives }}</p>
           </div>
 
           <!-- Rol / difficulty -->
@@ -56,7 +54,7 @@
               <!-- Role -->
               <mat-form-field id="csd-select-role-ff" appearance="outline" class="csd-ff">
                 <mat-select id="csd-select-role" [(ngModel)]="role" panelClass="csd-select-panel" disableOptionCentering placeholder="Rol">
-                  <mat-option *ngFor="let r of roleService.roles$()" [value]="r.id">
+                  <mat-option *ngFor="let r of roles()" [value]="r.id">
                     {{ r.name }}
                   </mat-option>
                 </mat-select>
@@ -74,14 +72,14 @@
           <!-- Scene -->
           <div id="csd-scenario" class="csd-surface">
             <h2 id="csd-scenario-title" class="mb-2">Escenario</h2>
-            <p id="csd-scenario-text" class="mb-0">{{ scrumData().scenario }}</p>
+            <p id="csd-scenario-text" class="mb-0">{{ displayedCeremony().scenario }}</p>
           </div>
 
           <!-- Participants -->
           <aside id="csd-participants" class="csd-surface">
             <h2 id="csd-participants-title" class="mb-2">Participantes</h2>
             <ul id="csd-participants-list" class="list-unstyled mb-0">
-              <li *ngFor="let participant of scrumData().participants">{{ participant }}</li>
+              <li *ngFor="let it of displayedCeremony().participants">{{ it }}</li>
             </ul>
           </aside>
         </div>

@@ -24,6 +24,7 @@ export interface IUser {
   updatedAt?: string;
   authorities?: IAuthority[];
   role?: IRole
+  authProvider?: 'local' | 'google';
 }
 
 export interface IAuthority {
