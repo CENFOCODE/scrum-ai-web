@@ -1,8 +1,8 @@
 
-<div class="container my-4 backlog-container">
+<body>
     <!-- Vista de selección de escenarios -->
-    <div *ngIf="!showCreateSession" class="shadow-sm p-3 mb-5 bg-body-tertiary rounded">
-        <h2>Seleccione el escenario</h2>
+    <div *ngIf="!showCreateSession" class="shadow-lg p-3 mb-5 bg-body-tertiary rounded">
+        <h1>Seleccione el escenario</h1>
         <p>Lorem ipsum dolor sit amet consectetur adipiscing elit proin, et porttitor placerat vitae class sed curae vestibulum, morbi dapibus rutrum nisi potenti id quis. </p>
         <app-scenario-list
             [scenarios]="scenarioService.scenario$()"
@@ -12,11 +12,8 @@
 
     <!-- Vista de creación de sesión -->
     <div *ngIf="showCreateSession && selectedCeremony">
-        <app-create-session 
+        <app-create-session
             [ceremonyData]="selectedCeremony" >
         </app-create-session>
     </div>
-</div>
-
-
-
+</body>
