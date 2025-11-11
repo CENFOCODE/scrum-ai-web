@@ -10,7 +10,7 @@ export const baseUrlInterceptor: HttpInterceptorFn = (req, next) => {
   };
 
   // Si estamos usando ngrok, agregar el header necesario
-  if (base.includes('ngrok-free.app')) {
+  if (base.includes('ngrok-free.app,') || base.includes('ngrok-free.dev')) {
     headers['ngrok-skip-browser-warning'] = 'true';
   }
 
