@@ -1,0 +1,85 @@
+.sidebar {
+  position: fixed;
+  top: 56px;
+  bottom: 0;
+  width: 250px ;
+  background: #fff;
+  transition: width .3s ease;
+  padding-top: 50px;
+  border-right: 1px solid #EBE4DA;
+
+  i{
+    font-weight: 500;
+  }
+
+  .menu li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  &.closed {
+    width: 60px;
+
+    .menu li {
+      justify-content: center;
+      font-weight: 700;
+      gap: 0;
+    }
+
+    .menu .label, .sub-list, .menu svg, p-divider {
+      display: none;
+    }
+  }
+
+  .sidebar.closed {
+    width: 60px;
+  }
+
+  .sidebar-toggle {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    color: #1C3B44;
+  }
+  ::ng-deep .p-divider.p-divider-horizontal:before {
+    border-top: 1px solid #D26A5D !important; /* tu color */
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .sub-list {
+    padding-left: 10px;
+    border-left: 2px solid #EBE4DA;
+    margin-left: 20px;
+
+
+    li {
+      padding: 5px 5px;
+      cursor: pointer;
+
+      &:hover {
+        background: #F6F3EF;
+      }
+    }
+  }
+
+  .sub-list .empty {
+    opacity: 0.6;
+    font-style: italic;
+    cursor: default;
+  }
+}

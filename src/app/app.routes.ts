@@ -43,7 +43,7 @@ export const routes: Routes = [
     component: SigUpComponent,
     canActivate: [GuestGuard],
   },
-    {
+  {
     path: 'forgot-password',
     component: ForgotPasswordComponent,
     canActivate: [GuestGuard],
@@ -72,23 +72,23 @@ export const routes: Routes = [
         path: 'users',
         component: UsersComponent,
         canActivate:[AdminRoleGuard],
-        data: { 
+        data: {
           authorities: [
-            IRoleType.admin, 
+            IRoleType.admin,
             IRoleType.superAdmin
           ],
           name: 'Users',
           showInSidebar: true
         }
       },
-    
+
 
       {
         path: 'dashboard',
         component: DashboardComponent,
-        data: { 
+        data: {
           authorities: [
-            IRoleType.admin, 
+            IRoleType.admin,
             IRoleType.superAdmin,
             IRoleType.user
           ],
@@ -99,9 +99,9 @@ export const routes: Routes = [
       {
         path: 'profile',
         component: ProfileComponent,
-        data: { 
+        data: {
           authorities: [
-            IRoleType.admin, 
+            IRoleType.admin,
             IRoleType.superAdmin,
             IRoleType.user
           ],
@@ -112,7 +112,7 @@ export const routes: Routes = [
       {
         path: 'daily',
         component: DailyComponent,
-        data: { 
+        data: {
           authorities: [
             IRoleType.admin,
             IRoleType.superAdmin,
@@ -122,11 +122,11 @@ export const routes: Routes = [
           showInSidebar: false
         }
       },
-      
-     
-    
-   
-      
+
+
+
+
+
       {
         path: 'gift-list',
         component: GiftComponent,
@@ -153,7 +153,7 @@ export const routes: Routes = [
           showInSidebar: true
         }
       },
-       {
+      {
         path: 'scenario',
         component: ScenarioComponent,
         data: {
@@ -169,9 +169,9 @@ export const routes: Routes = [
       {
         path: 'websocketTest',
         component: WebsocketTestComponent,
-        data: { 
+        data: {
           authorities: [
-            IRoleType.admin, 
+            IRoleType.admin,
             IRoleType.superAdmin,
             IRoleType.user,
           ],
@@ -182,16 +182,16 @@ export const routes: Routes = [
       {
         path: 'videoRoom',
         component: VideoRoomComponent,
-        data: { 
+        data: {
           authorities: [
-            IRoleType.admin, 
+            IRoleType.admin,
             IRoleType.superAdmin,
             IRoleType.user,
           ],
           name: 'Video Room',
           showInSidebar: false
         }
-}
+      }
 
 
     ],
