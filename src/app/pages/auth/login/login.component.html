@@ -28,15 +28,15 @@
                     <div class="d-flex flex-column form-container">
                         <mat-form-field appearance="outline">
                             <mat-label>Email</mat-label>
-                            <input matInput #email="ngModel" type="text" class="form-control" id="email" name="email"
-                                placeholder="example@outlook.com" [(ngModel)]="loginForm.email"
+                            <input matInput #email="ngModel" type="text" id="email" name="email"
+                                [(ngModel)]="loginForm.email"
                                 (ngModelChange)="clearError()" />
                         </mat-form-field>
 
                         <mat-form-field appearance="outline">
                             <mat-label>Contraseña</mat-label>
                             <input matInput #password="ngModel" [type]="hide() ? 'password' : 'text'"
-                                class="form-control" id="password" name="password" [(ngModel)]="loginForm.password"
+                                 id="password" name="password" [(ngModel)]="loginForm.password"
                                 (ngModelChange)="clearError()" />
                             <button mat-icon-button matSuffix (click)="clickEvent($event)"
                                 [attr.aria-label]="'Mostrar u ocultar contraseña'" [attr.aria-pressed]="hide()"
