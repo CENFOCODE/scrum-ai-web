@@ -6,6 +6,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatStepperModule} from '@angular/material/stepper';
+import {RouterLink} from "@angular/router";
 
 /**
  * @title Stepper with customized states
@@ -21,15 +22,16 @@ import {MatStepperModule} from '@angular/material/stepper';
     },
   ],
   standalone: true,
-  imports: [
-    MatStepperModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-  ],
+    imports: [
+        MatStepperModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        RouterLink,
+    ],
 })
 export class LandingPageComponent {
   firstFormGroup = this._formBuilder.group({

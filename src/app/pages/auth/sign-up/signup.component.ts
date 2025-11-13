@@ -21,6 +21,7 @@ import {MatInputModule} from '@angular/material/input';
 export class SigUpComponent {
   title = 'Sign Up';
   public signUpError!: String;
+  public emailError!: string;
   public validSignup!: boolean;
   private manualDetector: ChangeDetectorRef = inject(ChangeDetectorRef);
   @ViewChild('name') nameModel!: NgModel;
@@ -64,7 +65,10 @@ export class SigUpComponent {
           this.validSignup = true;
           this.manualDetector.markForCheck();
         },
-        error: (err: any) => (this.signUpError = err.description),
+        error: (err: any) => {
+          this.signUpError = err.error;
+          this.manualDetector.markForCheck();
+        },
       });
     }
   }
