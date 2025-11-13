@@ -103,7 +103,6 @@ export class CreateSessionComponent {
     return;
   }
 
-    
     const currentUserId = this.authService.getUserId();
     if (!currentUserId) {
       alert('Error: no se encontró el usuario actual.');
@@ -140,24 +139,24 @@ export class CreateSessionComponent {
       alert('Error: el backend no devolvió el id de la Simulation.');
       throw new Error('Simulation sin id');
     }
-
       const newSimUser: ISimulationUser = {
         scrumRole: this.selectedRole,
         assignedAt: new Date(),
         simulation: { id: createdSim.id } 
       };
 
-
       return this.simulationService.createSimulationUser(newSimUser);
     })
   ).subscribe({
     next: (res) => {
       console.log('SimulationUser creado:', res);
-      this.notice.set({
-      type: 'success',
-      text: 'Ceremonia configurada correctamente'
-    });
       this.isLoading = false;
+
+      this.redirectToScenarioPage(this.selectedScenario?.name, {
+        scenario: this.selectedScenario,
+        simulationUser: res
+      });
+
       this.sessionCreated.emit(res);
     },
     error: (err) => {
@@ -165,6 +164,36 @@ export class CreateSessionComponent {
       this.isLoading = false;
     }
   });
+}
+      private redirectToScenarioPage(scenarioName?: string, stateData?: any) {
+      if (!scenarioName) {
+        alert('Error: el escenario no tiene nombre definido.');
+        return;
+      }
+
+       const normalizedName = scenarioName.trim().toLowerCase();
+
+       const routes: Record<string, string> = {
+    'daily': '/app/daily',
+    'planning': '/app/planning',
+    'review': '/app/review',
+    'retrospective': '/app/retrospective'
+  };
+
+  const routePath = routes[normalizedName];
+
+  if (routePath) {
+    console.log(`➡️ Redirigiendo a: ${routePath}`);
+    this.router.navigate([routePath], { state: stateData });
+  } else {
+    this.notice.set({
+      type: 'error',
+      text: `Error: No se encontró una ruta para el escenario "${scenarioName}".`
+    });
+    this.isLoading = false;
+    return;
+  }
+
 }
 }
 
