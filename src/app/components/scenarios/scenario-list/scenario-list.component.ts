@@ -20,12 +20,14 @@ export class ScenarioListComponent {
     }
   }
 
-  confirmSelection() {
-    if (this.selectedScenario) {
-      const selectedData = this.scenarios.find(s => s.ceremonyType === this.selectedScenario);
-      if (selectedData) {
-        this.ceremonySelected.emit(selectedData); // Emitir al padre en lugar de navegar
-      }
+confirmSelection() {
+  if (this.selectedScenario) {
+    const selectedData = this.scenarios.find(
+      s => s.ceremonyType === this.selectedScenario
+    );
+    if (selectedData) {
+      this.ceremonySelected.emit(selectedData);
     }
   }
+}
 }
