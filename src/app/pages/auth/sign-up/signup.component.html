@@ -81,15 +81,15 @@
                   }" required>
                   
                   <div class="invalid-feedback" *ngIf="confirmPassword.touched && user.password !== user.confirmPassword">
-                    Las contraseñas no coinciden.
+                    Las contrase`ñas no coinciden.
                   </div>
                   </mat-form-field>
                 </div>
               </div>
 
-              <div class="mb-3 d-flex align-items-center justify-content-center flex-column">
+              <div class="d-flex align-items-center justify-content-center flex-column">
 
-                <button type="submit" class="btn btn-register btn-lg px-4 pt-15 pb-7" [disabled]="frm.invalid || user.password !== user.confirmPassword">Registrarse</button>
+                <button type="submit" class="btn btn-register btn-lg px-4 pt-15 pb-7 mb-3" [disabled]="frm.invalid || user.password !== user.confirmPassword">Registrarse</button>
                 @if(signUpError) {<p class="text-danger">{{signUpError}}</p>} @else if (validSignup){<p class="text-success">Usuario Registrado con exito</p>}
               </div>
               <div class="text-center">
