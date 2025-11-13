@@ -12,6 +12,12 @@ import { IScenario, ISimulations, ISimulationUser } from '../../../interfaces';
 import { AuthService } from '../../../services/auth.service';
 import { switchMap } from 'rxjs/operators';
 
+type NoticeType = 'success' | 'warning' | 'error';
+interface Notice {
+  type: NoticeType;
+  text: string;
+}
+
 @Component({
   selector: 'app-create-session',
   standalone: true,
@@ -33,6 +39,8 @@ export class CreateSessionComponent {
   @Input() ceremonyData!: IScenario;
   @Output() backToSelection = new EventEmitter<void>();
   @Output() sessionCreated = new EventEmitter<any>();
+
+  notice = signal<Notice | null>(null);
 
   selectedScenario: IScenario | null = null
 
@@ -65,17 +73,44 @@ export class CreateSessionComponent {
   isLoading = false;
 
   
+
+  closeNotice() {
+    this.notice.set(null);
+  }
+
+  
   createSimulation() {
-    if (!this.selectedDifficulty || !this.selectedRole) {
-      alert('Selecciona una dificultad y un rol.');
-      return;
+    if (!this.selectedDifficulty|| !this.selectedRole) {
+      this.notice.set({
+        type: 'warning',
+        text: 'Atención: Debes seleccionar un rol'
+      });
     }
 
+    if (this.selectedDifficulty.trim() === '') {
+    this.notice.set({
+        type: 'warning',
+        text: 'Atención: Debes seleccionar una dificultad'
+      });
+    return;
+  }
+
+  if (this.selectedRole.trim() === '') {
+    this.notice.set({
+        type: 'warning',
+        text: 'Atención: Debes seleccionar un rol'
+      });
+    return;
+  }
+
+    
     const currentUserId = this.authService.getUserId();
     if (!currentUserId) {
       alert('Error: no se encontró el usuario actual.');
       return;
     }
+
+    
 
 
  this.isLoading = true;
@@ -118,7 +153,10 @@ export class CreateSessionComponent {
   ).subscribe({
     next: (res) => {
       console.log('SimulationUser creado:', res);
-      alert('Simulación y usuario creados correctamente.');
+      this.notice.set({
+      type: 'success',
+      text: 'Ceremonia configurada correctamente'
+    });
       this.isLoading = false;
       this.sessionCreated.emit(res);
     },
@@ -129,3 +167,4 @@ export class CreateSessionComponent {
   });
 }
 }
+
