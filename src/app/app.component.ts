@@ -2,6 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ChatbotComponent } from './components/chatbot/chatbot.component';
+import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
+
+
 
 
 @Component(
@@ -11,7 +14,8 @@ import { ChatbotComponent } from './components/chatbot/chatbot.component';
   imports: [
     RouterOutlet,
     CommonModule,
-    ChatbotComponent
+    ChatbotComponent,
+    VideoRoomComponent
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
