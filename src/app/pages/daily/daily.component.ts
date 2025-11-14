@@ -4,6 +4,7 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { Router } from '@angular/router';
 
 
 interface Task {
@@ -24,6 +25,27 @@ interface Task {
   styleUrl: './daily.component.scss'
 })
 export class DailyComponent implements OnInit {
+
+  /** datos del create-scenario */
+    scenario: any;
+  simulationUser: any;
+
+  constructor(private router: Router) {
+    const nav = this.router.getCurrentNavigation();
+    this.scenario = nav?.extras?.state?.['scenario'];
+    this.simulationUser = nav?.extras?.state?.['simulationUser'];
+
+    console.log(' Datos recibidos en DailyComponent:', {
+      scenario: this.scenario,
+      simulationUser: this.simulationUser
+    });
+  }
+
+  goBackToCreateSession() {
+    this.router.navigate(['app/scenario']);
+  }
+
+
 
   /** breadcrums menu */ 
 itemsMenu: MenuItem[] | undefined;

@@ -9,8 +9,9 @@ import { HttpClient } from '@angular/common/http';
 export class AuthService {
   private accessToken!: string;
   private expiresIn! : number;
-  private user: IUser = {email: '', authorities: []};
+  private user: IUser = {id: 0, email: '', authorities: []};
   private http: HttpClient = inject(HttpClient);
+
 
   constructor() {
     this.load();
@@ -38,6 +39,14 @@ export class AuthService {
 
   public getUser(): IUser | undefined {
     return this.user;
+  }
+
+  public getUserId(): number | undefined {
+    return this.user.id
+  }
+
+  public getUserRole() {
+    return this.user.authorities
   }
 
   public getAccessToken(): string | null {

@@ -1,4 +1,4 @@
-<div id="csd-session">
+<div id="csd-session" *ngIf="selectedScenario">
   <div>
     <section id="csd-session-col" class="container my-4">
       <div id="csd-session-card" class="card p-3 shadow-sm">
@@ -19,7 +19,6 @@
               <path d="M8 8l8 8M16 8l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-
           <div class="csd-notice__text">{{ n.text }}</div>
 
           <button type="button" class="csd-notice__close" (click)="closeNotice()">Cerrar</button>
@@ -29,35 +28,35 @@
 
         <!-- Header -->
         <header id="csd-session-header" class="mb-3">
-          <h2 id="csd-title" class="mb-2">{{ scrumData().ceremony }}</h2>
-          <p id="csd-intro" class="mb-0">{{ scrumData().intro }}</p>
+          <h2 id="csd-title" class="mb-2">{{ selectedScenario.ceremonyType }}</h2>
+           Usuario actual: <strong>{{ authService.getUser()?.name }}</strong>
         </header>
 
         <div id="csd-grid" class="csd-grid">
           <!-- Objectives -->
           <div id="csd-objectives" class="csd-surface">
             <h3 id="csd-objectives-title" class="mb-2">Objetivos</h3>
-            <p id="csd-objectives-text" class="mb-0">{{ scrumData().objective }}</p>
+            <p id="csd-objectives-text" class="mb-0">{{ selectedScenario.description }}</p>
           </div>
 
           <!-- Rol / difficulty -->
           <div id="csd-options" class="csd-col">
             <p id="csd-options-title" class="mb-2"> Antes de empezar, seleccione la dificultad y rol </p>
             <div id="csd-selects" class="csd-selects">
-              <!-- Difficulty (DESHABILITADO) -->
+              <!-- Difficulty -->
               <mat-form-field id="csd-select-difficulty-ff" appearance="outline" class="csd-ff">
-                <mat-select id="csd-select-difficulty" [(ngModel)]="difficulty" panelClass="csd-select-panel" disableOptionCentering placeholder="Dificultad" disabled>
-                  <mat-option id="csd-opt-dif-1" [value]="'Fácil'">Principiante</mat-option>
-                  <mat-option id="csd-opt-dif-2" [value]="'Media'">Intermedio</mat-option>
-                  <mat-option id="csd-opt-dif-3" [value]="'Difícil'">Avanzado</mat-option>
+                <mat-select id="csd-select-difficulty" [(ngModel)]="selectedDifficulty" panelClass="csd-select-panel" disableOptionCentering placeholder="Dificultad" required>
+                  <mat-option *ngFor="let diff of difficultyLevels" [value]="diff" >
+                    {{ diff }}
+                  </mat-option>
                 </mat-select>
               </mat-form-field>
 
               <!-- Role -->
               <mat-form-field id="csd-select-role-ff" appearance="outline" class="csd-ff">
-                <mat-select id="csd-select-role" [(ngModel)]="role" panelClass="csd-select-panel" disableOptionCentering placeholder="Rol">
-                  <mat-option *ngFor="let r of roleService.roles$()" [value]="r.id">
-                    {{ r.name }}
+                <mat-select id="csd-select-role" [(ngModel)]="selectedRole" panelClass="csd-select-panel" disableOptionCentering placeholder="Rol" required>
+                  <mat-option *ngFor="let role of scrumRoles" [value]="role">
+                    {{ role }}
                   </mat-option>
                 </mat-select>
               </mat-form-field>
@@ -66,29 +65,29 @@
             <div class="mt-2">
               <p class="invite-label">Invita a tu equipo</p>
               <mat-form-field id="csd-invite-email-ff" appearance="outline" class="csd-ff">
-                <input matInput placeholder="Email" type="email" [(ngModel)]="inviteEmail" name="inviteEmail" />
+                <input matInput placeholder="Email" type="email" name="inviteEmail" />
               </mat-form-field>
             </div>
           </div>
 
           <!-- Scene -->
           <div id="csd-scenario" class="csd-surface">
-            <h3 id="csd-scenario-title" class="mb-2">Escenario</h3>
-            <p id="csd-scenario-text" class="mb-0">{{ scrumData().scenario }}</p>
+            <h3 id="csd-scenario-title" class="mb-2">Backlog</h3>
+            <p id="csd-scenario-text" class="mb-0">{{ selectedScenario.backlog }}</p>
           </div>
 
           <!-- Participants -->
           <aside id="csd-participants" class="csd-surface">
             <h3 id="csd-participants-title" class="mb-2">Participantes</h3>
             <ul id="csd-participants-list" class="list-unstyled mb-0">
-              <li *ngFor="let participant of scrumData().participants">{{ participant }}</li>
+              <li>{{ selectedScenario.team }}</li>
             </ul>
           </aside>
         </div>
 
         <div id="csd-actions" class="d-flex justify-content-end mt-3">
-          <button id="csd-start-btn" class="primary-btn" type="button" (click)="onStart()">
-            Iniciar ceremonia
+          <button (click)="createSimulation()" [disabled]="isLoading" class="primary-btn">
+          {{ isLoading ? 'Creando...' : 'Iniciar Ceremonia' }}
           </button>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { ScenarioService } from "../../services/scenario.service";
 import { ScenarioListComponent } from "../../components/scenarios/scenario-list/scenario-list.component";
 import { CreateSessionComponent } from "../../components/scenarios/create-session/create-session.component";
 import { IScenario } from "../../interfaces";
+import { SimulationService } from "../../services/simulation.service";
 
 @Component({
   selector: 'app-scenario',
@@ -14,7 +15,8 @@ import { IScenario } from "../../interfaces";
 })
 
 export class ScenarioComponent {
-    
+
+    private simulationService = inject(SimulationService);
     public scenarioService: ScenarioService = inject(ScenarioService);
     
     // Estado para controlar qué componente mostrar
@@ -35,10 +37,8 @@ export class ScenarioComponent {
     // Manejar la selección de ceremonia desde scenario-list
     onCeremonySelected(ceremony: IScenario) {
         this.selectedCeremony = ceremony;
+        this.simulationService.setSelectedScenario(ceremony);
         this.showCreateSession = true;
         console.log('Ceremonia seleccionada:', ceremony);
     }
-
-   
-   
 }
