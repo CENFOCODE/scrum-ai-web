@@ -69,3 +69,11 @@
 :host ::ng-deep .login-container .mat-mdc-form-field-icon-suffix .mat-icon {
   color: #1C3B44 !important;
 }
+
+/* Divider azul */
+
+:host ::ng-deep .p-divider.p-divider-horizontal:before,
+:host ::ng-deep .p-divider.p-divider-horizontal:after {
+  border-top: 1px solid #1C3B44 !important;
+  opacity: 0.1.5; 
+}
