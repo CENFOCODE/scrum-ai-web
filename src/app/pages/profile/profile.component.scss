@@ -109,7 +109,29 @@ input.placeholder {
   aspect-ratio: 1;
   background-color: #d3d3d3;
   border-radius: 8px;
-  opacity: 0.3;
+  position: relative;        
+  overflow: hidden;   
+}
+
+.badge-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(211, 211, 211, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(211, 211, 211, 0) 100%
+  );
+  animation: badge-skeleton-shimmer 1.5s infinite;
+}
+
+/* Animación del skeleton */
+@keyframes badge-skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .text-success {
