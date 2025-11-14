@@ -91,6 +91,10 @@ public setUser(user: IUser): void {
     this.user = user;
     this.save();
   }
+  public setToken(token: string): void {
+  this.accessToken = token;
+  this.save();
+}
   public getPermittedRoutes(routes: any[]): any[] {
     let permittedRoutes: any[] = [];
     for (const route of routes) {
