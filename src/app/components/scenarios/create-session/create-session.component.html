@@ -86,9 +86,9 @@
         </div>
 
         <div id="csd-actions" class="d-flex justify-content-end mt-3">
-          <button mat-raised-button color="primary" (click)="createSimulation()" [disabled]="isLoading">
-    {{ isLoading ? 'Creando...' : 'Inciar Ceremonia' }}
-  </button>
+          <button (click)="createSimulation()" [disabled]="isLoading" class="primary-btn">
+          {{ isLoading ? 'Creando...' : 'Iniciar Ceremonia' }}
+          </button>
         </div>
       </div>
     </section>
