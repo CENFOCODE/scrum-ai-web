@@ -46,14 +46,22 @@ export class ProfileService {
     });
   }
 
-  public updateUser(payload: Partial<IUser>) {
-
-    return this.http.put<any>('users/me', payload).pipe(
-      map(resp => resp?.data ?? resp),
-      tap((updatedUser: IUser) => {
-        this.auth.setUser(updatedUser);
-        this.userChanges$.next(updatedUser);
-      })
-    );
-  }
+public updateUser(payload: Partial<IUser>) {
+  return this.http.put<any>('users/me', payload).pipe(
+    map(resp => resp?.data ?? resp),
+    tap((response: any) => {
+      if (response.emailChanged && response.token) {
+        this.auth.setToken(response.token);
+        this.auth.setUser(response.user);
+        this.userChanges$.next(response.user);
+      } else {
+        this.auth.setUser(response);
+        this.userChanges$.next(response);
+      }
+    }),
+    map((response: any) => {
+      return response.user ? response.user : response;
+    })
+  );
+}
 }
