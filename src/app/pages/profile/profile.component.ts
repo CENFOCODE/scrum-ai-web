@@ -126,6 +126,7 @@ if (password.trim()) {
         },
         error: (err: any) => {
           this.errorMessage =
+            err?.error?.message ??
             err?.error?.description ??
             err?.description ??
             err?.message ??
