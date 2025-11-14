@@ -20,6 +20,7 @@ import { WebsocketTestComponent } from './components/websocketTest/websocketTest
 import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
+import { CreateSessionComponent } from './components/scenario/create-session/create-session.component';
 
 
 export const routes: Routes = [

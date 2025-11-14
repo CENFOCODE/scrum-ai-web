@@ -23,7 +23,7 @@ import { Injectable } from '@angular/core';
 export class SocketService {
   /** URL del WebSocket remoto (ngrok/Cloudflare del backend) */
   private readonly WS_URL = 'wss://wai-fossillike-imperatorially.ngrok-free.dev/webrtc';
-  
+
   /** Instancia WebSocket */
   private socket!: WebSocket;
 
