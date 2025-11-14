@@ -47,7 +47,7 @@ form {
 input {
     border-radius: 8px;
     border: 1px solid #1C3B44;
-    padding: 10px;
+    padding: 4px;
     font-size: 16px;
 }
 input.placeholder {
@@ -74,4 +74,39 @@ input.placeholder {
 .login-link:hover {
     color: #c9302c;
     text-decoration: none;
+}
+
+/*  Color inputs   */
+
+/* Borde azul */
+:host ::ng-deep .example-container .mat-mdc-form-field {
+  --mdc-outlined-text-field-outline-color: #1C3B44;
+  --mdc-outlined-text-field-hover-outline-color: #1C3B44;
+  --mdc-outlined-text-field-focus-outline-color: #1C3B44;
+
+  --mdc-outlined-text-field-label-text-color: #1C3B44;
+  --mdc-outlined-text-field-input-text-color: #1C3B44;
+}
+
+/* Label azul */
+:host ::ng-deep .mat-mdc-form-field .mdc-floating-label,
+:host ::ng-deep .mat-mdc-form-field .mdc-floating-label--float-above {
+  color: #1C3B44 !important;
+  font-weight: 500;
+}
+
+/* Texto dentro del input */
+:host ::ng-deep .mat-mdc-input-element {
+  color: #1C3B44 !important;
+}
+
+/* Placeholder */
+:host ::ng-deep .mat-mdc-input-element::placeholder {
+  color: #1C3B44 !important;
+  opacity: 0.7;
+}
+
+/* Íconos de mat-icon dentro de campos */
+:host ::ng-deep .mat-mdc-form-field mat-icon {
+  color: #1C3B44 !important;
 }
