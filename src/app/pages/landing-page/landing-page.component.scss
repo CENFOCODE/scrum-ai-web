@@ -157,15 +157,26 @@ mat-stepper {
   background-size: cover;
   background-color: #ffffff;
 }
+
+#carousel-color button {
+  background-color: #EBE4DA;
+}
+
 #carousel-color .active {
   background-color: #D26A5D;
 }
 
-.img-fluid {
-  height: 453px;
+.carousel{
+ background-color: #582824;
+  border-radius: 10px;
+  height: 400px;
 }
 
-
+.img-fluid {
+  height: 300px;
+  width: 500px;
+  object-fit: contain;
+}
 
 /* ===== Modelos Usados ===== */
 .modelos-usados {
@@ -270,3 +281,6 @@ footer {
 }
 
 
+.carousel-img{
+
+}

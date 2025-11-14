@@ -283,3 +283,16 @@ $cardBorder: rgba(28, 56, 68, 0.08);
   border: none;
   border-radius: 10px;
 }
+
+.btn {
+  background-color: #A4A33A;
+  border-color: #A4A33A;
+  color: white;
+  
+  &:hover {
+    color: #EBE4DA;
+      background-color: #A4A33A;
+      border-color: #A4A33A;
+      box-shadow: 0 12px 16px rgba(134, 134, 86, 0.904);
+  }
+}

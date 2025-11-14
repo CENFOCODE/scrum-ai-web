@@ -42,15 +42,19 @@
 
               <div class="example-container">
                 <mat-form-field appearance="outline" hideRequiredMarker="true" [color]="'primary'">
-                  <mat-label>Email</mat-label>  
+                  <mat-label for="email">Email</mat-label>  
                   <input matInput #email="ngModel" type="email" class="form-control" id="email" name="email"
                   [(ngModel)]="user.email" [ngClass]="{
-                  'is-invalid': email.invalid && email.touched,
+                  'is-invalid': email.errors && email.touched,
                   'is-valid': email.valid && email.touched
-                  }" required >
-                  <div *ngIf="email.invalid" class="invalid-feedback">
-                  Porfavor agrega un email válido
-                  </div>
+                  }" required
+                  pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$">
+                    <div *ngIf="email.errors?.['required']" class="invalid-feedback">
+                      Porfavor agrega un email.
+                    </div>
+                    <div *ngIf="email.errors?.['pattern']" class="invalid-feedback">
+                    Debe ser formato de email válido. 
+                  </div>  
                 </mat-form-field>
               </div>
 
@@ -81,7 +85,7 @@
                   }" required>
                   
                   <div class="invalid-feedback" *ngIf="confirmPassword.touched && user.password !== user.confirmPassword">
-                    Las contrase`ñas no coinciden.
+                    Las contraseñas no coinciden.
                   </div>
                   </mat-form-field>
                 </div>
@@ -90,7 +94,7 @@
               <div class="d-flex align-items-center justify-content-center flex-column">
 
                 <button type="submit" class="btn btn-register btn-lg px-4 pt-15 pb-7 mb-3" [disabled]="frm.invalid || user.password !== user.confirmPassword">Registrarse</button>
-                @if(signUpError) {<p class="text-danger">{{signUpError}}</p>} @else if (validSignup){<p class="text-success">Usuario Registrado con exito</p>}
+                @if(signUpError) {<p class="text-danger">{{signUpError}}</p>} @else if (validSignup){<p class="text-success">Usuario registrado con exito</p>}
               </div>
               <div class="text-center">
                 <p>

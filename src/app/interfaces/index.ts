@@ -3,9 +3,6 @@ export interface ILoginResponse {
   token: string;
   expiresIn: number;
 }
-
-
-
 export interface IResponse<T> {
   data: T;
   message: string,
@@ -128,4 +125,21 @@ export interface IScenario {
   goals?: string;
   name?: string;
   team?: string;
+}
+
+export interface ISimulations {
+  id?: number;
+  averageScore?: number; 
+  difficultyLevel?: string;
+  endDate?: Date;
+  startDate?: Date;
+  createdBy?: IUser; // id del usuario que lo creo
+  scenario?: IScenario;
+}
+
+export interface ISimulationUser {
+  id? : number;
+  assignedAt?: Date;
+  scrumRole?: string;
+  simulation?: ISimulations;
 }
