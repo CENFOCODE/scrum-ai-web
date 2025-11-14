@@ -1,0 +1,23 @@
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+.content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 250px;
+  transition: margin-left .3s ease;
+  padding-top: 65px;
+
+}
+
+.layout:not(.sidebar-open) .content-area {
+  margin-left: 80px;
+}
+
+.main-content {
+  flex: 1;
+  padding: 1rem;
+}

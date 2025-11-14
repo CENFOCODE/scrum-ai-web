@@ -38,3 +38,42 @@
     }
   }
 }
+
+/* Login inputs */
+
+:host ::ng-deep .login-container .mat-mdc-form-field {
+  --mdc-outlined-text-field-outline-color: #1C3B44;
+  --mdc-outlined-text-field-hover-outline-color: #1C3B44;
+  --mdc-outlined-text-field-focus-outline-color: #1C3B44;
+  --mdc-outlined-text-field-input-text-color: #1C3B44;
+  --mdc-outlined-text-field-label-text-color: #1C3B44;
+}
+
+/* Label */
+:host ::ng-deep .login-container .mdc-floating-label,
+:host ::ng-deep .login-container .mdc-floating-label--float-above {
+  color: #1C3B44 !important;
+}
+
+/* Texto y placeholder */
+:host ::ng-deep .login-container .mat-mdc-input-element {
+  color: #1C3B44 !important;
+}
+
+:host ::ng-deep .login-container .mat-mdc-input-element::placeholder {
+  color: #1C3B44 !important;
+  opacity: 0.8;
+}
+
+/* Icono del ojo */
+:host ::ng-deep .login-container .mat-mdc-form-field-icon-suffix .mat-icon {
+  color: #1C3B44 !important;
+}
+
+/* Divider azul */
+
+:host ::ng-deep .p-divider.p-divider-horizontal:before,
+:host ::ng-deep .p-divider.p-divider-horizontal:after {
+  border-top: 1px solid #1C3B44 !important;
+  opacity: 0.1.5; 
+}

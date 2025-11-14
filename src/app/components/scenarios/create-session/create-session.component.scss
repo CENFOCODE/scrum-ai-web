@@ -70,7 +70,7 @@ $cardBorder: rgba(28, 56, 68, 0.08);
 #csd-title { color: $petroleo; }
 
 .csd-surface {
-  background: #D9D9D9;
+  background: #EBE4DA;
   border: 1px solid $cardBorder;
   border-radius: .5rem;
   padding: 18px;
@@ -121,7 +121,7 @@ $cardBorder: rgba(28, 56, 68, 0.08);
   flex-wrap: nowrap;
   align-items: center;
   justify-content: flex-start;
-  gap: 12px; 
+  gap: 12px;
 }
 
 /* Arrow */
@@ -277,4 +277,9 @@ $cardBorder: rgba(28, 56, 68, 0.08);
 .cdk-overlay-container .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected {
   background: color-mix(in srgb, var(--csd-petroleo) 10%, white) !important;
   color: var(--csd-petroleo) !important;
+}
+
+.card {
+  border: none;
+  border-radius: 10px;
 }
