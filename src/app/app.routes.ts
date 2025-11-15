@@ -10,9 +10,6 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { GuestGuard } from './guards/guest.guard';
 import { IRoleType } from './interfaces';
 import { ProfileComponent } from './pages/profile/profile.component';
-import { GiftComponent } from './pages/gift/gift.component';
-import { GiftListGiftsComponent } from './pages/gift-list-gifts/gift-list-gifts.component';
-import { GiftsComponent } from './pages/gifts/gifts.component';
 import { LandingCenfoComponent } from './pages/landing-cenfo/landing-cenfo.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
@@ -121,37 +118,6 @@ export const routes: Routes = [
           ],
           name: 'daily',
           showInSidebar: false
-        }
-      },
-
-
-
-
-
-      {
-        path: 'gift-list',
-        component: GiftComponent,
-        data: {
-          authorities: [
-            IRoleType.admin,
-            IRoleType.superAdmin,
-            IRoleType.user,
-          ],
-          name: 'Gift Lists',
-          showInSidebar: true
-        }
-      },
-      {
-        path: 'gifts',
-        component: GiftsComponent,
-        data: {
-          authorities: [
-            IRoleType.admin,
-            IRoleType.superAdmin,
-            IRoleType.user,
-          ],
-          name: 'Gifts',
-          showInSidebar: true
         }
       },
       {

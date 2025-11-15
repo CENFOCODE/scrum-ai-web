@@ -43,7 +43,12 @@ export class SigUpComponent {
   constructor(private router: Router, 
     private authService: AuthService) {}
 
-
+  public clearError() {
+    if (this.signUpError) {
+      this.signUpError = '';
+      this.manualDetector.markForCheck();
+    }
+  }
 
   public handleSignup(event: Event) {
     event.preventDefault();
