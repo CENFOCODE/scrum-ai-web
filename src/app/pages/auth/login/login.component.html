@@ -1,66 +1,67 @@
-<div class="login-container">
-  <div class="d-flex align-items-center justify-content-center h-100">
-    <div class="login-card">
-      <div class="w-100">
-        <div class="text-center">
-          <a class="logo text-center" routerLink="/">
-            <img
-              width="250"
-              class="img-fluid mb-4"
-              src="../../../../assets/icons/logo@2x.png"
-              alt="Logo"
-            />
-          </a>
+<div class="bg-light login-container">
+    <div class="container d-flex align-items-center justify-content-center h-100">
+        <div class="login-card shadow-sm rounded">
+            <div class="text-center">
+                <a class="logo text-center" routerLink="/">
+                    <img width="180" class="img-fluid mb-4" src="assets/img/logo/cenfocode-logo.png" alt="Logo" />
+                </a>
+            </div>
+
+            <div>
+                <form (ngSubmit)="handleLogin($event)" autocomplete="off" #frm="ngForm">
+                    <div class="mb-3 text-center">
+                        <h1>Inicio de sesión</h1>
+                        <p>Ingresa tus datos para acceder a su cuenta</p>
+                          <!-- Google Identity Services button -->
+                          
+                    <!-- Contenedor para el botón de Google -->
+                    <div class="g_id_signin" data-type="standard"></div>
+                    </div>
+                  
+
+                    <div class="w-full">
+                        <p-divider layout="horizontal" align="center">
+                            <b>O</b>
+                        </p-divider>
+                    </div>
+
+                    <div class="d-flex flex-column form-container">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Email</mat-label>
+                            <input matInput #email="ngModel" type="text" id="email" name="email"
+                                [(ngModel)]="loginForm.email"
+                                (ngModelChange)="clearError()" />
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                            <mat-label>Contraseña</mat-label>
+                            <input matInput #password="ngModel" [type]="hide() ? 'password' : 'text'"
+                                 id="password" name="password" [(ngModel)]="loginForm.password"
+                                (ngModelChange)="clearError()" />
+                            <button mat-icon-button matSuffix (click)="clickEvent($event)"
+                                [attr.aria-label]="'Mostrar u ocultar contraseña'" [attr.aria-pressed]="hide()"
+                                type="button">
+                                <mat-icon>{{hide() ? 'visibility_off' : 'visibility'}}</mat-icon>
+                            </button>
+                        </mat-form-field>
+
+                        <small class="text-end forgot-password">
+                            <a class="app-link" href="/forgot-password">¿Olvidaste tu contraseña?</a>
+                        </small>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="primary-btn mb-3" type="submit">
+                            Ingresar
+                        </button>
+                        @if (loginError) {
+                        <p class="text-danger">{{ loginError }}</p>
+                        }
+                        <p>¿No está registrado?<a class="app-link" href="/signup"> Crear cuenta</a></p>
+                    </div>
+                </form>
+                
+            </div>
         </div>
-        <div class="login-main">
-          <form (ngSubmit)="handleLogin($event)" autocomplete="off" #frm="ngForm">
-            <div class="mb-3">
-              <h4>Sign in to account</h4>
-              <small style="color: #4f4f4f">
-                Enter your email & password to login
-              </small>
-            </div>
-
-            <div class="form-group mb-3">
-              <label for="email" class="form-label mb-2">
-                Email Address
-              </label>
-              <input #email="ngModel" type="text" class="form-control" id="email" name="email"
-                placeholder="agent@gmail.com" [(ngModel)]="loginForm.email" [ngClass]="{
-                  'is-invalid': email.invalid && email.touched,
-                  'is-valid': email.valid && email.touched
-                }" required />
-              <div *ngIf="email.invalid" class="invalid-feedback">
-                Please add a valid email
-              </div>
-            </div>
-
-            <div class="form-group mb-4">
-              <label for="password" class="form-label mb-2">Password</label>
-              <div class="form-input position-relative">
-                <input #password="ngModel" type="password" class="form-control" id="password" name="password"
-                placeholder="*****" [(ngModel)]="loginForm.password" [ngClass]="{
-                  'is-invalid': password.invalid && password.touched,
-                  'is-valid': password.valid && password.touched
-                }" required />
-                <div *ngIf="password.invalid" class="invalid-feedback">
-                  Please add a valid password
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group mb-0">
-              <button class="btn btn-primary btn-block w-100" type="submit">
-                Sign in
-              </button>
-              @if(loginError) {
-                <p class="text-danger">{{loginError}}</p>
-              }
-            </div>
-            <a href="/signup">Go SignUp</a>
-          </form>
-        </div>
-      </div>
     </div>
-  </div>
 </div>

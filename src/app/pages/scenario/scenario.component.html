@@ -1,0 +1,19 @@
+
+<div class="container my-4">
+    <!-- Vista de selección de escenarios -->
+    <div *ngIf="!showCreateSession" class="shadow-sm p-3 mb-5 bg-body-tertiary rounded">
+        <h2>Seleccione el escenario</h2>
+        <p>Selecciona un escenario para aprender o reforzar cómo funciona cada tipo de ceremonia en Scrum.</p>
+        <app-scenario-list
+            [scenarios]="scenarioService.scenario$()"
+            (ceremonySelected)="onCeremonySelected($event)">
+        </app-scenario-list>
+    </div>
+
+    <!-- Vista de creación de sesión -->
+    <div *ngIf="showCreateSession && selectedCeremony">
+        <app-create-session
+            [ceremonyData]="selectedCeremony" >
+        </app-create-session>
+    </div>
+</div>

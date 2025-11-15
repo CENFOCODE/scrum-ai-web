@@ -1,0 +1,50 @@
+<div class="video-room-container">
+
+  <!-- ================================
+       CONTROLES PRINCIPALES
+       ================================ -->
+  <div class="controls">
+    <button (click)="createRoom()" class="btn-control">Crear Sala</button>
+    <button (click)="joinRoom()" class="btn-control">Unirse a Sala</button>
+    <button (click)="inviteUser()" class="btn-control">Invitar Usuario</button>
+    <button (click)="endCall()" class="btn-danger">Finalizar Llamada</button>
+  </div>
+
+  <!-- ================================
+       ESTADO
+       ================================ -->
+  <div class="status-box">
+    <p><strong>Usuario:</strong> {{ username }}</p>
+    <p><strong>Rol:</strong> {{ role || 'Ninguno' }}</p>
+    <p><strong>Sala:</strong> {{ room || 'No conectado' }}</p>
+    <p><strong>WebSocket:</strong>
+      <span [ngClass]="isConnected ? 'ok' : 'fail'">
+        {{ isConnected ? 'Conectado' : 'Desconectado' }}
+      </span>
+    </p>
+  </div>
+
+  <!-- ================================
+       VIDEO LOCAL
+       ================================ -->
+  <div class="local-video-wrapper">
+    <p class="label">Tú</p>
+    <video id="localVideo" autoplay playsinline muted></video>
+  </div>
+
+  <!-- ================================
+       VIDEOS REMOTOS
+       ================================ -->
+  <div id="remoteContainer" class="remote-grid">
+    <!--
+      Los videos remotos se agregan
+      dinámicamente desde attachRemoteAV():
+      
+        remote-video-USER → VIDEO
+        remote-audio-USER → AUDIO limpio
+
+      No va nada aquí. Es intentional.
+    -->
+  </div>
+
+</div>

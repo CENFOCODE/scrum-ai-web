@@ -1,0 +1,97 @@
+ <div class="container my-4 backlog-container">
+    <div class="card p-4 shadow-sm">
+     <div id="breadcrumb-component" class="mb-3">
+      <p-breadcrumb class="max-w-full" [model]="itemsMenu">
+        <ng-template pTemplate="item" let-item>
+            <ng-container *ngIf="item.route; else elseBlock">
+                <a [routerLink]="item.route">
+                    <span class="">{{ item.label }}</span>
+                </a>
+            </ng-container>
+            <ng-template #elseBlock>
+                <a [href]="item.url" target="_blank" rel="noopener noreferrer">
+                    <span class="">{{ item.label }}</span>
+                </a>
+            </ng-template>
+        </ng-template>
+      </p-breadcrumb>
+     </div>
+      <div class="mb-3">
+        <h2 class="fw-semibold mb-1">Backlog</h2>
+        <small class="text-muted">Instrucciones</small>
+        <p class="mt-2 mb-0">Aqui podras decidir y practicar como organizar y visualizar las diferentes tareas y su estado de completitud y de que manera estas debrian ser organizadas.</p>
+      </div>
+
+      <!-- Componente Drag & Drop (espacio reservado) -->
+ <div class="kanban-board mt-4">
+    <!-- TO DO -->
+    <div
+      class="kanban-column"
+      cdkDropList
+      id="todoList"
+      [cdkDropListData]="todo"
+      [cdkDropListConnectedTo]="connectedLists"
+      (cdkDropListDropped)="drop($event)"
+    >
+      <h6 class="fw-bold">TO DO</h6>
+      <div class="kanban-item" *ngFor="let task of todo" cdkDrag>
+        <strong>{{ task.title }}</strong><br>
+        <small class="text-muted">{{ task.description }}</small>
+      </div>
+    </div>
+
+    <!-- IN PROGRESS -->
+    <div
+      class="kanban-column"
+      cdkDropList
+      id="inProgressList"
+      [cdkDropListData]="inProgress"
+      [cdkDropListConnectedTo]="connectedLists"
+      (cdkDropListDropped)="drop($event)"
+    >
+      <h6 class="fw-bold">IN PROGRESS</h6>
+      <div class="kanban-item" *ngFor="let task of inProgress" cdkDrag>
+        <strong>{{ task.title }}</strong><br>
+        <small class="text-muted">{{ task.description }}</small>
+      </div>
+    </div>
+
+    <!-- QA -->
+    <div
+      class="kanban-column"
+      cdkDropList
+      id="qaList"
+      [cdkDropListData]="qa"
+      [cdkDropListConnectedTo]="connectedLists"
+      (cdkDropListDropped)="drop($event)"
+    >
+      <h6 class="fw-bold">QA</h6>
+      <div class="kanban-item" *ngFor="let task of qa" cdkDrag>
+        <strong>{{ task.title }}</strong><br>
+        <small class="text-muted">{{ task.description }}</small>
+      </div>
+    </div>
+
+    <!-- DONE -->
+    <div
+      class="kanban-column"
+      cdkDropList
+      id="doneList"
+      [cdkDropListData]="done"
+      [cdkDropListConnectedTo]="connectedLists"
+      (cdkDropListDropped)="drop($event)"
+    >
+      <h6 class="fw-bold">DONE</h6>
+      <div class="kanban-item" *ngFor="let task of done" cdkDrag>
+        <strong>{{ task.title }}</strong><br>
+        <small class="text-muted">{{ task.description }}</small>
+      </div>
+    </div>
+  </div>
+
+      <div class="d-flex justify-content-between mt-4">
+        <button class="btn btn-outline-secondary px-4" (click)="goBackToCreateSession()">Anterior</button>
+        <button class="primary-btn btn-success px-4">Siguiente</button>
+      </div>
+    </div>
+  </div>

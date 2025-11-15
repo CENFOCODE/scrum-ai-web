@@ -9,8 +9,9 @@ import { HttpClient } from '@angular/common/http';
 export class AuthService {
   private accessToken!: string;
   private expiresIn! : number;
-  private user: IUser = {email: '', authorities: []};
+  private user: IUser = {id: 0, email: '', authorities: []};
   private http: HttpClient = inject(HttpClient);
+
 
   constructor() {
     this.load();
@@ -33,10 +34,19 @@ export class AuthService {
     if (exp) this.expiresIn = JSON.parse(exp);
     const user = localStorage.getItem('auth_user');
     if (user) this.user = JSON.parse(user);
+    
   }
 
   public getUser(): IUser | undefined {
     return this.user;
+  }
+
+  public getUserId(): number | undefined {
+    return this.user.id
+  }
+
+  public getUserRole() {
+    return this.user.authorities
   }
 
   public getAccessToken(): string | null {
@@ -65,7 +75,16 @@ export class AuthService {
       })
     );
   }
-
+loginWithGoogle(credential: string): Observable<ILoginResponse> {
+  return this.http.post<ILoginResponse>('auth/google', { credential }).pipe(
+    tap((response: any) => {
+      this.accessToken = response.token;       
+      this.expiresIn = response.expiresIn;
+      this.user = response.authUser;            
+      this.save();
+    })
+  );
+}
   public hasRole(role: string): boolean {
     return this.user.authorities ?  this.user?.authorities.some(authority => authority.authority == role) : false;
   }
@@ -77,7 +96,14 @@ export class AuthService {
   public hasAnyRole(roles: any[]): boolean {
     return roles.some(role => this.hasRole(role));
   }
-
+public setUser(user: IUser): void {
+    this.user = user;
+    this.save();
+  }
+  public setToken(token: string): void {
+  this.accessToken = token;
+  this.save();
+}
   public getPermittedRoutes(routes: any[]): any[] {
     let permittedRoutes: any[] = [];
     for (const route of routes) {
@@ -92,6 +118,9 @@ export class AuthService {
 
   public signup(user: IUser): Observable<ILoginResponse> {
     return this.http.post<ILoginResponse>('auth/signup', user);
+  }
+    public forgotPassword(email: string): Observable<IResponse<any>> {
+    return this.http.post<IResponse<any>>('auth/recover-password', { email });
   }
 
   public logout() {

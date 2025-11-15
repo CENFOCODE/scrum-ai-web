@@ -14,12 +14,17 @@ import { SvgIconComponent } from '../svg-icon/svg-icon.component';
     RouterOutlet,
     TopbarComponent,
     SidebarComponent,
-    SvgIconComponent
   ],
   templateUrl: './app-layout.component.html',
+  styleUrls: ['../../../styles.scss', 'app-layout.component.scss']
 })
 export class AppLayoutComponent {
   public title?: string;
+  sidebarVisible = true;
+
+  toggleSidebar() {
+    this.sidebarVisible = !this.sidebarVisible;
+  }
 
   constructor(public layoutService: LayoutService) {
     this.layoutService.title.subscribe((title) => (this.title = title));

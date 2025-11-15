@@ -1,0 +1,74 @@
+@use '@angular/material' as mat;
+
+// Include the core structural styles
+@include mat.core();
+
+// 1. Define your custom primary color
+$my-primary-color: #1C3B44;
+
+// 2. Create the full palette map for your color.
+// (I've used a tool to generate the lighter/darker shades based on your color)
+$my-primary-palette-map: (
+  50: #e8ecee,
+  100: #c6d0d3,
+  200: #a1b1b6,
+  300: #7c9199,
+  400: #5f7981,
+  500: $my-primary-color,
+  600: #19353d,
+  700: #152d34,
+  800: #12262c,
+  900: #0b191e,
+  A100: #65d3f0,
+  A200: #32c6eb,
+  A400: #00b9e6,
+  A700: #00a4ce,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #000000,
+    400: #ffffff,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+    A100: #000000,
+    A200: #000000,
+    A400: #000000,
+    A700: #ffffff,
+  )
+);
+
+// 3. Define the primary, accent, and warn palettes
+$my-primary-palette: mat.define-palette($my-primary-palette-map, 500);
+$my-accent-palette: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+$my-warn-palette: mat.define-palette(mat.$red-palette);
+
+// 4. Create the light theme
+$my-light-theme: mat.define-light-theme((
+  color: (
+    primary: $my-primary-palette,
+    accent: $my-accent-palette,
+    warn: $my-warn-palette,
+  )
+));
+
+// 5. Create the dark theme
+$my-dark-theme: mat.define-dark-theme((
+  color: (
+    primary: $my-primary-palette,
+    accent: $my-accent-palette,
+    warn: $my-warn-palette,
+  )
+));
+
+// 6. Apply the themes
+// Apply the light theme by default
+@include mat.all-component-themes($my-light-theme);
+
+// Apply the dark theme when the .dark-theme class is on the body
+.dark-theme {
+  @include mat.all-component-themes($my-dark-theme);
+}

@@ -10,17 +10,27 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { GuestGuard } from './guards/guest.guard';
 import { IRoleType } from './interfaces';
 import { ProfileComponent } from './pages/profile/profile.component';
-import { GamesComponent } from './pages/games/games.component';
-import { OrdersComponent } from './pages/orders/orders.component';
-import { PreferenceListPageComponent } from './pages/preference-list/preference-list.component';
-import { SportTeamComponent } from './pages/sport-team/sport-team.component';
-import { CalculatorComponent } from './pages/calculator/calculator.component';
-import { GiftComponent } from './pages/gift/gift.component';
-import { GiftListGiftsComponent } from './pages/gift-list-gifts/gift-list-gifts.component';
-import { GiftsComponent } from './pages/gifts/gifts.component';
+import { LandingCenfoComponent } from './pages/landing-cenfo/landing-cenfo.component';
+import { LandingPageComponent } from './pages/landing-page/landing-page.component';
+import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
+import { WebsocketTestComponent } from './components/websocketTest/websocketTestComponent';
+import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
+import { DailyComponent } from './pages/daily/daily.component';
+import { ScenarioComponent } from './pages/scenario/scenario.component';
+import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
 
 
 export const routes: Routes = [
+  {
+    path: 'landingpage',
+    component: LandingPageComponent,
+    canActivate: [GuestGuard],
+  },
+  {
+    path: 'landingcenfo',
+    component: LandingCenfoComponent,
+    canActivate: [GuestGuard],
+  },
   {
     path: 'login',
     component: LoginComponent,
@@ -32,12 +42,18 @@ export const routes: Routes = [
     canActivate: [GuestGuard],
   },
   {
+    path: 'forgot-password',
+    component: ForgotPasswordComponent,
+    canActivate: [GuestGuard],
+  },
+  {
     path: 'access-denied',
     component: AccessDeniedComponent,
   },
+
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'landingpage',
     pathMatch: 'full',
   },
   {
@@ -54,21 +70,23 @@ export const routes: Routes = [
         path: 'users',
         component: UsersComponent,
         canActivate:[AdminRoleGuard],
-        data: { 
+        data: {
           authorities: [
-            IRoleType.admin, 
+            IRoleType.admin,
             IRoleType.superAdmin
           ],
           name: 'Users',
           showInSidebar: true
         }
       },
+
+
       {
         path: 'dashboard',
         component: DashboardComponent,
-        data: { 
+        data: {
           authorities: [
-            IRoleType.admin, 
+            IRoleType.admin,
             IRoleType.superAdmin,
             IRoleType.user
           ],
@@ -79,9 +97,9 @@ export const routes: Routes = [
       {
         path: 'profile',
         component: ProfileComponent,
-        data: { 
+        data: {
           authorities: [
-            IRoleType.admin, 
+            IRoleType.admin,
             IRoleType.superAdmin,
             IRoleType.user
           ],
@@ -90,83 +108,59 @@ export const routes: Routes = [
         }
       },
       {
-        path: 'orders',
-        component: OrdersComponent,
-        data: { 
-          authorities: [
-            IRoleType.admin, 
-            IRoleType.superAdmin,
-            IRoleType.user,
-          ],
-          name: 'orders',
-          showInSidebar: true
-        }
-      },
-      {
-        path: 'preference-list',
-        component: PreferenceListPageComponent,
-        data: { 
-          authorities: [
-            IRoleType.admin, 
-            IRoleType.superAdmin,
-            IRoleType.user,
-          ],
-          name: 'preference list',
-          showInSidebar: true
-        }
-      },
-      {
-        path: 'sport-team',
-        component: SportTeamComponent,
-        data: { 
-          authorities: [
-            IRoleType.admin, 
-            IRoleType.superAdmin,
-            IRoleType.user,
-          ],
-          name: 'Sport Team',
-          showInSidebar: true
-        }
-      },
-      {
-        path: 'calculator',
-        component: CalculatorComponent,
+        path: 'daily',
+        component: DailyComponent,
         data: {
           authorities: [
             IRoleType.admin,
             IRoleType.superAdmin,
             IRoleType.user,
           ],
-          name: 'Calculator',
-          showInSidebar: true
+          name: 'daily',
+          showInSidebar: false
         }
       },
       {
-        path: 'gift-list',
-        component: GiftComponent,
+        path: 'scenario',
+        component: ScenarioComponent,
         data: {
           authorities: [
             IRoleType.admin,
             IRoleType.superAdmin,
             IRoleType.user,
           ],
-          name: 'Gift Lists',
+          name: 'Scenario',
           showInSidebar: true
         }
       },
       {
-        path: 'gifts',
-        component: GiftsComponent,
+        path: 'websocketTest',
+        component: WebsocketTestComponent,
         data: {
           authorities: [
             IRoleType.admin,
             IRoleType.superAdmin,
             IRoleType.user,
           ],
-          name: 'Gifts',
-          showInSidebar: true
+          name: 'WebSocket Test',
+          showInSidebar: false // si no querés que aparezca en el menú lateral
+        }
+      },
+      {
+        path: 'videoRoom',
+        component: VideoRoomComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'Video Room',
+          showInSidebar: false
         }
       }
+
+
     ],
   },
 ];

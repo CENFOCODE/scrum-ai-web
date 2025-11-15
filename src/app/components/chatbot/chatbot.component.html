@@ -1,0 +1,45 @@
+<!-- ---------------------------------------------------------
+     CONTENEDOR PRINCIPAL DEL CHAT
+---------------------------------------------------------- -->
+<div class="chat-container">
+
+  <h2>Scrum AI 💬</h2>
+
+  <!-- ---------------------------------------------------------
+       MENSAJES DEL CHAT (Usuario vs IA)
+       ---------------------------------------------------------
+       La lista se genera desde el array messages[].
+       ngClass elige estilos según el origen del mensaje.
+  ---------------------------------------------------------- -->
+  <div class="messages">
+    <div
+      *ngFor="let msg of messages"
+      [ngClass]="msg.from === 'Usuario' ? 'user' : 'ai'"
+    >
+      <strong>{{ msg.from }}:</strong> {{ msg.prompt }}
+    </div>
+  </div>
+
+  <!-- ---------------------------------------------------------
+       INPUT DEL USUARIO + BOTÓN
+       ---------------------------------------------------------
+       Enter → envía el mensaje
+       Botón → envía el mensaje
+       loading → deshabilita el botón
+  ---------------------------------------------------------- -->
+  <div class="input-area">
+    <input
+      #userInput
+      type="text"
+      placeholder="Escribe tu pregunta..."
+      (keyup.enter)="sendMessage(userInput)"
+    />
+
+    <button
+      (click)="sendMessage(userInput)"
+      [disabled]="loading"
+    >
+      {{ loading ? 'Enviando...' : 'Enviar' }}
+    </button>
+  </div>
+</div>

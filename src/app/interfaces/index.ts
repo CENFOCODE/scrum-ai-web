@@ -1,8 +1,8 @@
 export interface ILoginResponse {
-  accessToken: string;
-  expiresIn: number
+  authUser: IUser;
+  token: string;
+  expiresIn: number;
 }
-
 export interface IResponse<T> {
   data: T;
   message: string,
@@ -15,11 +15,13 @@ export interface IUser {
   lastname?: string;
   email?: string;
   password?: string;
+  confirmPassword?: string;
   active?: boolean;
   createdAt?: string;
   updatedAt?: string;
   authorities?: IAuthority[];
   role?: IRole
+  authProvider?: 'local' | 'google';
 }
 
 export interface IAuthority {
@@ -51,15 +53,17 @@ export interface IRole {
   updatedAt: string;
 }
 
-export interface IGame {
-  id?: number;
-  name?: string;
-  imgURL?: string;
-  status?: string;
-  description?: string;
-  createdAt?: string;
-  updatedAt?: string;
+export interface IRole {
+  id: number;
+  name: string;
 }
+
+export interface IUserRoleAssign {
+  userId: number;
+  roleId: number;
+  simulationId?: number;
+}
+
 
 export interface IOrder {
   id?: number;
@@ -76,34 +80,11 @@ export interface ISearch {
   totalPages?:number;
 }
 
-export interface IMovie {
-  id?: number;
-  title?: string;
-  director?: string;
-  description?: string;
-}
 
-export interface IPreferenceList {
-  id?: number;
-  name?: string;
-  movies?: IMovie[];
-}
 
-export interface ISportTeam {
-  id?: number;
-  name?: string;
-  players?: IPlayer[];
-  stadium?: string;
-  founded?: number;
-  coach?: string;
-  isInClubsWorldCup?: boolean;
-  teamLogo?: string;
-}
 
-export interface IPlayer {
-  id?: number;
-  name?: string;
-}
+
+
 
 export interface IGiftList {
   id?: number;
@@ -120,4 +101,45 @@ export interface IGift {
   createdAt?: string;
   updatedAt?: string;
   giftList?: IGiftList;
+}
+
+export interface IAIResponse {
+  answer?: string;
+  error?: string;
+}
+
+export interface ICeremony {
+  id?: number;
+  ceremonyType?: string;
+  startTime?: Date;
+  summary?: string;
+}
+
+export interface IScenario {
+  id?: number;
+  backlog?: string;
+  ceremonyType?: string;
+  description?: string;
+  difficultyLevel?: string;
+  estimatedDuration?: number;
+  goals?: string;
+  name?: string;
+  team?: string;
+}
+
+export interface ISimulations {
+  id?: number;
+  averageScore?: number; 
+  difficultyLevel?: string;
+  endDate?: Date;
+  startDate?: Date;
+  createdBy?: IUser; // id del usuario que lo creo
+  scenario?: IScenario;
+}
+
+export interface ISimulationUser {
+  id? : number;
+  assignedAt?: Date;
+  scrumRole?: string;
+  simulation?: ISimulations;
 }
