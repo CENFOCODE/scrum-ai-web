@@ -1,0 +1,202 @@
+<div id="csd-planning-board" class="csd-planning-board">
+  <div id="csd-planning-card" class="csd-planning-card">
+
+    <div id="csd-planning-main-grid" class="csd-planning-main-grid">
+      <div id="csd-planning-left" class="csd-planning-left">
+        <!-- Participantes -->
+        <section id="csd-planning-participants" class="csd-surface csd-planning-participants">
+          <h3 id="csd-planning-participants-title" class="mb-2">Participantes</h3>
+          <ul id="csd-planning-participants-list" class="mb-0">
+            <li *ngFor="let p of participants">{{ p }}</li>
+          </ul>
+        </section>
+
+        <!-- Mesa central -->
+        <section id="csd-planning-table" class="csd-planning-table csd-surface">
+          <!-- Historia actual -->
+          <div id="csd-planning-story-header" class="csd-planning-story-header">
+            <div id="csd-planning-story-code" class="csd-planning-story-code">
+              {{ selectedTicket?.code || 'SC-0' }}
+            </div>
+            <div id="csd-planning-story-name" class="csd-planning-story-name">
+              {{ selectedTicket?.name || 'Nombre de historia' }}
+            </div>
+          </div>
+
+          <!-- Usuarios -->
+          <div id="csd-planning-seats" class="csd-planning-seats">
+            <!-- Fila superior -->
+            <div class="csd-planning-seat-row csd-planning-seat-row--top">
+              <div *ngFor="let seat of [1,2,3,4,5]" class="csd-planning-seat">
+                <div class="csd-planning-seat-avatar"></div>
+                <span class="csd-planning-seat-name">Name</span>
+                <div class="csd-planning-seat-card-slot">—</div>
+              </div>
+            </div>
+
+            <!-- Elige una carta -->
+            <div id="csd-planning-choose-card" class="csd-planning-choose-card">
+              Elige una carta
+            </div>
+
+            <!-- Fila inferior -->
+            <div class="csd-planning-seat-row csd-planning-seat-row--bottom">
+              <div *ngFor="let seat of [1,2,3,4,5]" class="csd-planning-seat">
+                <div class="csd-planning-seat-avatar"></div>
+                <span class="csd-planning-seat-name">Name</span>
+                <div class="csd-planning-seat-card-slot">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tira de cartas del usuario -->
+          <section id="csd-planning-your-card" class="csd-planning-your-card">
+            <h4 id="csd-planning-your-card-title">Elige tu carta</h4>
+            <div id="csd-planning-card-row" class="csd-planning-card-row">
+              <button
+                *ngFor="let card of cards"
+                type="button"
+                class="csd-planning-card-option"
+                [class.csd-planning-card-option--selected]="selectedCard === card"
+                (click)="handleSelectCard(card)">
+                {{ card }}
+              </button>
+            </div>
+          </section>
+        </section>
+      </div>
+
+      <!-- Panel de tiquetes -->
+      <aside id="csd-planning-tickets-panel" class="csd-planning-tickets-panel">
+        <div id="csd-planning-tickets-card" class="csd-planning-tickets-card">
+          <!-- Buscar tiquete / boton Add -->
+          <div id="csd-planning-ticket-search" class="csd-planning-ticket-search">
+            <input
+              id="csd-planning-ticket-search-input"
+              type="text"
+              class="form-control csd-planning-ticket-search-input"
+              placeholder="Buscar tiquetes..."
+              [ngModel]="searchTerm()"
+              (ngModelChange)="handleSearch($event)"
+            />
+            <button
+              id="csd-planning-ticket-add-button-top"
+              type="button"
+              class="csd-btn csd-btn--small csd-btn--primary"
+              (click)="toggleAddForm()">
+              + Agregar
+            </button>
+          </div>
+
+          <!-- Formulario Add -->
+          <section
+            id="csd-planning-add-form"
+            class="csd-planning-add-form"
+            *ngIf="showAddForm">
+            <h4 id="csd-planning-add-form-title">Agregar nuevo tiquete</h4>
+
+            <div class="csd-planning-add-form-row">
+              <label for="csd-planning-input-id">ID</label>
+              <input
+                id="csd-planning-input-id"
+                type="text"
+                class="form-control"
+                [(ngModel)]="newTicket.code"
+              />
+            </div>
+
+            <div class="csd-planning-add-form-row">
+              <label for="csd-planning-input-url">URL</label>
+              <input
+                id="csd-planning-input-url"
+                type="text"
+                class="form-control"
+                [(ngModel)]="newTicket.url"
+              />
+            </div>
+
+            <div class="csd-planning-add-form-row">
+              <label for="csd-planning-input-name">Nombre</label>
+              <input
+                id="csd-planning-input-name"
+                type="text"
+                class="form-control"
+                [(ngModel)]="newTicket.name"
+              />
+            </div>
+
+            <div class="csd-planning-add-form-row">
+              <label for="csd-planning-input-description">Descripción</label>
+              <textarea
+                id="csd-planning-input-description"
+                rows="2"
+                class="form-control"
+                [(ngModel)]="newTicket.description">
+              </textarea>
+            </div>
+
+            <div class="csd-planning-add-form-actions">
+              <button
+                id="csd-planning-add-form-cancel"
+                type="button"
+                class="btn btn-outline-secondary btn-sm"
+                (click)="handleCancelNewTicket()">
+                Cancelar
+              </button>
+              <button
+                id="csd-planning-add-form-add"
+                type="button"
+                class="csd-btn csd-btn--small csd-btn--primary"
+                (click)="handleAddTicket()">
+                Agregar
+              </button>
+            </div>
+          </section>
+
+          <!-- Lista de tiquetes -->
+          <section id="csd-planning-ticket-list" class="csd-planning-ticket-list">
+            <article
+              *ngFor="let ticket of tickets"
+              class="csd-planning-ticket-item"
+              [id]="'csd-planning-ticket-item-' + ticket.id"
+              (click)="handleSelectTicket(ticket)">
+              <div class="csd-planning-ticket-header">
+                <span
+                  class="csd-planning-ticket-status"
+                  [ngClass]="{
+                    'csd-planning-ticket-status--pendiente': ticket.status === 'Pendiente',
+                    'csd-planning-ticket-status--votando': ticket.status === 'Votando'
+                  }"
+                  (click)="$event.stopPropagation()">
+                  {{ ticket.status }}
+                </span>
+                <span class="csd-planning-ticket-code">
+                  {{ ticket.code }}
+                </span>
+              </div>
+
+              <div class="csd-planning-ticket-body">
+                <h5 class="csd-planning-ticket-name">
+                  {{ ticket.name }}
+                </h5>
+                <p class="csd-planning-ticket-description">
+                  {{ ticket.description }}
+                </p>
+              </div>
+
+              <div class="csd-planning-ticket-footer">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm csd-planning-start-btn"
+                  (click)="handleStartVoting(ticket); $event.stopPropagation();">
+                  <span class="csd-planning-start-arrow">▶</span>
+                  <span>Votar ahora</span>
+                </button>
+              </div>
+            </article>
+          </section>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>

@@ -18,6 +18,7 @@ import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
 import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
+import { PlanningComponent } from './pages/planning-poker/planning.component';
 
 
 export const routes: Routes = [
@@ -50,7 +51,11 @@ export const routes: Routes = [
     path: 'access-denied',
     component: AccessDeniedComponent,
   },
-
+{
+    path: 'landingcenfo',
+    component: LandingCenfoComponent,
+    canActivate: [GuestGuard],
+  },
   {
     path: '',
     redirectTo: 'landingpage',
@@ -65,6 +70,19 @@ export const routes: Routes = [
         path: 'app',
         redirectTo: 'users',
         pathMatch: 'full',
+      },
+       {
+        path: 'planning',
+        component: PlanningComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'planning',
+          showInSidebar: false // ponlo en true si luego quieres que salga en el menú
+        }
       },
       {
         path: 'users',

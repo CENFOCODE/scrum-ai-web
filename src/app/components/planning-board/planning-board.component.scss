@@ -1,0 +1,463 @@
+$petroleo: #1C3844;
+$arena: #EBE4DA;
+$coral: #D26A5D;
+$cardBorder: rgba(28, 56, 68, 0.08);
+
+#csd-planning-board {
+  width: 100%;
+}
+
+/* Card principal del tablero */
+.csd-planning-card {
+  background: #fff;
+  border: 1px solid $cardBorder;
+  border-radius: .5rem;
+  padding: 24px 24px 20px;
+  margin-top: 8px;
+}
+
+/* Grid principal */
+.csd-planning-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.9fr);
+  column-gap: 24px;
+  row-gap: 16px;
+}
+
+.csd-planning-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Superficies beige reutilizables */
+.csd-surface {
+  background: $arena;
+  border-radius: .5rem;
+  border: 1px solid $cardBorder;
+  padding: 18px;
+}
+
+/* Participantes */
+.csd-planning-participants {
+  margin-bottom: 0;
+
+  #csd-planning-participants-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $petroleo;
+  }
+
+  #csd-planning-participants-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      position: relative;
+      padding-left: 18px;
+      line-height: 1.4;
+      font-size: 14px;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: $coral;
+      }
+    }
+  }
+}
+
+/* Tabla planning poker */
+.csd-planning-table {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: #ffffff;
+  border-radius: .75rem;
+  border: 1px solid $cardBorder;
+}
+
+/* Titulo historia actual */
+.csd-planning-story-header {
+  display: inline-flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-size: 13px;
+  column-gap: 8px;
+  align-self: center;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.csd-planning-story-code {
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid $petroleo;
+  font-weight: 600;
+  color: $petroleo;
+}
+
+.csd-planning-story-name {
+  font-weight: 500;
+  color: $petroleo;
+}
+
+/* Usuarios */
+.csd-planning-seats {
+  position: relative;
+  padding: 14px 0;
+}
+
+.csd-planning-seat-row {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.csd-planning-seat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #6a747a;
+}
+
+/* Círculos */
+.csd-planning-seat-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: $arena;
+  border: none;
+}
+
+.csd-planning-seat-name {
+  color: $petroleo;
+}
+
+/* Slot de carta del usuario*/
+.csd-planning-seat-card-slot {
+  margin-top: 2px;
+  width: 34px;
+  height: 20px;
+  border-radius: 4px;
+  border: none;
+  background: $arena;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $petroleo;
+}
+
+/* Elige una carta */
+.csd-planning-choose-card {
+  position: relative;
+  margin: 12px auto;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: $arena;
+  border: none;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: $petroleo;
+  width: 45%;
+}
+
+/* Tira de cartas */
+.csd-planning-your-card {
+  margin-top: 4px;
+}
+
+#csd-planning-your-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: $petroleo;
+  margin-bottom: 10px;
+}
+
+.csd-planning-card-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.csd-planning-card-option {
+  min-width: 42px;
+  height: 60px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, $coral 50%, transparent);
+  background: $arena;
+  font-size: 16px;
+  font-weight: 500;
+  color: $petroleo;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: box-shadow .15s ease-in-out, border-color .15s ease-in-out;
+}
+
+.csd-planning-card-option:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.csd-planning-card-option--selected {
+  border-color: $coral;
+  box-shadow: 0 0 0 1px rgba(210, 106, 93, 0.5);
+}
+
+/* Tiquetes */
+
+.csd-planning-tickets-panel {
+  align-self: stretch;
+}
+
+.csd-planning-tickets-card {
+  background: #fff;
+  border-radius: .5rem;
+  border: 1px solid $cardBorder;
+  padding: 14px 14px 10px;
+}
+
+/* Buscar */
+.csd-planning-ticket-search {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.csd-planning-ticket-search-input {
+  font-size: 13px;
+  height: 32px;
+  padding: 4px 8px;
+  flex: 1 1 auto;
+  max-width: calc(100% - 90px);
+  min-width: 0;
+  border-color: $petroleo;
+  box-shadow: none;
+  color: $petroleo;
+}
+
+.csd-planning-ticket-search-input::placeholder {
+  color: $petroleo;
+  opacity: 1;
+}
+
+.csd-planning-ticket-search-input:focus {
+  border-color: $petroleo;
+  box-shadow: none;
+  outline: none;
+}
+
+.csd-planning-ticket-search .csd-btn {
+  flex-shrink: 0;
+}
+
+/* Botones reutilizables */
+.csd-btn {
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-weight: 500;
+  background: #fff;
+}
+
+.csd-btn--small {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.csd-btn--tiny {
+  font-size: 11px;
+  padding: 3px 8px;
+}
+
+.csd-btn--primary {
+  background-color: #9c9a40;
+  color: #fff;
+  border-color: #9c9a40;
+}
+
+.csd-btn--primary-outline {
+  background-color: #fff;
+  color: #9c9a40;
+  border-color: #9c9a40;
+}
+
+.csd-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: #6a747a;
+}
+
+/* Form "Add new item" */
+.csd-planning-add-form {
+  background: $arena;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+#csd-planning-add-form-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: $petroleo;
+  margin-bottom: 8px;
+}
+
+.csd-planning-add-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+
+  label {
+    font-size: 11px;
+    color: $petroleo;
+    font-weight: 500;
+  }
+
+  .form-control {
+    font-size: 12px;
+    padding: 4px 8px;
+    height: 30px;
+  }
+
+  textarea.form-control {
+    height: auto;
+    resize: vertical;
+  }
+}
+
+.csd-planning-add-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+/* Lista de tiquetes */
+
+.csd-planning-ticket-list {
+  max-height: 560px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.csd-planning-ticket-item {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  background: $arena;
+  cursor: pointer;
+  transition: background .12s ease-in-out, box-shadow .12s ease-in-out;
+}
+
+.csd-planning-ticket-item:hover {
+  background: color-mix(in srgb, $coral 10%, #ffffff);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06);
+}
+
+.csd-planning-ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+
+/* Estados */
+.csd-planning-ticket-status {
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-weight: 500;
+  font-size: 11px;
+}
+
+/* Pendiente */
+.csd-planning-ticket-status--pendiente {
+  border: 1px solid $petroleo;
+  color: $petroleo;
+}
+
+/* Votando */
+.csd-planning-ticket-status--votando {
+  border: 1px solid #9c9a40;
+  background-color: #9c9a40;
+  color: #ffffff;
+}
+
+.csd-planning-ticket-code {
+  font-weight: 600;
+  color: $petroleo;
+}
+
+.csd-planning-ticket-name {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 2px;
+  color: $petroleo;
+}
+
+.csd-planning-ticket-description {
+  font-size: 12px;
+  margin: 0 0 4px;
+  color: $petroleo;
+}
+
+.csd-planning-ticket-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Votar ahora */
+.csd-planning-start-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.csd-planning-start-arrow {
+  font-size: 13px;
+}
+
+@media (max-width: 991.98px) {
+  .csd-planning-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+#csd-planning-ticket-add-button-top,
+#csd-planning-add-form-add {
+  border-radius: .3rem;
+  padding: 3px 9px;
+  font-size: 16px;
+  background-color: #9c9a40;
+  border: none;
+  color: #fff;
+}
+
+#csd-planning-ticket-add-button-top:hover,
+#csd-planning-add-form-add:hover {
+  background-color: #8a8835;
+  color: #fff;
+}
