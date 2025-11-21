@@ -1,0 +1,22 @@
+a {
+  color: #1C3B44;
+  font-size: 13px;
+}
+
+.card {
+  border: none;
+  border-radius: 10px;
+}
+
+::ng-deep .p-breadcrumb {
+  border: transparent;
+  padding: 0;
+}
+
+::ng-deep .p-breadcrumb-list {
+  padding-left: 0;
+}
+
+::ng-deep .p-menuitem-link {
+  color: #1C3B44;
+}

@@ -1,0 +1,44 @@
+<div class="container my-4 backlog-container">
+  <div class="card p-4 shadow-sm">
+
+    <div id="breadcrumb-component" class="mb-3">
+      <p-breadcrumb class="max-w-full" [model]="itemsMenu">
+        <ng-template pTemplate="item" let-item>
+          <ng-container *ngIf="item.route; else elseBlock">
+            <a [routerLink]="item.route">
+              <span>{{ item.label }}</span>
+            </a>
+          </ng-container>
+          <ng-template #elseBlock>
+            <a [href]="item.url" target="_blank" rel="noopener noreferrer">
+              <span>{{ item.label }}</span>
+            </a>
+          </ng-template>
+        </ng-template>
+      </p-breadcrumb>
+    </div>
+
+    <div class="mb-3">
+      <h2 class="fw-semibold mb-1">Backlog</h2>
+      <small>Instrucciones</small>
+      <p class="mt-2 mb-0">
+        Utilice el buscador para localizar historias en el backlog, actualice el módulo, estado 
+        y story points desde la tabla, edite el nombre y las fechas del sprint o de cada historia 
+        desde el menú, y agregue nuevas historias y nuevos sprints.
+      </p>
+    </div>
+
+    <app-backlog-board></app-backlog-board>
+
+    <div class="d-flex justify-content-between mt-4">
+      <button
+        class="btn btn-outline-secondary px-4"
+        (click)="goBack()">
+        Anterior
+      </button>
+      <button class="primary-btn px-4">
+        Siguiente
+      </button>
+    </div>
+  </div>
+</div>

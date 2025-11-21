@@ -19,6 +19,7 @@ import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
 import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
 import { PlanningComponent } from './pages/planning-poker/planning.component';
+import { BacklogComponent } from './pages/backlog/backlog.component';
 
 
 export const routes: Routes = [
@@ -81,7 +82,20 @@ export const routes: Routes = [
             IRoleType.user,
           ],
           name: 'planning',
-          showInSidebar: false // ponlo en true si luego quieres que salga en el menú
+          showInSidebar: false 
+        }
+      },
+       {
+        path: 'backlog',
+        component: BacklogComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'backlog',
+          showInSidebar: false 
         }
       },
       {

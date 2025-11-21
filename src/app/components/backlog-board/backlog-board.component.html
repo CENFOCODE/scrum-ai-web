@@ -1,0 +1,610 @@
+<div id="csd-backlog-board" class="csd-backlog-board">
+  <div id="csd-backlog-card" class="csd-backlog-card">
+    <!-- Search + circles -->
+    <div id="csd-backlog-search-row" class="csd-backlog-search-row">
+      <div class="csd-backlog-search-wrapper">
+        <span class="csd-backlog-search-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="csd-backlog-search-svg">
+            <circle cx="10" cy="10" r="6"></circle>
+            <line x1="14" y1="14" x2="20" y2="20"></line>
+          </svg>
+        </span>
+        <input
+          id="csd-backlog-search-input"
+          type="text"
+          class="form-control csd-backlog-search-input"
+          placeholder="Buscar en backlog"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="handleSearch($event)"
+        />
+      </div>
+
+      <!-- right side circles -->
+      <div class="csd-backlog-steps">
+        <span class="csd-backlog-circle csd-backlog-step-dot"></span>
+        <span class="csd-backlog-circle csd-backlog-step-dot"></span>
+        <span class="csd-backlog-circle csd-backlog-step-dot"></span>
+        <span class="csd-backlog-circle csd-backlog-step-dot"></span>
+        <span class="csd-backlog-circle csd-backlog-step-dot"></span>
+        <span class="csd-backlog-circle csd-backlog-step-dot"></span>
+      </div>
+    </div>
+
+    <!-- Sprints -->
+    <section
+      *ngFor="let sprint of sprints()"
+      id="csd-backlog-sprint-{{ sprint.id }}"
+      class="csd-backlog-sprint csd-surface"
+    >
+      <!-- Sprint Header -->
+      <header class="csd-backlog-sprint-header">
+        <!-- Collapse -->
+        <button
+          type="button"
+          class="csd-backlog-collapse-btn"
+          (click)="toggleSprint(sprint)"
+        >
+          <span
+            class="csd-backlog-collapse-icon"
+            [class.csd-backlog-collapse-icon--open]="!isCollapsed(sprint)"
+          >
+            <svg
+              viewBox="0 0 16 16"
+              class="csd-backlog-collapse-svg"
+              aria-hidden="true"
+            >
+              <path d="M3 6l5 5 5-5"></path>
+            </svg>
+          </span>
+        </button>
+
+        <!-- Name + dates + counter -->
+        <div class="csd-backlog-sprint-main">
+          <ng-container *ngIf="editingNameId !== sprint.id; else editNameTpl">
+            <span
+              class="csd-backlog-sprint-name"
+              (dblclick)="startEditSprintName(sprint)"
+            >
+              {{ sprint.name }}
+            </span>
+          </ng-container>
+          <ng-template #editNameTpl>
+            <input
+              type="text"
+              class="form-control csd-backlog-sprint-name-input"
+              [(ngModel)]="editingNameValue"
+              (blur)="saveSprintName(sprint)"
+              (keydown.enter)="saveSprintName(sprint)"
+            />
+          </ng-template>
+
+          <!-- Pencil icon -->
+          <button
+            type="button"
+            class="csd-backlog-inline-btn"
+            (click)="startEditSprintName(sprint)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              class="csd-backlog-inline-icon"
+              aria-hidden="true"
+            >
+              <path
+                d="M4 15.5L14.5 5a1.5 1.5 0 0 1 2.1 0l1.4 1.4a1.5 1.5 0 0 1 0 2.1L7.5 19l-4 1 1-4z"
+              ></path>
+              <path d="M13.5 6.5l3 3"></path>
+            </svg>
+          </button>
+
+          <span class="csd-backlog-sprint-meta">
+            <ng-container *ngIf="!sprint.dates; else showDates">
+              <button
+                type="button"
+                class="csd-backlog-inline-link"
+                (click)="openEditSprintDialog(sprint)"
+              >
+                Agregar fechas
+              </button>
+            </ng-container>
+            <ng-template #showDates>
+              <button
+                type="button"
+                class="csd-backlog-inline-link"
+                (click)="openEditSprintDialog(sprint)"
+              >
+                {{ sprint.dates }}
+              </button>
+            </ng-template>
+
+            &nbsp; ({{ sprint.items.length }} historias de trabajo)
+          </span>
+        </div>
+
+        <!-- Story points + Start Sprint + menu -->
+        <div class="csd-backlog-sprint-controls">
+          <button type="button" class="csd-sp-btn csd-sp-btn--todo">
+            {{ sprint.storyPoints.todo }}
+          </button>
+
+          <button type="button" class="csd-sp-btn csd-sp-btn--inprogress">
+            {{ sprint.storyPoints.inProgress }}
+          </button>
+
+          <button type="button" class="csd-sp-btn csd-sp-btn--done">
+            {{ sprint.storyPoints.done }}
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            (click)="handleStartSprint(sprint)"
+          >
+            Iniciar sprint
+          </button>
+
+          <!-- Sprint menu -->
+          <div class="csd-backlog-more-wrapper">
+            <button
+              type="button"
+              class="csd-backlog-more-btn"
+              (click)="openSprintMenu(sprint)"
+            >
+              ⋯
+            </button>
+
+            <div
+              class="csd-backlog-sprint-menu"
+              *ngIf="menuSprintId === sprint.id"
+            >
+              <button
+                type="button"
+                class="csd-backlog-sprint-menu-item csd-backlog-sprint-menu-item--edit"
+                (click)="handleEditSprintFromMenu(sprint)"
+              >
+                Editar sprint
+              </button>
+              <button
+                type="button"
+                class="csd-backlog-sprint-menu-item csd-backlog-sprint-menu-item--danger"
+                (click)="handleDeleteSprintFromMenu(sprint)"
+              >
+                Eliminar sprint
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Sprint goal -->
+      <div class="csd-backlog-sprint-goal" *ngIf="!isCollapsed(sprint)">
+        <p class="mb-0">
+          {{ sprint.goal }}
+        </p>
+      </div>
+
+      <!-- Histories -->
+      <section class="csd-backlog-items" *ngIf="!isCollapsed(sprint)">
+        <article
+          class="csd-backlog-item-row"
+          *ngFor="let item of filteredItems(sprint)"
+        >
+          <div class="csd-backlog-col csd-backlog-col--key">
+            <span class="csd-backlog-key">
+              {{ item.key }}
+            </span>
+          </div>
+
+          <div class="csd-backlog-col csd-backlog-col--title">
+            <span
+              class="csd-backlog-title"
+              contenteditable="true"
+              (blur)="handleTitleBlur(sprint, item, $any($event.target).innerText)"
+            >
+              {{ item.title }}
+            </span>
+          </div>
+
+          <div class="csd-backlog-col csd-backlog-col--module">
+            <input
+              type="text"
+              class="form-control form-control-sm csd-backlog-module-select"
+              [ngModel]="item.module"
+              (ngModelChange)="handleModuleChange(sprint, item, $event)"
+            />
+          </div>
+
+          <div class="csd-backlog-col csd-backlog-col--status">
+            <select
+              [ngClass]="[
+                'form-select',
+                'form-select-sm',
+                'csd-backlog-status-select',
+                getStatusClass(item.status)
+              ]"
+              [ngModel]="item.status"
+              (ngModelChange)="handleStatusChange(sprint, item, $event)"
+            >
+              <option value="TO DO">TO DO</option>
+              <option value="IN PROGRESS">IN PROGRESS</option>
+              <option value="DONE">DONE</option>
+            </select>
+          </div>
+
+          <div class="csd-backlog-col csd-backlog-col--points">
+            <input
+              type="number"
+              min="0"
+              class="csd-backlog-points-pill"
+              [ngModel]="item.storyPoints"
+              (ngModelChange)="handleStoryPointsChange(sprint, item, $event)"
+            />
+          </div>
+
+          <div class="csd-backlog-col csd-backlog-col--toggle">
+            <span class="csd-backlog-circle"></span>
+          </div>
+
+          <div class="csd-backlog-col csd-backlog-col--menu">
+            <div class="csd-backlog-more-wrapper">
+              <button
+                type="button"
+                class="csd-backlog-more-btn"
+                (click)="openItemMenu(sprint, item)"
+              >
+                ⋯
+              </button>
+
+              <div
+                class="csd-backlog-sprint-menu"
+                *ngIf="itemMenuId === item.id"
+              >
+                <button
+                  type="button"
+                  class="csd-backlog-sprint-menu-item csd-backlog-sprint-menu-item--edit"
+                  (click)="handleEditItemFromMenu(sprint, item)"
+                >
+                  Editar historia
+                </button>
+                <button
+                  type="button"
+                  class="csd-backlog-sprint-menu-item"
+                  (click)="handleMoveItemFromMenu(sprint, item)"
+                >
+                  Mover historia a otro sprint
+                </button>
+                <button
+                  type="button"
+                  class="csd-backlog-sprint-menu-item csd-backlog-sprint-menu-item--danger"
+                  (click)="handleDeleteItemFromMenu(sprint, item)"
+                >
+                  Eliminar historia
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Create history -->
+        <div class="csd-backlog-create-row">
+          <button
+            type="button"
+            class="csd-backlog-create-btn"
+            (click)="handleAddItem(sprint)"
+          >
+            + Crear nueva historia
+          </button>
+        </div>
+      </section>
+    </section>
+
+    <!-- Add sprint -->
+    <div class="csd-backlog-add-sprint-row">
+      <button
+        type="button"
+        class="csd-backlog-create-btn"
+        (click)="handleAddSprint()"
+      >
+        + Crear sprint
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Edit Sprint -->
+  <div class="csd-backlog-modal-backdrop" *ngIf="editingSprint">
+    <div class="csd-backlog-modal">
+      <div class="csd-backlog-modal-header">
+        <h5 class="mb-0">
+          Editar sprint: {{ editForm.name }}
+        </h5>
+      </div>
+
+      <div class="csd-backlog-modal-body">
+        <p class="csd-backlog-modal-required">
+          Los campos requeridos están marcados con un asterisco *
+        </p>
+
+        <div class="mb-3">
+          <label class="form-label csd-backlog-modal-label">
+            Nombre del sprint*
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            name="sprintName"
+            required
+            [(ngModel)]="editForm.name"
+          />
+        </div>
+
+        <div class="mb-3 csd-backlog-modal-row">
+          <div class="csd-backlog-modal-col">
+            <label class="form-label csd-backlog-modal-label">
+              Fecha de inicio*
+            </label>
+            <input
+              type="date"
+              class="form-control"
+              name="startDate"
+              required
+              [(ngModel)]="editForm.startDate"
+            />
+          </div>
+
+          <div class="csd-backlog-modal-col">
+            <label class="form-label csd-backlog-modal-label">
+              &nbsp;
+            </label>
+            <input
+              type="time"
+              class="form-control"
+              name="startTime"
+              [(ngModel)]="editForm.startTime"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3 csd-backlog-modal-row">
+          <div class="csd-backlog-modal-col">
+            <label class="form-label csd-backlog-modal-label">
+              Fecha de fin*
+            </label>
+            <input
+              type="date"
+              class="form-control"
+              name="endDate"
+              required
+              [(ngModel)]="editForm.endDate"
+            />
+          </div>
+
+          <div class="csd-backlog-modal-col">
+            <label class="form-label csd-backlog-modal-label">
+              &nbsp;
+            </label>
+            <input
+              type="time"
+              class="form-control"
+              name="endTime"
+              [(ngModel)]="editForm.endTime"
+            />
+          </div>
+        </div>
+
+        <div class="mb-0">
+          <label class="form-label csd-backlog-modal-label">
+            Objetivo del sprint
+          </label>
+          <textarea
+            rows="3"
+            class="form-control"
+            name="goal"
+            [(ngModel)]="editForm.goal"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="csd-backlog-modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-primary btn-sm"
+          (click)="closeEditSprintDialog()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          (click)="saveEditSprint()"
+        >
+          Actualizar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal edit History -->
+  <div class="csd-backlog-modal-backdrop" *ngIf="editingItem as ei">
+    <div class="csd-backlog-modal csd-edit-story-modal">
+
+      <div class="csd-backlog-modal-header">
+        <h5 class="mb-0">Editar historia: {{ ei.item.key }}</h5>
+      </div>
+
+      <div class="csd-backlog-modal-body">
+        <p class="csd-backlog-modal-required">
+          Los campos requeridos están marcados con un asterisco *
+        </p>
+
+        <div class="mb-3">
+          <label class="form-label csd-backlog-modal-label">Resumen*</label>
+          <input
+            type="text"
+            class="form-control"
+            required
+            [(ngModel)]="editItemForm.title"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label csd-backlog-modal-label">Módulo</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="editItemForm.module"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label csd-backlog-modal-label">Descripción</label>
+          <textarea
+            rows="3"
+            class="form-control"
+            [(ngModel)]="editItemForm.description"
+          ></textarea>
+        </div>
+
+        <!-- Subtasks -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="mb-0">Subtareas</h6>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm csd-subtask-add-btn"
+            (click)="addSubtask()"
+          >
+            + Subtarea
+          </button>
+        </div>
+
+        <table class="table table-bordered csd-subtask-table">
+          <thead class="csd-subtask-thead">
+            <tr>
+              <th style="width: 110px;">ID</th>
+              <th>Nombre</th>
+              <th style="width: 130px;">Estado</th>
+              <th style="width: 50px;"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngIf="editSubtasks.length === 0">
+              <td colspan="4" class="csd-subtask-empty-cell">
+                Sin subtareas. Usa "+ Subtarea".
+              </td>
+            </tr>
+
+            <tr *ngFor="let st of editSubtasks; let i = index">
+              <td>
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  [(ngModel)]="st.id"
+                />
+              </td>
+
+              <td>
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  [(ngModel)]="st.title"
+                />
+              </td>
+
+              <td>
+                <select
+                  class="form-select form-select-sm csd-backlog-status-select"
+                  [ngClass]="getStatusClass(st.status)"
+                  [(ngModel)]="st.status"
+                >
+                  <option value="TO DO">TO DO</option>
+                  <option value="IN PROGRESS">IN PROGRESS</option>
+                  <option value="DONE">DONE</option>
+                </select>
+              </td>
+
+              <td class="text-center">
+                <button
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="removeSubtask(i)"
+                >
+                  ✕
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+
+      <div class="csd-backlog-modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-primary btn-sm"
+          (click)="closeEditItemDialog()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          (click)="saveEditItem()"
+        >
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal move history -->
+  <div class="csd-backlog-modal-backdrop" *ngIf="movingItem as mi">
+    <div class="csd-backlog-modal">
+      <div class="csd-backlog-modal-header">
+        <h5 class="mb-0">
+          Mover historia: {{ mi.item.key }}
+        </h5>
+      </div>
+
+      <div class="csd-backlog-modal-body">
+        <p class="csd-backlog-modal-required mb-2">
+          Selecciona el sprint de destino para esta historia.
+        </p>
+
+        <div class="mb-3">
+          <label class="form-label csd-backlog-modal-label">
+            Sprint de destino
+          </label>
+          <select
+            class="form-select"
+            [(ngModel)]="targetSprintId"
+          >
+            <option
+              *ngFor="let s of sprints()"
+              [value]="s.id"
+              [disabled]="s.id === mi.sprintId"
+            >
+              {{ s.name }}
+              <ng-container *ngIf="s.id === mi.sprintId"> (actual)</ng-container>
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="csd-backlog-modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-primary btn-sm"
+          (click)="cancelMoveItem()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          [disabled]="!targetSprintId || targetSprintId === mi.sprintId"
+          (click)="confirmMoveItem()"
+        >
+          Mover
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
