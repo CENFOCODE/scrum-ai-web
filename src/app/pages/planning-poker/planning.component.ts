@@ -41,11 +41,14 @@ export class PlanningComponent implements OnInit {
     this.itemsMenu = [
       { label: 'Planning Paso 1', route: '/app/scenario' },
       { label: 'Planning Paso 2' },
-      { label: 'Planning Paso 3' }
+      { label: 'Planning Paso 3', route: '/app/backlog' }
     ];
   }
 
   goBackToCreateSession() {
     this.router.navigate(['app/scenario']);
+  }
+  goToBacklog() {
+    this.router.navigate(['app/backlog']);
   }
 }
