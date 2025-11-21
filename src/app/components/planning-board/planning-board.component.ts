@@ -19,9 +19,9 @@ export class PlanningBoardComponent {
 
   searchTerm = signal<string>('');
 
-  newTicket: { code: string; url: string; name: string; description: string } = {
+  newTicket: { code: string; module: string; name: string; description: string } = {
     code: '',
-    url: '',
+    module: '',
     name: '',
     description: ''
   };
@@ -81,7 +81,7 @@ export class PlanningBoardComponent {
   handleCancelNewTicket() {
     this.newTicket = {
       code: '',
-      url: '',
+      module: '',
       name: '',
       description: ''
     };
@@ -96,7 +96,7 @@ export class PlanningBoardComponent {
 
     this.planningService.addTicket({
       code: this.newTicket.code.trim(),
-      url: this.newTicket.url.trim(),
+      url: this.newTicket.module.trim(),
       name: trimmedName,
       description: this.newTicket.description.trim()
     });
