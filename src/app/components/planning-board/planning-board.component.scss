@@ -401,6 +401,13 @@ $cardBorder: rgba(28, 56, 68, 0.08);
 
 /* Votando */
 .csd-planning-ticket-status--votando {
+  border: 1px solid $coral;
+  background-color: $coral;
+  color: #ffffff;
+}
+
+/* Listo */
+.csd-planning-ticket-status--listo {
   border: 1px solid #9c9a40;
   background-color: #9c9a40;
   color: #ffffff;
@@ -460,4 +467,26 @@ $cardBorder: rgba(28, 56, 68, 0.08);
 #csd-planning-add-form-add:hover {
   background-color: #8a8835;
   color: #fff;
+}
+
+.csd-planning-delete-btn {
+  background-color: $coral;
+  color: #fff;
+  border-color: $coral;
+
+  &:hover {
+    background-color: darken($coral, 5%);
+    border-color: darken($coral, 5%);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba($coral, 0.35);
+  }
+}
+
+.error-snackbar,
+.success-snackbar {
+  background-color: $coral !important;
+  color: #fff !important;
 }

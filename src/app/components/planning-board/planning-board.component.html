@@ -165,7 +165,8 @@
                   class="csd-planning-ticket-status"
                   [ngClass]="{
                     'csd-planning-ticket-status--pendiente': ticket.status === 'Pendiente',
-                    'csd-planning-ticket-status--votando': ticket.status === 'Votando'
+                    'csd-planning-ticket-status--votando': ticket.status === 'Votando',
+                    'csd-planning-ticket-status--listo': ticket.status === 'Listo'
                   }"
                   (click)="$event.stopPropagation()">
                   {{ ticket.status }}
@@ -192,6 +193,13 @@
                   <span class="csd-planning-start-arrow">▶</span>
                   <span>Votar ahora</span>
                 </button>
+
+                <button
+                type="button"
+                class="btn btn-sm ms-2 csd-planning-delete-btn"
+                (click)="handleDeleteTicket(ticket, $event)">
+                Eliminar
+              </button>
               </div>
             </article>
           </section>

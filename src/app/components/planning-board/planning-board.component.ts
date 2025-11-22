@@ -96,11 +96,17 @@ export class PlanningBoardComponent {
 
     this.planningService.addTicket({
       code: this.newTicket.code.trim(),
-      url: this.newTicket.module.trim(),
+      module: this.newTicket.module.trim(),
       name: trimmedName,
       description: this.newTicket.description.trim()
     });
 
     this.handleCancelNewTicket();
+  }
+
+  // eliminar ticket
+  handleDeleteTicket(ticket: IPlanningTicket, event: MouseEvent) {
+    event.stopPropagation();
+    this.planningService.deleteTicket(ticket.id);
   }
 }
