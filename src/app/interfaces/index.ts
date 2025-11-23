@@ -143,3 +143,12 @@ export interface ISimulationUser {
   scrumRole?: string;
   simulation?: ISimulations;
 }
+
+export interface IScenarioTemplate {
+  id?: number;
+  stepOrder?: number;       
+  promptTemplate?: string;     
+  scenario?: IScenario;      
+  createdAt?: string;        
+  updatedAt?: string;        
+}

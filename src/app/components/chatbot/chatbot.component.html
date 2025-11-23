@@ -1,45 +1,57 @@
-<!-- ---------------------------------------------------------
-     CONTENEDOR PRINCIPAL DEL CHAT
----------------------------------------------------------- -->
-<div class="chat-container">
+<div class="chatbot-sidebar">
+  
+  <!-- Header del chatbot -->
+  <div class="chatbot-header">
+    <i class="fa-solid fa-robot"></i>
+    <span class="title">Scrum AI</span>
+  </div>
 
-  <h2>Scrum AI 💬</h2>
-
-  <!-- ---------------------------------------------------------
-       MENSAJES DEL CHAT (Usuario vs IA)
-       ---------------------------------------------------------
-       La lista se genera desde el array messages[].
-       ngClass elige estilos según el origen del mensaje.
-  ---------------------------------------------------------- -->
-  <div class="messages">
+  <!-- Área de mensajes -->
+  <div class="messages-container">
     <div
       *ngFor="let msg of messages"
-      [ngClass]="msg.from === 'Usuario' ? 'user' : 'ai'"
+      [ngClass]="msg.from === 'Usuario' ? 'message-user' : 'message-ai'"
     >
-      <strong>{{ msg.from }}:</strong> {{ msg.prompt }}
+      <div class="message-header">
+        <i [class]="msg.from === 'Usuario' ? 'fa-solid fa-user' : 'fa-solid fa-robot'"></i>
+        <strong>{{ msg.from }}</strong>
+      </div>
+      <div class="message-content">{{ msg.prompt }}</div>
+    </div>
+
+    <!-- Indicador de carga -->
+    <div *ngIf="loading" class="message-ai loading-indicator">
+      <div class="message-header">
+        <i class="fa-solid fa-robot"></i>
+        <strong>Scrum AI</strong>
+      </div>
+      <div class="message-content">
+        <span class="dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+        Escribiendo...
+      </div>
     </div>
   </div>
 
-  <!-- ---------------------------------------------------------
-       INPUT DEL USUARIO + BOTÓN
-       ---------------------------------------------------------
-       Enter → envía el mensaje
-       Botón → envía el mensaje
-       loading → deshabilita el botón
-  ---------------------------------------------------------- -->
+  <!-- Input en la parte inferior -->
   <div class="input-area">
     <input
       #userInput
       type="text"
       placeholder="Escribe tu pregunta..."
       (keyup.enter)="sendMessage(userInput)"
+      [disabled]="loading"
     />
-
     <button
       (click)="sendMessage(userInput)"
       [disabled]="loading"
+      class="send-button"
     >
-      {{ loading ? 'Enviando...' : 'Enviar' }}
+      <i class="fa-solid fa-paper-plane"></i>
     </button>
   </div>
+
 </div>

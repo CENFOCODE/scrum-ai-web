@@ -8,9 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { SimulationService } from '../../../services/simulation.service';
-import { IScenario, ISimulations, ISimulationUser } from '../../../interfaces';
+import { IScenario, IScenarioTemplate, ISimulations, ISimulationUser } from '../../../interfaces';
 import { AuthService } from '../../../services/auth.service';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, map } from 'rxjs/operators';
+import { ScenarioTemplateService } from '../../../services/scenario-template.service';
 
 type NoticeType = 'success' | 'warning' | 'error';
 interface Notice {
@@ -39,6 +40,7 @@ export class CreateSessionComponent {
   @Input() ceremonyData!: IScenario;
   @Output() backToSelection = new EventEmitter<void>();
   @Output() sessionCreated = new EventEmitter<any>();
+  
 
   notice = signal<Notice | null>(null);
 
@@ -52,17 +54,19 @@ export class CreateSessionComponent {
   scenario?: IScenario;
   simulation: ISimulations = {};
   simulationUser: ISimulationUser = {};
+  scenarioTemplate: IScenarioTemplate = {};
 
  constructor(
     private simulationService: SimulationService,
     public authService: AuthService,
     private router: Router,
+    private scenarioTemplateService: ScenarioTemplateService
+   
   ) {
   effect(() => {
       const ceremonyData = this.simulationService.selectedScenario$();
       if (ceremonyData) {
         this.selectedScenario = ceremonyData;
-        console.log('Escenario recibido en CreateSession:', ceremonyData);
       }
     });
     const nav = this.router.getCurrentNavigation();
@@ -131,10 +135,32 @@ export class CreateSessionComponent {
     scenario: { id: this.selectedScenario?.id}
   };
 
-   this.simulationService.createSimulation(newSimulation).pipe(
-    switchMap((createdSim) => {
-      console.log('Simulation guardada en DB con id:', createdSim.id);
+  
+  this.scenarioTemplateService.getTemplate(
+    this.selectedScenario?.id || 0,
+    this.scenarioTemplateService.mapDifficultyToNumber(this.selectedDifficulty),
+    this.selectedRole
+  ).pipe(
+    switchMap((templateResponse: any) => {
+    
+      if (templateResponse && templateResponse.promptTemplate) {
+        this.scenarioTemplate = templateResponse;
+      } 
 
+      else if (templateResponse && templateResponse.data) {
+        if (Array.isArray(templateResponse.data) && templateResponse.data.length > 0) {
+          this.scenarioTemplate = templateResponse.data[0];
+        } else if (templateResponse.data.promptTemplate) {
+          this.scenarioTemplate = templateResponse.data;
+        }
+      } else {
+        this.scenarioTemplate = {}; 
+      }
+      
+     
+      return this.simulationService.createSimulation(newSimulation);
+    }),
+    switchMap((createdSim) => {
       if (!createdSim.id) {
       alert('Error: el backend no devolvió el id de la Simulation.');
       throw new Error('Simulation sin id');
@@ -145,18 +171,14 @@ export class CreateSessionComponent {
         simulation: { id: createdSim.id } 
       };
 
+      
       return this.simulationService.createSimulationUser(newSimUser);
     })
   ).subscribe({
     next: (res) => {
-      console.log('SimulationUser creado:', res);
       this.isLoading = false;
 
-      this.redirectToScenarioPage(this.selectedScenario?.name, {
-        scenario: this.selectedScenario,
-        simulationUser: res
-      });
-
+    this.redirectToDashboard();
       this.sessionCreated.emit(res);
     },
     error: (err) => {
@@ -194,6 +216,24 @@ export class CreateSessionComponent {
     return;
   }
 
+}
+
+private redirectToDashboard() {
+   
+    this.router.navigate(['/app/dashboard'], { 
+      state: {
+        scenario: this.selectedScenario,
+        simulationUser: this.simulationUser,
+        aiTemplate: this.scenarioTemplate 
+      }
+    }); 
+    
+ 
+    console.log('Datos enviados al dashboard:', {
+      scenario: this.selectedScenario,
+      simulationUser: this.simulationUser,
+      aiTemplate: this.scenarioTemplate 
+    });
 }
 }
 
