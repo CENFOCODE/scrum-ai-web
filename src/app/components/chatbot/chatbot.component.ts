@@ -50,7 +50,17 @@ export class ChatbotComponent implements OnInit {
   /** Indica si la IA está generando respuesta */
   loading = false;
 
+  /** Indica si el chatbot está visible/abierto */
+  visible = false;
+
   constructor(private aiService: AiService) { }
+
+  /**
+   * Alterna la visibilidad del chatbot
+   */
+  toggleChatbot() {
+    this.visible = true;
+  }
 
   /**
    * Inicializa el chat con el prompt de la plantilla AI
