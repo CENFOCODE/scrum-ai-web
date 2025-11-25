@@ -1,20 +1,16 @@
+<!-- Botón toggle fuera del sidebar -->
+<button class="chatbot-toggle" (click)="toggleChatbot()">
+  <i class="fa-solid fa-message"></i>
+</button>
 
-<div class="chatbot-sidebar" [class.closed]="!visible">
- 
-  <button class="chatbot-toggle" (click)="toggleChatbot()">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-      <path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5-1v12h9a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zM4 2H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h2z"/>
-    </svg>
-  </button>
+<div class="chatbot-sidebar shadow-sm bg-white rounded" [class.closed]="!visible">
 
-  <!-- Header del chatbot -->
- 
+  <!-- Header -->
   <div class="chatbot-header">
-    <i class="fa-solid fa-robot"></i>
-    <span class="title">Scrum AI</span>
+    <span class="title">Chat con IA</span>
   </div>
 
-  <!-- Área de mensajes -->
+  <!-- Mensajes -->
   <div class="messages-container">
     <div
       *ngFor="let msg of messages"
@@ -35,16 +31,14 @@
       </div>
       <div class="message-content">
         <span class="dots">
-          <span></span>
-          <span></span>
-          <span></span>
+          <span></span><span></span><span></span>
         </span>
         Escribiendo...
       </div>
     </div>
   </div>
 
-  <!-- Input en la parte inferior -->
+  <!-- Input -->
   <div class="input-area">
     <input
       #userInput
