@@ -63,20 +63,34 @@ export class BacklogBoardComponent {
     return !!this.collapsed[sprint.id];
   }
 
+  
   filteredItems(sprint: IBacklogSprint): IBacklogItem[] {
     const term = this.searchTerm().trim().toLowerCase();
     if (!term) {
       return sprint.items;
     }
 
-    const sprintMatches = sprint.name.toLowerCase().includes(term);
+    const sprintMatches =
+      sprint.name.toLowerCase().includes(term) ||
+      String(sprint.id).toLowerCase().includes(term);
+
     if (sprintMatches) {
       return sprint.items;
     }
 
     return sprint.items.filter(item =>
-      item.title.toLowerCase().includes(term)
+      item.title.toLowerCase().includes(term) ||
+      item.key.toLowerCase().includes(term) ||
+      (item.module ?? '').toLowerCase().includes(term)
     );
+  }
+
+  shouldShowSprint(sprint: IBacklogSprint): boolean {
+    const term = this.searchTerm().trim();
+    if (!term) {
+      return true;
+    }
+    return this.filteredItems(sprint).length > 0;
   }
 
   getStatusClass(status: BacklogStatus): string {
@@ -277,7 +291,7 @@ export class BacklogBoardComponent {
     this.targetSprintId = available.length ? available[0].id : '';
   }
 
-  // Modal mover historia // 
+  // Modal mover historia //
 
   cancelMoveItem() {
     this.movingItem = null;
@@ -297,7 +311,7 @@ export class BacklogBoardComponent {
     this.targetSprintId = '';
   }
 
-  // Modal editar historia // 
+  // Modal editar historia //
 
   openEditItemDialog(sprint: IBacklogSprint, item: IBacklogItem) {
     this.editingItem = { sprintId: sprint.id, item };

@@ -31,32 +31,33 @@
     </div>
 
     <!-- Sprints -->
-    <section
-      *ngFor="let sprint of sprints()"
-      id="csd-backlog-sprint-{{ sprint.id }}"
-      class="csd-backlog-sprint csd-surface"
-    >
-      <!-- Sprint Header -->
-      <header class="csd-backlog-sprint-header">
-        <!-- Collapse -->
-        <button
-          type="button"
-          class="csd-backlog-collapse-btn"
-          (click)="toggleSprint(sprint)"
-        >
-          <span
-            class="csd-backlog-collapse-icon"
-            [class.csd-backlog-collapse-icon--open]="!isCollapsed(sprint)"
+    <ng-container *ngFor="let sprint of sprints()">
+      <section
+        *ngIf="shouldShowSprint(sprint)"
+        id="csd-backlog-sprint-{{ sprint.id }}"
+        class="csd-backlog-sprint csd-surface"
+      >
+        <!-- Sprint Header -->
+        <header class="csd-backlog-sprint-header">
+          <!-- Collapse -->
+          <button
+            type="button"
+            class="csd-backlog-collapse-btn"
+            (click)="toggleSprint(sprint)"
           >
-            <svg
-              viewBox="0 0 16 16"
-              class="csd-backlog-collapse-svg"
-              aria-hidden="true"
+            <span
+              class="csd-backlog-collapse-icon"
+              [class.csd-backlog-collapse-icon--open]="!isCollapsed(sprint)"
             >
-              <path d="M3 6l5 5 5-5"></path>
-            </svg>
-          </span>
-        </button>
+              <svg
+                viewBox="0 0 16 16"
+                class="csd-backlog-collapse-svg"
+                aria-hidden="true"
+              >
+                <path d="M3 6l5 5 5-5"></path>
+              </svg>
+            </span>
+          </button>
 
         <!-- Name + dates + counter -->
         <div class="csd-backlog-sprint-main">
