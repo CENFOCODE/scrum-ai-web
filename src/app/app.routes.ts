@@ -18,6 +18,7 @@ import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
 import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
+import { RetrospectiveComponent} from './pages/retrospective/retrospective.component'
 
 
 export const routes: Routes = [
@@ -117,6 +118,19 @@ export const routes: Routes = [
             IRoleType.user,
           ],
           name: 'daily',
+          showInSidebar: false
+        }
+      },
+      {
+        path: 'retrospective',
+        component: RetrospectiveComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'retrospective',
           showInSidebar: false
         }
       },

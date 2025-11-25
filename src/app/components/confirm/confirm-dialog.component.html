@@ -1,0 +1,15 @@
+<p-dialog 
+      [(visible)]="visible" 
+      [modal]="true"
+      [closable]="false"
+      [style]="{ width: '350px' }"
+      header="Confirmar">
+
+      <p>{{ message }}</p>
+
+      <div class="d-flex justify-content-center gap-2">
+        <button pButton label="Cancelar" class="btn primary-btn px-4 pt-15 pb-7" (click)="close(false)"></button>
+        <button pButton label="Eliminar" class="btn btn-outline-secondary px-4" (click)="close(true)"></button>
+      </div>
+
+    </p-dialog>

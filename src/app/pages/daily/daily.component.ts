@@ -34,11 +34,6 @@ export class DailyComponent implements OnInit {
     const nav = this.router.getCurrentNavigation();
     this.scenario = nav?.extras?.state?.['scenario'];
     this.simulationUser = nav?.extras?.state?.['simulationUser'];
-
-    console.log(' Datos recibidos en DailyComponent:', {
-      scenario: this.scenario,
-      simulationUser: this.simulationUser
-    });
   }
 
   goBackToCreateSession() {

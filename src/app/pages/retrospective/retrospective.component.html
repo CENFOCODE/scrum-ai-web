@@ -1,0 +1,46 @@
+<div class="container retrospective-card p-4">
+
+  <h2 class="fw-bold">Retrospective</h2>
+  <p class="text-muted">Aqui podrás identificar qué funcionó bien, qué podría mejorar y qué acciones concretas se tomarán para optimizar la colaboración y el proceso de desarrollo en los próximos sprints.</p>
+
+  <div class="row g-4 mt-2">
+
+
+    <div class="col-md-6" *ngFor="let section of sections">
+      <div class="retro-section p-3 rounded">
+
+        <h3 class="fw-bold">{{ section.title }}</h3>
+
+        <div class="notes-container mt-3">
+
+
+          <div class="note" *ngFor="let note of section.notes; let i = index">
+            <textarea [(ngModel)]="note.text" placeholder="..." class="note-text"></textarea>
+
+            <button 
+              class="delete-btn" 
+              (click)="openDeleteDialog(section, i)">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-3">
+          <button pButton icon="pi pi-plus" class="primary-btn p-button-rounded p-button-sm" (click)="addNote(section)"></button>
+        </div>
+
+      </div>
+    </div>
+    <div class="d-flex justify-content-between mt-4">
+        <button class="btn btn-outline-secondary px-4" (click)="goBackToCreateSession()">Anterior</button>
+      </div>
+  </div>
+</div>
+
+<!-- CONFIRMACIÓN -->
+<app-confirm-dialog
+  [visible]="confirm.visible"
+  [message]="confirm.message"
+  (onClose)="onConfirmResult($event)">
+</app-confirm-dialog>
