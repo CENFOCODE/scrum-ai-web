@@ -161,7 +161,7 @@ export class CreateSessionComponent {
         scrumRole: this.selectedRole,
         assignedAt: new Date(),
         simulation: { id: createdSim.id },
-        user: { id : userId}
+        user: { id: currentUserId }
       };
 
       
@@ -180,6 +180,23 @@ export class CreateSessionComponent {
     error: (err) => {
       console.error('Error en el flujo', err);
       this.isLoading = false;
+      
+      // Manejar el error 404 de plantilla no encontrada
+      if (err.status === 404) {
+        this.notice.set({
+          type: 'warning',
+          text: `No se encontró una plantilla para ${this.selectedScenario?.name} con dificultad ${this.selectedDifficulty} y rol ${this.selectedRole}. Continuando sin plantilla específica.`
+        });
+        
+        // Redirigir al dashboard sin plantilla
+        this.scenarioTemplate = {};
+        this.redirectToDashboard();
+      } else {
+        this.notice.set({
+          type: 'error',
+          text: 'Error al crear la sesión. Por favor, intenta nuevamente.'
+        });
+      }
     }
   });
 }
