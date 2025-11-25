@@ -59,7 +59,7 @@ export class ChatbotComponent implements OnInit {
    * Alterna la visibilidad del chatbot
    */
   toggleChatbot() {
-    this.visible = true;
+    this.visible = !this.visible;
   }
 
   /**
