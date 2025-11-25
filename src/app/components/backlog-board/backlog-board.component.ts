@@ -17,23 +17,21 @@ import {
   styleUrl: './backlog-board.component.scss'
 })
 export class BacklogBoardComponent {
-
   constructor(private backlogService: BacklogService) {}
 
   sprints = this.backlogService.sprints$;
   searchTerm = this.backlogService.searchTerm$;
 
   collapsed: Record<string, boolean> = {};
+
   editingNameId: string | null = null;
   editingNameValue = '';
 
   editingDatesId: string | null = null;
   editingDatesValue = '';
 
-  // menú de sprint
   menuSprintId: string | null = null;
 
-  // modal de edición de sprint
   editingSprint: IBacklogSprint | null = null;
   editForm = {
     name: '',
@@ -44,22 +42,22 @@ export class BacklogBoardComponent {
     endTime: ''
   };
 
-  // menú de item
   itemMenuId: string | null = null;
 
-  // modal de edición de historia
   editingItem: { sprintId: string; item: IBacklogItem } | null = null;
   editItemForm = {
     title: '',
     description: '',
-    module: ''
+    module: '',
+    key: ''
   };
-  // subtareas en el modal
+
   editSubtasks: IBacklogSubtask[] = [];
 
-  // modal "mover historia a otro sprint"
   movingItem: { sprintId: string; item: IBacklogItem } | null = null;
   targetSprintId: string = '';
+
+  // Utils //
 
   isCollapsed(sprint: IBacklogSprint): boolean {
     return !!this.collapsed[sprint.id];
@@ -70,9 +68,14 @@ export class BacklogBoardComponent {
     if (!term) {
       return sprint.items;
     }
+
+    const sprintMatches = sprint.name.toLowerCase().includes(term);
+    if (sprintMatches) {
+      return sprint.items;
+    }
+
     return sprint.items.filter(item =>
-      item.title.toLowerCase().includes(term) ||
-      item.key.toLowerCase().includes(term)
+      item.title.toLowerCase().includes(term)
     );
   }
 
@@ -114,6 +117,8 @@ export class BacklogBoardComponent {
     this.backlogService.setSearchTerm(term);
   }
 
+  // Sprint header //
+
   toggleSprint(sprint: IBacklogSprint) {
     this.collapsed[sprint.id] = !this.isCollapsed(sprint);
   }
@@ -137,6 +142,8 @@ export class BacklogBoardComponent {
     this.backlogService.updateSprintDates(sprint.id, this.editingDatesValue);
     this.editingDatesId = null;
   }
+
+  // Funciones Sprints //
 
   handleAddSprint() {
     this.backlogService.addSprint();
@@ -195,6 +202,8 @@ export class BacklogBoardComponent {
     this.editingSprint = null;
   }
 
+  // Funciones historias //
+
   handleAddItem(sprint: IBacklogSprint) {
     this.backlogService.addItem(sprint.id);
     this.recomputeSprintStoryPoints(sprint);
@@ -241,6 +250,7 @@ export class BacklogBoardComponent {
     this.recomputeSprintStoryPoints(sprint);
   }
 
+  // Menú de historia (...) //
 
   openItemMenu(sprint: IBacklogSprint, item: IBacklogItem) {
     this.itemMenuId = this.itemMenuId === item.id ? null : item.id;
@@ -267,6 +277,8 @@ export class BacklogBoardComponent {
     this.targetSprintId = available.length ? available[0].id : '';
   }
 
+  // Modal mover historia // 
+
   cancelMoveItem() {
     this.movingItem = null;
     this.targetSprintId = '';
@@ -285,12 +297,15 @@ export class BacklogBoardComponent {
     this.targetSprintId = '';
   }
 
+  // Modal editar historia // 
+
   openEditItemDialog(sprint: IBacklogSprint, item: IBacklogItem) {
     this.editingItem = { sprintId: sprint.id, item };
     this.editItemForm = {
       title: item.title,
       description: item.description || '',
-      module: item.module
+      module: item.module,
+      key: item.key
     };
     this.editSubtasks = (item.subtasks || []).map(st => ({ ...st }));
   }
@@ -335,6 +350,7 @@ export class BacklogBoardComponent {
         title: this.editItemForm.title,
         module: this.editItemForm.module,
         description: this.editItemForm.description,
+        key: this.editItemForm.key,
         subtasks: cleanedSubtasks
       }
     );

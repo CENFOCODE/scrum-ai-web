@@ -90,7 +90,8 @@
               aria-hidden="true"
             >
               <path
-                d="M4 15.5L14.5 5a1.5 1.5 0 0 1 2.1 0l1.4 1.4a1.5 1.5 0 0 1 0 2.1L7.5 19l-4 1 1-4z"
+                d="M4 15.5L14.5 5a1.5 1.5 0 0 1 2.1 0l1.4 1.4a1.5 1.5 0 0 1 0 2.1L7.5 19l-4 1
+              1-4z"
               ></path>
               <path d="M13.5 6.5l3 3"></path>
             </svg>
@@ -115,7 +116,6 @@
                 {{ sprint.dates }}
               </button>
             </ng-template>
-
             &nbsp; ({{ sprint.items.length }} historias de trabajo)
           </span>
         </div>
@@ -125,11 +125,9 @@
           <button type="button" class="csd-sp-btn csd-sp-btn--todo">
             {{ sprint.storyPoints.todo }}
           </button>
-
           <button type="button" class="csd-sp-btn csd-sp-btn--inprogress">
             {{ sprint.storyPoints.inProgress }}
           </button>
-
           <button type="button" class="csd-sp-btn csd-sp-btn--done">
             {{ sprint.storyPoints.done }}
           </button>
@@ -151,7 +149,6 @@
             >
               ⋯
             </button>
-
             <div
               class="csd-backlog-sprint-menu"
               *ngIf="menuSprintId === sprint.id"
@@ -182,7 +179,7 @@
         </p>
       </div>
 
-      <!-- Histories -->
+      <!-- Historias -->
       <section class="csd-backlog-items" *ngIf="!isCollapsed(sprint)">
         <article
           class="csd-backlog-item-row"
@@ -253,7 +250,6 @@
               >
                 ⋯
               </button>
-
               <div
                 class="csd-backlog-sprint-menu"
                 *ngIf="itemMenuId === item.id"
@@ -284,7 +280,7 @@
           </div>
         </article>
 
-        <!-- Create history -->
+        <!-- Crear historia -->
         <div class="csd-backlog-create-row">
           <button
             type="button"
@@ -297,7 +293,7 @@
       </section>
     </section>
 
-    <!-- Add sprint -->
+    <!-- Agregar sprint -->
     <div class="csd-backlog-add-sprint-row">
       <button
         type="button"
@@ -309,7 +305,7 @@
     </div>
   </div>
 
-  <!-- Modal Edit Sprint -->
+  <!-- Modal editar sprint -->
   <div class="csd-backlog-modal-backdrop" *ngIf="editingSprint">
     <div class="csd-backlog-modal">
       <div class="csd-backlog-modal-header">
@@ -317,12 +313,10 @@
           Editar sprint: {{ editForm.name }}
         </h5>
       </div>
-
       <div class="csd-backlog-modal-body">
         <p class="csd-backlog-modal-required">
           Los campos requeridos están marcados con un asterisco *
         </p>
-
         <div class="mb-3">
           <label class="form-label csd-backlog-modal-label">
             Nombre del sprint*
@@ -349,7 +343,6 @@
               [(ngModel)]="editForm.startDate"
             />
           </div>
-
           <div class="csd-backlog-modal-col">
             <label class="form-label csd-backlog-modal-label">
               &nbsp;
@@ -376,7 +369,6 @@
               [(ngModel)]="editForm.endDate"
             />
           </div>
-
           <div class="csd-backlog-modal-col">
             <label class="form-label csd-backlog-modal-label">
               &nbsp;
@@ -402,7 +394,6 @@
           ></textarea>
         </div>
       </div>
-
       <div class="csd-backlog-modal-footer">
         <button
           type="button"
@@ -422,19 +413,18 @@
     </div>
   </div>
 
-  <!-- Modal edit History -->
+  <!-- Modal editar historia -->
   <div class="csd-backlog-modal-backdrop" *ngIf="editingItem as ei">
     <div class="csd-backlog-modal csd-edit-story-modal">
-
       <div class="csd-backlog-modal-header">
         <h5 class="mb-0">Editar historia: {{ ei.item.key }}</h5>
       </div>
-
       <div class="csd-backlog-modal-body">
         <p class="csd-backlog-modal-required">
           Los campos requeridos están marcados con un asterisco *
         </p>
 
+        <!-- Resumen -->
         <div class="mb-3">
           <label class="form-label csd-backlog-modal-label">Resumen*</label>
           <input
@@ -446,6 +436,16 @@
         </div>
 
         <div class="mb-3">
+          <label class="form-label csd-backlog-modal-label">ID de SCRUM</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="editItemForm.key"
+          />
+        </div>
+
+        <!-- Módulo -->
+        <div class="mb-3">
           <label class="form-label csd-backlog-modal-label">Módulo</label>
           <input
             type="text"
@@ -454,6 +454,7 @@
           />
         </div>
 
+        <!-- Descripción -->
         <div class="mb-4">
           <label class="form-label csd-backlog-modal-label">Descripción</label>
           <textarea
@@ -463,7 +464,7 @@
           ></textarea>
         </div>
 
-        <!-- Subtasks -->
+        <!-- Subtareas -->
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h6 class="mb-0">Subtareas</h6>
           <button
@@ -474,7 +475,6 @@
             + Subtarea
           </button>
         </div>
-
         <table class="table table-bordered csd-subtask-table">
           <thead class="csd-subtask-thead">
             <tr>
@@ -484,14 +484,12 @@
               <th style="width: 50px;"></th>
             </tr>
           </thead>
-
           <tbody>
             <tr *ngIf="editSubtasks.length === 0">
               <td colspan="4" class="csd-subtask-empty-cell">
                 Sin subtareas. Usa "+ Subtarea".
               </td>
             </tr>
-
             <tr *ngFor="let st of editSubtasks; let i = index">
               <td>
                 <input
@@ -500,7 +498,6 @@
                   [(ngModel)]="st.id"
                 />
               </td>
-
               <td>
                 <input
                   type="text"
@@ -508,7 +505,6 @@
                   [(ngModel)]="st.title"
                 />
               </td>
-
               <td>
                 <select
                   class="form-select form-select-sm csd-backlog-status-select"
@@ -520,7 +516,6 @@
                   <option value="DONE">DONE</option>
                 </select>
               </td>
-
               <td class="text-center">
                 <button
                   class="btn btn-sm btn-outline-danger"
@@ -532,7 +527,6 @@
             </tr>
           </tbody>
         </table>
-
       </div>
 
       <div class="csd-backlog-modal-footer">
@@ -554,7 +548,7 @@
     </div>
   </div>
 
-  <!-- Modal move history -->
+  <!-- Modal mover historia -->
   <div class="csd-backlog-modal-backdrop" *ngIf="movingItem as mi">
     <div class="csd-backlog-modal">
       <div class="csd-backlog-modal-header">
@@ -562,12 +556,10 @@
           Mover historia: {{ mi.item.key }}
         </h5>
       </div>
-
       <div class="csd-backlog-modal-body">
         <p class="csd-backlog-modal-required mb-2">
           Selecciona el sprint de destino para esta historia.
         </p>
-
         <div class="mb-3">
           <label class="form-label csd-backlog-modal-label">
             Sprint de destino
@@ -587,7 +579,6 @@
           </select>
         </div>
       </div>
-
       <div class="csd-backlog-modal-footer">
         <button
           type="button"
