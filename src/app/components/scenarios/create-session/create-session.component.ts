@@ -171,7 +171,10 @@ export class CreateSessionComponent {
     next: (res) => {
       this.isLoading = false;
 
-    this.redirectToDashboard();
+     this.redirectToScenarioPage(this.selectedScenario?.name, {
+        scenario: this.selectedScenario,
+        simulationUser: res
+      });
       this.sessionCreated.emit(res);
     },
     error: (err) => {
@@ -198,7 +201,7 @@ export class CreateSessionComponent {
   const routePath = routes[normalizedName];
 
   if (routePath) {
-    console.log(`➡️ Redirigiendo a: ${routePath}`);
+    console.log(`Redirigiendo a: ${routePath}`);
     this.router.navigate([routePath], { state: stateData });
   } else {
     this.notice.set({
@@ -211,22 +214,6 @@ export class CreateSessionComponent {
 
 }
 
-private redirectToDashboard() {
-   
-    this.router.navigate(['/app/dashboard'], { 
-      state: {
-        scenario: this.selectedScenario,
-        simulationUser: this.simulationUser,
-        aiTemplate: this.scenarioTemplate 
-      }
-    }); 
-    
- 
-    console.log('Datos enviados al dashboard:', {
-      scenario: this.selectedScenario,
-      simulationUser: this.simulationUser,
-      aiTemplate: this.scenarioTemplate 
-    });
 }
-}
+
 
