@@ -113,21 +113,13 @@ export class CreateSessionComponent {
 
 
  this.isLoading = true;
+  const userId = this.authService.getUser().id;
   const now = new Date();
   const newSimulation: ISimulations = {
     difficultyLevel: this.selectedDifficulty,
     startDate: now,
     endDate: new Date(now.getTime() + 60 * 60000),
-    createdBy: { 
-		"id" : 1,
-		"role": {
-					"id": 3,
-					"name": "SUPER_ADMIN",
-					"description": "Super Administrator role",
-					"createdAt": "2025-11-12T00:52:44.021+00:00",
-					"updatedAt": "2025-11-12T00:52:44.021+00:00"
-				}
-							 },
+    createdBy: { id : userId },
     scenario: { id: this.selectedScenario?.id}
   };
 
@@ -142,7 +134,8 @@ export class CreateSessionComponent {
       const newSimUser: ISimulationUser = {
         scrumRole: this.selectedRole,
         assignedAt: new Date(),
-        simulation: { id: createdSim.id } 
+        simulation: { id: createdSim.id },
+        user: { id : userId}
       };
 
       return this.simulationService.createSimulationUser(newSimUser);
