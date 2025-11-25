@@ -142,5 +142,13 @@ export interface ISimulationUser {
   assignedAt?: Date;
   scrumRole?: string;
   simulation?: ISimulations;
-  user?: IUser
+}
+
+export interface IScenarioTemplate {
+  id?: number;
+  stepOrder?: number;       
+  promptTemplate?: string;     
+  scenario?: IScenario;      
+  createdAt?: string;        
+  updatedAt?: string;        
 }
