@@ -7,6 +7,9 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogComponent } from '../../components/confirm/confirm-dialog.component';
 import { RetrospectiveService } from '../../services/retrospective.service';
+import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
+import { IScenario, ISimulationUser, IScenarioTemplate, ISimulations } from '../../interfaces';
+import { SimulationService } from '../../services/simulation.service';
 
 interface RetroNote {
   text: string;
@@ -17,6 +20,8 @@ interface RetroSection {
   notes: RetroNote[];
 }
 
+
+
 @Component({
   selector: 'app-retrospective',
   standalone: true,
@@ -26,28 +31,44 @@ interface RetroSection {
     BreadcrumbModule,
     RouterModule,
     ButtonModule,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    ChatbotComponent
   ],
   templateUrl: './retrospective.component.html',
   styleUrl: './retrospective.component.scss'
 })
-export class RetrospectiveComponent{
+export class RetrospectiveComponent implements OnInit{
 
-  scenario: any;
-  simulationUser: any;
+
+    simulation: ISimulations = {};
+    scenario: IScenario | null = null;
+    simulationId: number | null = null;
+    simulationUser: ISimulationUser | null = null;
+    aiTemplate: IScenarioTemplate | null = null;
 
   constructor(
     private router: Router, 
-    private retrospectiveService: RetrospectiveService
-  ) {
-    const nav = this.router.getCurrentNavigation();
-    this.scenario = nav?.extras?.state?.['scenario'];
-    this.simulationUser = nav?.extras?.state?.['simulationUser'];
+    private retrospectiveService: RetrospectiveService,
 
-    console.log('Datos recibidos en RetrospectiveComponent:', {
-      scenario: this.scenario,
-      simulationUser: this.simulationUser
-    });
+  ) {
+    // Obtenemos los datos pasados desde create-session
+    const nav = this.router.getCurrentNavigation();
+    if(nav?.extras?.state) {
+      this.scenario = nav.extras.state['scenario'] || null;
+      this.simulationUser = nav.extras.state['simulationUser'] || null;
+      this.aiTemplate = nav.extras.state['aiTemplate'] || null;
+      this.simulation = nav.extras.state['simulation'] || {};
+
+      this.simulationId = nav.extras.state['simulationId'] || null;
+
+      if (!this.simulationId && this.simulation?.id) {
+        this.simulationId = this.simulation.id;
+      }
+
+      if (!this.simulationId && this.simulationUser?.simulation?.id) {
+        this.simulationId = this.simulationUser.simulation.id;
+      }
+    } 
   }
 
 
@@ -116,20 +137,60 @@ export class RetrospectiveComponent{
     section.notes.push({ text: '' });
   }
 
-saveToBackend() {
+saveRetrospective() {
 
-    const payload = {
-      scenarioId: this.scenario?.id,
-      simulationUserId: this.simulationUser?.id,
-      sections: this.sections
-    };
+  const payloadSections: any = {
+    good: [],
+    bad: [],
+    ideas: [],
+    actions: []
+  };
 
-    console.log("payload:", payload);
+  for (const section of this.sections) {
+      const cleanValues = section.notes
+        .map(n => n.text.trim())
+        .filter(t => t !== '');
 
-    this.retrospectiveService.saveRetrospective(payload).subscribe({
-      next: () => console.log('Guardado exitosamente'),
-      error: err => console.error('Error al guardar', err)
-    });
+      switch (section.title) {
+        case 'Que nos ayudó?':
+          payloadSections.good = cleanValues;
+          break;
+
+        case 'Que nos atrasó?':
+          payloadSections.bad = cleanValues;
+          break;
+
+        case 'Ideas':
+          payloadSections.ideas = cleanValues;
+          break;
+
+        case 'Acciones':
+          payloadSections.actions = cleanValues;
+          break;
+      }
+    }
+
+  const payload = {
+    simulationId: this.simulationId,
+    retrospective: payloadSections
+  };
+
+  console.log("Payload final que se enviará:", payload);
+
+  this.retrospectiveService.saveRetrospective(payload).subscribe({
+    next: (res) => {
+      console.log("Guardado en backend:", res);
+      alert("¡Notas guardadas correctamente!");
+    },
+    error: (err) => {
+      console.error(err);
+      alert("Error guardando las notas.");
+    }
+  });
+}
+
+  ngOnInit() {
+  console.log("SimulationId reconocido:", this.simulationId);
   }
 
 }
