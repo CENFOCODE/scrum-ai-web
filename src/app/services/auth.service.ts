@@ -37,7 +37,7 @@ export class AuthService {
     
   }
 
-  public getUser(): IUser | undefined {
+  public getUser(): IUser {
     return this.user;
   }
 

@@ -8,9 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { SimulationService } from '../../../services/simulation.service';
-import { IScenario, ISimulations, ISimulationUser } from '../../../interfaces';
+import { IScenario, IScenarioTemplate, ISimulations, ISimulationUser } from '../../../interfaces';
 import { AuthService } from '../../../services/auth.service';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, map } from 'rxjs/operators';
+import { ScenarioTemplateService } from '../../../services/scenario-template.service';
 
 type NoticeType = 'success' | 'warning' | 'error';
 interface Notice {
@@ -39,6 +40,7 @@ export class CreateSessionComponent {
   @Input() ceremonyData!: IScenario;
   @Output() backToSelection = new EventEmitter<void>();
   @Output() sessionCreated = new EventEmitter<any>();
+  
 
   notice = signal<Notice | null>(null);
 
@@ -52,17 +54,19 @@ export class CreateSessionComponent {
   scenario?: IScenario;
   simulation: ISimulations = {};
   simulationUser: ISimulationUser = {};
+  scenarioTemplate: IScenarioTemplate = {};
 
  constructor(
     private simulationService: SimulationService,
     public authService: AuthService,
     private router: Router,
+    private scenarioTemplateService: ScenarioTemplateService
+   
   ) {
   effect(() => {
       const ceremonyData = this.simulationService.selectedScenario$();
       if (ceremonyData) {
         this.selectedScenario = ceremonyData;
-        console.log('Escenario recibido en CreateSession:', ceremonyData);
       }
     });
     const nav = this.router.getCurrentNavigation();
@@ -113,28 +117,42 @@ export class CreateSessionComponent {
 
 
  this.isLoading = true;
+  const userId = this.authService.getUser().id;
   const now = new Date();
   const newSimulation: ISimulations = {
     difficultyLevel: this.selectedDifficulty,
     startDate: now,
     endDate: new Date(now.getTime() + 60 * 60000),
-    createdBy: { 
-		"id" : 1,
-		"role": {
-					"id": 3,
-					"name": "SUPER_ADMIN",
-					"description": "Super Administrator role",
-					"createdAt": "2025-11-12T00:52:44.021+00:00",
-					"updatedAt": "2025-11-12T00:52:44.021+00:00"
-				}
-							 },
+    createdBy: { id : userId },
     scenario: { id: this.selectedScenario?.id}
   };
 
-   this.simulationService.createSimulation(newSimulation).pipe(
-    switchMap((createdSim) => {
-      console.log('Simulation guardada en DB con id:', createdSim.id);
+  
+  this.scenarioTemplateService.getTemplate(
+    this.selectedScenario?.id || 0,
+    this.scenarioTemplateService.mapDifficultyToNumber(this.selectedDifficulty),
+    this.selectedRole
+  ).pipe(
+    switchMap((templateResponse: any) => {
+    
+      if (templateResponse && templateResponse.promptTemplate) {
+        this.scenarioTemplate = templateResponse;
+      } 
 
+      else if (templateResponse && templateResponse.data) {
+        if (Array.isArray(templateResponse.data) && templateResponse.data.length > 0) {
+          this.scenarioTemplate = templateResponse.data[0];
+        } else if (templateResponse.data.promptTemplate) {
+          this.scenarioTemplate = templateResponse.data;
+        }
+      } else {
+        this.scenarioTemplate = {}; 
+      }
+      
+     
+      return this.simulationService.createSimulation(newSimulation);
+    }),
+    switchMap((createdSim) => {
       if (!createdSim.id) {
       alert('Error: el backend no devolvió el id de la Simulation.');
       throw new Error('Simulation sin id');
@@ -146,22 +164,16 @@ export class CreateSessionComponent {
         user: { id: currentUserId }
       };
 
-
+      
       return this.simulationService.createSimulationUser(newSimUser);
     })
   ).subscribe({
     next: (res) => {
-      console.log('SimulationUser creado:', res);
       this.isLoading = false;
       
       this.simulationService.setSelectedScenario(this.selectedScenario!);
       this.simulationService.setSelectedUser(res);
-
-      this.redirectToScenarioPage(this.selectedScenario?.name, {
-        scenario: this.selectedScenario,
-        simulationUser: res
-      });
-
+      this.redirectToDashboard();
       this.sessionCreated.emit(res);
 
       
@@ -170,6 +182,23 @@ export class CreateSessionComponent {
     error: (err) => {
       console.error('Error en el flujo', err);
       this.isLoading = false;
+      
+      // Manejar el error 404 de plantilla no encontrada
+      if (err.status === 404) {
+        this.notice.set({
+          type: 'warning',
+          text: `No se encontró una plantilla para ${this.selectedScenario?.name} con dificultad ${this.selectedDifficulty} y rol ${this.selectedRole}. Continuando sin plantilla específica.`
+        });
+        
+        // Redirigir al dashboard sin plantilla
+        this.scenarioTemplate = {};
+        this.redirectToDashboard();
+      } else {
+        this.notice.set({
+          type: 'error',
+          text: 'Error al crear la sesión. Por favor, intenta nuevamente.'
+        });
+      }
     }
   });
 }
@@ -202,6 +231,24 @@ export class CreateSessionComponent {
     return;
   }
 
+}
+
+private redirectToDashboard() {
+   
+    this.router.navigate(['/app/dashboard'], { 
+      state: {
+        scenario: this.selectedScenario,
+        simulationUser: this.simulationUser,
+        aiTemplate: this.scenarioTemplate 
+      }
+    }); 
+    
+ 
+    console.log('Datos enviados al dashboard:', {
+      scenario: this.selectedScenario,
+      simulationUser: this.simulationUser,
+      aiTemplate: this.scenarioTemplate 
+    });
 }
 }
 

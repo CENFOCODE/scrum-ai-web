@@ -133,7 +133,7 @@ export interface ISimulations {
   difficultyLevel?: string;
   endDate?: Date;
   startDate?: Date;
-  createdBy?: IUser; // id del usuario que lo creo
+  createdBy?: IUser;
   scenario?: IScenario;
 }
 
@@ -142,6 +142,14 @@ export interface ISimulationUser {
   assignedAt?: Date;
   scrumRole?: string;
   simulation?: ISimulations;
-  user?: { id: number };
+  user?: IUser;
+}
 
+export interface IScenarioTemplate {
+  id?: number;
+  stepOrder?: number;       
+  promptTemplate?: string;     
+  scenario?: IScenario;      
+  createdAt?: string;        
+  updatedAt?: string;        
 }
