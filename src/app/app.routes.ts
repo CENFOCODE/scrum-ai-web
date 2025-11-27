@@ -19,6 +19,9 @@ import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
 import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
 
+import { DailyQuestionsComponent } from './pages/daily-questions/daily-questions.component';
+import { DailySummaryComponent } from './pages/daily-summary/daily-summary.component';
+
 
 export const routes: Routes = [
   {
@@ -56,20 +59,23 @@ export const routes: Routes = [
     redirectTo: 'landingpage',
     pathMatch: 'full',
   },
+
   {
     path: 'app',
     component: AppLayoutComponent,
     canActivate: [AuthGuard],
     children: [
+
       {
         path: 'app',
         redirectTo: 'users',
         pathMatch: 'full',
       },
+
       {
         path: 'users',
         component: UsersComponent,
-        canActivate:[AdminRoleGuard],
+        canActivate: [AdminRoleGuard],
         data: {
           authorities: [
             IRoleType.admin,
@@ -79,7 +85,6 @@ export const routes: Routes = [
           showInSidebar: true
         }
       },
-
 
       {
         path: 'dashboard',
@@ -94,6 +99,7 @@ export const routes: Routes = [
           showInSidebar: true
         }
       },
+
       {
         path: 'profile',
         component: ProfileComponent,
@@ -107,6 +113,7 @@ export const routes: Routes = [
           showInSidebar: false
         }
       },
+
       {
         path: 'daily',
         component: DailyComponent,
@@ -114,12 +121,41 @@ export const routes: Routes = [
           authorities: [
             IRoleType.admin,
             IRoleType.superAdmin,
-            IRoleType.user,
+            IRoleType.user
           ],
           name: 'daily',
           showInSidebar: false
         }
       },
+
+      {
+        path: 'daily-questions',
+        component: DailyQuestionsComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user
+          ],
+          name: 'Daily Questions',
+          showInSidebar: false
+        }
+      },
+
+      {
+        path: 'daily-summary',
+        component: DailySummaryComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user
+          ],
+          name: 'Daily Summary',
+          showInSidebar: false
+        }
+      },
+
       {
         path: 'scenario',
         component: ScenarioComponent,
@@ -127,12 +163,13 @@ export const routes: Routes = [
           authorities: [
             IRoleType.admin,
             IRoleType.superAdmin,
-            IRoleType.user,
+            IRoleType.user
           ],
           name: 'Scenario',
           showInSidebar: true
         }
       },
+
       {
         path: 'websocketTest',
         component: WebsocketTestComponent,
@@ -140,12 +177,13 @@ export const routes: Routes = [
           authorities: [
             IRoleType.admin,
             IRoleType.superAdmin,
-            IRoleType.user,
+            IRoleType.user
           ],
           name: 'WebSocket Test',
-          showInSidebar: false // si no querés que aparezca en el menú lateral
+          showInSidebar: false
         }
       },
+
       {
         path: 'videoRoom',
         component: VideoRoomComponent,
@@ -153,13 +191,12 @@ export const routes: Routes = [
           authorities: [
             IRoleType.admin,
             IRoleType.superAdmin,
-            IRoleType.user,
+            IRoleType.user
           ],
           name: 'Video Room',
           showInSidebar: false
         }
       }
-
 
     ],
   },

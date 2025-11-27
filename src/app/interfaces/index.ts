@@ -142,4 +142,6 @@ export interface ISimulationUser {
   assignedAt?: Date;
   scrumRole?: string;
   simulation?: ISimulations;
+  user?: { id: number };
+
 }

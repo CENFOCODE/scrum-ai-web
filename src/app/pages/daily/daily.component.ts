@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { Router } from '@angular/router';
-
+import { SimulationService } from '../../services/simulation.service';
 
 interface Task {
   title: string;
@@ -22,44 +21,16 @@ interface Task {
     DragDropModule
   ],
   templateUrl: './daily.component.html',
-  styleUrl: './daily.component.scss'
+  styleUrls: ['./daily.component.scss']
 })
 export class DailyComponent implements OnInit {
 
-  /** datos del create-scenario */
-    scenario: any;
+  scenario: any;
   simulationUser: any;
 
-  constructor(private router: Router) {
-    const nav = this.router.getCurrentNavigation();
-    this.scenario = nav?.extras?.state?.['scenario'];
-    this.simulationUser = nav?.extras?.state?.['simulationUser'];
+  itemsMenu: MenuItem[] | undefined;
 
-    console.log(' Datos recibidos en DailyComponent:', {
-      scenario: this.scenario,
-      simulationUser: this.simulationUser
-    });
-  }
-
-  goBackToCreateSession() {
-    this.router.navigate(['app/scenario']);
-  }
-
-
-
-  /** breadcrums menu */ 
-itemsMenu: MenuItem[] | undefined;
-
-    home: MenuItem | undefined;
-
-  ngOnInit() {
-    this.itemsMenu = [
-      { label: 'Daily Paso 1', route:'/app/dashboard' }, { label: 'Daily Paso 2' }, { label: 'Daily Paso 3' }
-    ];
-  }
-
-/** drag and drop */
-todo: Task[] = [
+  todo: Task[] = [
     { title: 'Diseñar mockups', description: 'Pantallas iniciales del sistema' },
     { title: 'Configurar entorno', description: 'Instalar dependencias Angular' }
   ];
@@ -76,7 +47,57 @@ todo: Task[] = [
     { title: 'Reunión inicial', description: 'Definición de requerimientos' }
   ];
 
-  connectedLists = ['todoList', 'inProgressList', 'qaList', 'doneList'];
+  connectedLists: string[] = ['todoList', 'inProgressList', 'qaList', 'doneList'];
+
+  constructor(
+    private router: Router,
+    private simulationService: SimulationService
+  ) {}
+
+  ngOnInit() {
+
+    // 1️⃣ Intentamos leer los datos enviados por navegación
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras?.state;
+
+    console.log("Datos recibidos en DailyComponent via navigation:", state);
+
+    this.scenario = state?.['scenario'] || null;
+    this.simulationUser = state?.['simulationUser'] || null;
+
+    // 2️⃣ Si vienen null (por refresh, F5, acceso directo)
+    if (!this.scenario) {
+      this.scenario = this.simulationService.selectedScenario$();
+    }
+
+    if (!this.simulationUser) {
+      this.simulationUser = this.simulationService.selectedUser$();
+    }
+
+    // 3️⃣ Validación final (si todo está null)
+    if (!this.scenario || !this.simulationUser) {
+      console.warn("❌ No hay datos cargados. Redirigiendo.");
+      this.router.navigate(['app/scenario']);
+      return;
+    }
+
+    // 4️⃣ Breadcrumb
+    this.itemsMenu = [
+      { label: 'Daily Paso 1', route:'/app/daily' },
+      { label: 'Daily Paso 2' },
+      { label: 'Daily Paso 3' }
+    ];
+
+    console.log("✔ Datos finales usados en DailyComponent:", {
+      scenario: this.scenario,
+      simulationUser: this.simulationUser
+    });
+  }
+
+
+  trackTask(index: number, task: Task) {
+    return task.title;
+  }
 
   drop(event: CdkDragDrop<Task[]>) {
     if (event.previousContainer === event.container) {
@@ -89,5 +110,29 @@ todo: Task[] = [
         event.currentIndex
       );
     }
+  }
+
+  getDailyBoardState() {
+    return {
+      todo: this.todo,
+      inProgress: this.inProgress,
+      qa: this.qa,
+      done: this.done
+    };
+  }
+
+  goNext() {
+    const board = this.getDailyBoardState();
+
+    console.log('Estado de la Daily listo para enviar:', board);
+
+    //Guardar board en SimulationService
+    this.simulationService.setDailyBoard(board);
+
+    this.router.navigate(['app/daily-questions']);
+  }
+
+  goBackToCreateSession() {
+    this.router.navigate(['app/scenario']);
   }
 }

@@ -142,8 +142,10 @@ export class CreateSessionComponent {
       const newSimUser: ISimulationUser = {
         scrumRole: this.selectedRole,
         assignedAt: new Date(),
-        simulation: { id: createdSim.id } 
+        simulation: { id: createdSim.id },
+        user: { id: currentUserId }
       };
+
 
       return this.simulationService.createSimulationUser(newSimUser);
     })
@@ -151,6 +153,9 @@ export class CreateSessionComponent {
     next: (res) => {
       console.log('SimulationUser creado:', res);
       this.isLoading = false;
+      
+      this.simulationService.setSelectedScenario(this.selectedScenario!);
+      this.simulationService.setSelectedUser(res);
 
       this.redirectToScenarioPage(this.selectedScenario?.name, {
         scenario: this.selectedScenario,
@@ -158,6 +163,9 @@ export class CreateSessionComponent {
       });
 
       this.sessionCreated.emit(res);
+
+      
+
     },
     error: (err) => {
       console.error('Error en el flujo', err);
