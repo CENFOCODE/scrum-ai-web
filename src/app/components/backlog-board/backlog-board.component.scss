@@ -866,3 +866,16 @@ $textLight: #EBE4DA;
   background: $coral;
   color: white;
 }
+
+/* Sprints completados */
+
+.csd-backlog-sprint.csd-surface.completed-container h5 {
+  font-size: 0.95rem !important;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: $petroleo;
+}
+
+.csd-backlog-sprint.csd-surface.completed-container {
+  padding-top: 0.9rem !important;
+}

@@ -6,7 +6,7 @@ import {
   IBacklogItem,
   IBacklogSprint,
   BacklogStatus,
-  IBacklogSubtask
+  IBacklogSubtask,
 } from '../../services/backlog.service';
 
 @Component({
@@ -14,7 +14,7 @@ import {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './backlog-board.component.html',
-  styleUrl: './backlog-board.component.scss'
+  styleUrls: ['./backlog-board.component.scss']
 })
 export class BacklogBoardComponent {
   constructor(private backlogService: BacklogService) {}
@@ -39,7 +39,7 @@ export class BacklogBoardComponent {
     startDate: '',
     startTime: '',
     endDate: '',
-    endTime: ''
+    endTime: '',
   };
 
   itemMenuId: string | null = null;
@@ -49,7 +49,7 @@ export class BacklogBoardComponent {
     title: '',
     description: '',
     module: '',
-    key: ''
+    key: '',
   };
 
   editSubtasks: IBacklogSubtask[] = [];
@@ -57,16 +57,34 @@ export class BacklogBoardComponent {
   movingItem: { sprintId: string; item: IBacklogItem } | null = null;
   targetSprintId: string = '';
 
-  // Utils //
+  getCompletedSprints(): IBacklogSprint[] {
+    return this.sprints().filter(s => s.status === 'COMPLETED');
+  }
+
+  isBacklogSprint(sprint: IBacklogSprint): boolean {
+    return sprint.name === 'Backlog' || sprint.status === 'BACKLOG';
+  }
+
+  isCompletedContainer(sprint: IBacklogSprint): boolean {
+    return (
+      sprint.name === 'Sprints completados' ||
+      sprint.status === 'COMPLETED_CONTAINER'
+    );
+  }
 
   isCollapsed(sprint: IBacklogSprint): boolean {
+    if (this.isCompletedContainer(sprint) && this.collapsed[sprint.id] === undefined) {
+      return true;
+    }
     return !!this.collapsed[sprint.id];
   }
 
-  
   filteredItems(sprint: IBacklogSprint): IBacklogItem[] {
     const term = this.searchTerm().trim().toLowerCase();
     if (!term) {
+      if (this.isCompletedContainer(sprint)) {
+        return [];
+      }
       return sprint.items;
     }
 
@@ -78,19 +96,43 @@ export class BacklogBoardComponent {
       return sprint.items;
     }
 
-    return sprint.items.filter(item =>
-      item.title.toLowerCase().includes(term) ||
-      item.key.toLowerCase().includes(term) ||
-      (item.module ?? '').toLowerCase().includes(term)
+    return sprint.items.filter(
+      (item) =>
+        item.title.toLowerCase().includes(term) ||
+        item.key.toLowerCase().includes(term) ||
+        (item.module ?? '').toLowerCase().includes(term)
     );
   }
 
   shouldShowSprint(sprint: IBacklogSprint): boolean {
     const term = this.searchTerm().trim();
+
+    if (sprint.status === 'COMPLETED') {
+      return false;
+    }
+
     if (!term) {
+      if (this.isCompletedContainer(sprint)) {
+        const hasCompleted = this.sprints().some(s => s.status === 'COMPLETED');
+        if (!hasCompleted) {
+          return false;
+        }
+      }
       return true;
     }
-    return this.filteredItems(sprint).length > 0;
+
+    const filtered = this.filteredItems(sprint);
+    if (filtered.length === 0) {
+      return false;
+    }
+
+    if (this.isCompletedContainer(sprint)) {
+      const hasCompleted = this.sprints().some(s => s.status === 'COMPLETED');
+      if (!hasCompleted) {
+        return false;
+      }
+    }
+    return true;
   }
 
   getStatusClass(status: BacklogStatus): string {
@@ -107,7 +149,6 @@ export class BacklogBoardComponent {
 
   private recomputeSprintStoryPoints(sprint: IBacklogSprint) {
     const totals = { todo: 0, inProgress: 0, done: 0 };
-
     for (const item of sprint.items) {
       const points = Number(item.storyPoints) || 0;
       switch (item.status) {
@@ -123,7 +164,6 @@ export class BacklogBoardComponent {
           break;
       }
     }
-
     sprint.storyPoints = totals;
   }
 
@@ -132,12 +172,14 @@ export class BacklogBoardComponent {
   }
 
   // Sprint header //
-
   toggleSprint(sprint: IBacklogSprint) {
     this.collapsed[sprint.id] = !this.isCollapsed(sprint);
   }
 
   startEditSprintName(sprint: IBacklogSprint) {
+    if (this.isBacklogSprint(sprint) || this.isCompletedContainer(sprint)) {
+      return;
+    }
     this.editingNameId = sprint.id;
     this.editingNameValue = sprint.name;
   }
@@ -157,15 +199,29 @@ export class BacklogBoardComponent {
     this.editingDatesId = null;
   }
 
-  // Funciones Sprints //
-
   handleAddSprint() {
     this.backlogService.addSprint();
   }
 
   handleStartSprint(sprint: IBacklogSprint) {
-    console.log('Start Sprint clicado', sprint);
-    alert(`Iniciando ${sprint.name} (comportamiento demo).`);
+    if (this.isBacklogSprint(sprint) || this.isCompletedContainer(sprint)) {
+      return;
+    }
+    if (sprint.status === 'COMPLETED') {
+      return;
+    }
+    if (sprint.status === 'ACTIVE') {
+      const confirmComplete = confirm(
+        `¿Marcar el sprint "${sprint.name}" como completado?`
+      );
+      if (confirmComplete) {
+        sprint.status = 'COMPLETED';
+        this.backlogService.completeSprint(sprint.id);
+      }
+    } else {
+      sprint.status = 'ACTIVE';
+      this.backlogService.startSprint(sprint.id);
+    }
   }
 
   openSprintMenu(sprint: IBacklogSprint) {
@@ -193,7 +249,7 @@ export class BacklogBoardComponent {
       startDate: sprint.startDate || '',
       startTime: sprint.startTime || '',
       endDate: sprint.endDate || '',
-      endTime: sprint.endTime || ''
+      endTime: sprint.endTime || '',
     };
   }
 
@@ -203,22 +259,19 @@ export class BacklogBoardComponent {
 
   saveEditSprint() {
     if (!this.editingSprint) return;
-
     this.backlogService.updateSprintFromDialog(this.editingSprint.id, {
       name: this.editForm.name,
       goal: this.editForm.goal,
       startDate: this.editForm.startDate,
       startTime: this.editForm.startTime,
       endDate: this.editForm.endDate,
-      endTime: this.editForm.endTime
+      endTime: this.editForm.endTime,
     });
-
     this.editingSprint = null;
   }
 
-  // Funciones historias //
-
-  handleAddItem(sprint: IBacklogSprint) {
+  // Historias //
+  handleAddStory(sprint: IBacklogSprint) {
     this.backlogService.addItem(sprint.id);
     this.recomputeSprintStoryPoints(sprint);
   }
@@ -264,8 +317,6 @@ export class BacklogBoardComponent {
     this.recomputeSprintStoryPoints(sprint);
   }
 
-  // Menú de historia (...) //
-
   openItemMenu(sprint: IBacklogSprint, item: IBacklogItem) {
     this.itemMenuId = this.itemMenuId === item.id ? null : item.id;
   }
@@ -291,8 +342,6 @@ export class BacklogBoardComponent {
     this.targetSprintId = available.length ? available[0].id : '';
   }
 
-  // Modal mover historia //
-
   cancelMoveItem() {
     this.movingItem = null;
     this.targetSprintId = '';
@@ -300,18 +349,14 @@ export class BacklogBoardComponent {
 
   confirmMoveItem() {
     if (!this.movingItem || !this.targetSprintId) return;
-
     this.backlogService.moveItemToSprint(
       this.movingItem.sprintId,
       this.targetSprintId,
       this.movingItem.item.id
     );
-
     this.movingItem = null;
     this.targetSprintId = '';
   }
-
-  // Modal editar historia //
 
   openEditItemDialog(sprint: IBacklogSprint, item: IBacklogItem) {
     this.editingItem = { sprintId: sprint.id, item };
@@ -319,9 +364,9 @@ export class BacklogBoardComponent {
       title: item.title,
       description: item.description || '',
       module: item.module,
-      key: item.key
+      key: item.key,
     };
-    this.editSubtasks = (item.subtasks || []).map(st => ({ ...st }));
+    this.editSubtasks = (item.subtasks || []).map((st: any) => ({ ...st }));
   }
 
   closeEditItemDialog() {
@@ -334,7 +379,7 @@ export class BacklogBoardComponent {
       id: '',
       title: '',
       description: '',
-      status: 'TO DO'
+      status: 'TO DO',
     };
     this.editSubtasks = [...this.editSubtasks, newSubtask];
   }
@@ -353,7 +398,7 @@ export class BacklogBoardComponent {
         ...st,
         id: st.id.trim(),
         title: st.title.trim(),
-        description: st.description.trim()
+        description: st.description.trim(),
       }))
       .filter(st => st.id || st.title || st.description);
 
@@ -365,11 +410,16 @@ export class BacklogBoardComponent {
         module: this.editItemForm.module,
         description: this.editItemForm.description,
         key: this.editItemForm.key,
-        subtasks: cleanedSubtasks
+        subtasks: cleanedSubtasks,
       }
     );
 
     this.editingItem = null;
     this.editSubtasks = [];
+  }
+
+  handleAddItem(sprint: IBacklogSprint) {
+    this.backlogService.addItem(sprint.id);
+    this.recomputeSprintStoryPoints(sprint);
   }
 }

@@ -4,6 +4,13 @@ import { IResponse } from '../interfaces';
 
 export type BacklogStatus = 'TO DO' | 'IN PROGRESS' | 'DONE';
 
+export type SprintStatus =
+  | 'BACKLOG'
+  | 'PENDING'
+  | 'ACTIVE'
+  | 'COMPLETED'
+  | 'COMPLETED_CONTAINER';
+
 export interface IBacklogSubtask {
   id: string;
   title: string;
@@ -36,6 +43,7 @@ export interface IBacklogSprint {
     inProgress: number;
     done: number;
   };
+  status?: SprintStatus;
   items: IBacklogItem[];
 }
 
@@ -68,6 +76,7 @@ interface IBacklogSprintApi {
   startTime?: string;
   endDate?: string;
   endTime?: string;
+  status?: SprintStatus;
   items: IBacklogItemApi[];
 }
 
@@ -80,6 +89,66 @@ export class BacklogService {
 
   constructor(private http: HttpClient) {
     this.loadFromApi();
+  }
+
+  /* Actualizar sprint */
+  updateSprintName(id: string, name: string) {
+    const idNum = Number(id);
+    if (!idNum) return;
+
+    this.http.put<IResponse<any>>(
+      `${this.baseUrl}/sprints/${idNum}`,
+      { name }
+    ).subscribe(() => this.loadFromApi());
+  }
+
+  updateSprintDates(id: string, dates: string) {
+    const idNum = Number(id);
+    if (!idNum) return;
+
+    this.http.put<IResponse<any>>(
+      `${this.baseUrl}/sprints/${idNum}`,
+      { dates }
+    ).subscribe(() => this.loadFromApi());
+  }
+
+  updateSprintFromDialog(
+    id: string,
+    payload: {
+      name: string;
+      goal: string;
+      startDate: string;
+      startTime: string;
+      endDate: string;
+      endTime: string;
+    }
+  ) {
+    const idNum = Number(id);
+    if (!idNum) return;
+
+    this.http.put<IResponse<any>>(
+      `${this.baseUrl}/sprints/${idNum}`,
+      payload
+    ).subscribe(() => this.loadFromApi());
+  }
+
+  /* Start / Complete Sprint */
+  startSprint(id: string) {
+    const idNum = Number(id);
+    if (!idNum) return;
+    this.http.put<IResponse<any>>(
+      `${this.baseUrl}/sprints/${idNum}/start`,
+      {}
+    ).subscribe(() => this.loadFromApi());
+  }
+
+  completeSprint(id: string) {
+    const idNum = Number(id);
+    if (!idNum) return;
+    this.http.put<IResponse<any>>(
+      `${this.baseUrl}/sprints/${idNum}/complete`,
+      {}
+    ).subscribe(() => this.loadFromApi());
   }
 
   get sprints$() {
@@ -117,167 +186,128 @@ export class BacklogService {
   }
 
   private mapSprint(api: IBacklogSprintApi): IBacklogSprint {
-    const apiDates = (api.dates || '').trim();
-    const hasRange = !!(api.startDate && api.endDate);
-    const computedDates = hasRange
-      ? `${api.startDate} ${api.startTime || ''} - ${api.endDate} ${api.endTime || ''}`.trim()
-      : '';
+    const formattedDates =
+      api.dates ||
+      `${api.startDate || ''} ${api.startTime || ''} - ${api.endDate || ''} ${api.endTime || ''}`.trim();
 
-    const sprint: IBacklogSprint = {
+    return this.recalcStoryPoints({
       id: String(api.id),
       name: api.name,
       goal: api.goal ?? '',
-      dates: apiDates || computedDates,
+      dates: formattedDates || 'Agregar fechas',
       startDate: api.startDate,
       startTime: api.startTime,
       endDate: api.endDate,
       endTime: api.endTime,
+      status:
+        api.name === 'Backlog'
+          ? 'BACKLOG'
+          : api.name === 'Sprints completados'
+          ? 'COMPLETED_CONTAINER'
+          : api.status ?? 'PENDING',
       storyPoints: { todo: 0, inProgress: 0, done: 0 },
       items: (api.items || []).map(it => this.mapItem(it))
-    };
-
-    return this.recalcStoryPoints(sprint);
+    });
   }
 
   private loadFromApi() {
-    this.http.get<IResponse<IBacklogSprintApi[]>>(this.baseUrl).subscribe({
-      next: (res) => {
-        const data = res.data || [];
-        const mapped = data.map(s => this.mapSprint(s));
-        this.sprintsSignal.set(mapped);
-      },
-      error: (err) => {
-        console.error('Error cargando backlog', err);
-      }
-    });
+    this.http.get<IResponse<IBacklogSprintApi[]>>(this.baseUrl)
+      .subscribe({
+        next: res => {
+          const mapped = (res.data || []).map(s => this.mapSprint(s));
+          this.sprintsSignal.set(mapped);
+        },
+        error: err => console.error('Error cargando backlog', err)
+      });
   }
 
   private recalcStoryPoints(sprint: IBacklogSprint): IBacklogSprint {
-    const totals = {
-      todo: 0,
-      inProgress: 0,
-      done: 0
-    };
+    const totals = { todo: 0, inProgress: 0, done: 0 };
 
     sprint.items.forEach(item => {
       const sp = item.storyPoints ?? 0;
-      switch (item.status) {
-        case 'TO DO':
-          totals.todo += sp;
-          break;
-        case 'IN PROGRESS':
-          totals.inProgress += sp;
-          break;
-        case 'DONE':
-          totals.done += sp;
-          break;
-      }
+      if (item.status === 'TO DO') totals.todo += sp;
+      if (item.status === 'IN PROGRESS') totals.inProgress += sp;
+      if (item.status === 'DONE') totals.done += sp;
     });
 
-    return {
-      ...sprint,
-      storyPoints: totals
-    };
+    return { ...sprint, storyPoints: totals };
   }
 
-  /* CRUD de sprints e items */
-
+  /* SPRINTS */
   addSprint() {
-    this.http.post<IResponse<IBacklogSprintApi>>(
+    this.http.post<IResponse<any>>(
       `${this.baseUrl}/sprints`,
       {}
-    ).subscribe({
-      next: () => this.loadFromApi(),
-      error: (err) => console.error('Error creando sprint', err)
-    });
+    ).subscribe(() => this.loadFromApi());
   }
 
   deleteSprint(sprintId: string) {
     const idNum = Number(sprintId);
     if (!idNum) return;
-
     this.http.delete<IResponse<null>>(
       `${this.baseUrl}/sprints/${idNum}`
-    ).subscribe({
-      next: () => this.loadFromApi(),
-      error: (err) => console.error('Error eliminando sprint', err)
-    });
+    ).subscribe(() => this.loadFromApi());
   }
 
+  /* HISTORIAS */
   addItem(sprintId: string) {
-    const sprintNum = Number(sprintId);
-    if (!sprintNum) return;
+    const idNum = Number(sprintId);
+    if (!idNum) return;
 
-    this.http.post<IResponse<IBacklogSprintApi>>(
+    this.http.post<IResponse<any>>(
       `${this.baseUrl}/items`,
-      { sprintId: sprintNum }
-    ).subscribe({
-      next: () => this.loadFromApi(),
-      error: (err) => console.error('Error agregando historia', err)
-    });
+      { sprintId: idNum }
+    ).subscribe(() => this.loadFromApi());
   }
 
   deleteItem(sprintId: string, itemId: string) {
-    const itemNum = Number(itemId);
-    if (!itemNum) return;
+    const num = Number(itemId);
+    if (!num) return;
 
     this.http.delete<IResponse<null>>(
-      `${this.baseUrl}/items/${itemNum}`
-    ).subscribe({
-      next: () => this.loadFromApi(),
-      error: (err) => console.error('Error eliminando historia', err)
-    });
+      `${this.baseUrl}/items/${num}`
+    ).subscribe(() => this.loadFromApi());
   }
-
-  /* Actualizaciones de historias */
 
   updateStatus(sprintId: string, itemId: string, status: BacklogStatus) {
     this.sprintsSignal.update(sprints =>
-      sprints.map(sprint => {
-        if (sprint.id !== sprintId) return sprint;
-        const updated: IBacklogSprint = {
-          ...sprint,
-          items: sprint.items.map(item =>
-            item.id === itemId ? { ...item, status } : item
-          )
-        };
-        return this.recalcStoryPoints(updated);
-      })
+      sprints.map(s =>
+        s.id === sprintId
+          ? this.recalcStoryPoints({
+              ...s,
+              items: s.items.map(i =>
+                i.id === itemId ? { ...i, status } : i
+              )
+            })
+          : s
+      )
     );
 
-    const itemNum = Number(itemId);
-    if (!itemNum) return;
-
     this.http.put<IResponse<any>>(
-      `${this.baseUrl}/items/${itemNum}`,
+      `${this.baseUrl}/items/${Number(itemId)}`,
       { status }
-    ).subscribe({
-      error: (err) => console.error('Error actualizando estado', err)
-    });
+    ).subscribe();
   }
 
   updateModule(sprintId: string, itemId: string, module: string) {
     this.sprintsSignal.update(sprints =>
-      sprints.map(sprint => {
-        if (sprint.id !== sprintId) return sprint;
-        return {
-          ...sprint,
-          items: sprint.items.map(item =>
-            item.id === itemId ? { ...item, module } : item
-          )
-        };
-      })
+      sprints.map(s =>
+        s.id === sprintId
+          ? {
+              ...s,
+              items: s.items.map(i =>
+                i.id === itemId ? { ...i, module } : i
+              )
+            }
+          : s
+      )
     );
 
-    const itemNum = Number(itemId);
-    if (!itemNum) return;
-
     this.http.put<IResponse<any>>(
-      `${this.baseUrl}/items/${itemNum}`,
+      `${this.baseUrl}/items/${Number(itemId)}`,
       { module }
-    ).subscribe({
-      error: (err) => console.error('Error actualizando módulo', err)
-    });
+    ).subscribe();
   }
 
   updateItemTitle(sprintId: string, itemId: string, title: string) {
@@ -285,55 +315,47 @@ export class BacklogService {
     if (!clean) return;
 
     this.sprintsSignal.update(sprints =>
-      sprints.map(sprint => {
-        if (sprint.id !== sprintId) return sprint;
-        return {
-          ...sprint,
-          items: sprint.items.map(item =>
-            item.id === itemId ? { ...item, title: clean } : item
-          )
-        };
-      })
+      sprints.map(s =>
+        s.id === sprintId
+          ? {
+              ...s,
+              items: s.items.map(i =>
+                i.id === itemId ? { ...i, title: clean } : i
+              )
+            }
+          : s
+      )
     );
 
-    const itemNum = Number(itemId);
-    if (!itemNum) return;
-
     this.http.put<IResponse<any>>(
-      `${this.baseUrl}/items/${itemNum}`,
+      `${this.baseUrl}/items/${Number(itemId)}`,
       { title: clean }
-    ).subscribe({
-      error: (err) => console.error('Error actualizando título', err)
-    });
+    ).subscribe();
   }
 
   updateItemStoryPoints(sprintId: string, itemId: string, storyPoints: number) {
     if (storyPoints < 0) return;
 
     this.sprintsSignal.update(sprints =>
-      sprints.map(sprint => {
-        if (sprint.id !== sprintId) return sprint;
-        const updated: IBacklogSprint = {
-          ...sprint,
-          items: sprint.items.map(item =>
-            item.id === itemId ? { ...item, storyPoints } : item
-          )
-        };
-        return this.recalcStoryPoints(updated);
-      })
+      sprints.map(s =>
+        s.id === sprintId
+          ? this.recalcStoryPoints({
+              ...s,
+              items: s.items.map(i =>
+                i.id === itemId ? { ...i, storyPoints } : i
+              )
+            })
+          : s
+      )
     );
 
-    const itemNum = Number(itemId);
-    if (!itemNum) return;
-
     this.http.put<IResponse<any>>(
-      `${this.baseUrl}/items/${itemNum}`,
+      `${this.baseUrl}/items/${Number(itemId)}`,
       { storyPoints }
-    ).subscribe({
-      error: (err) => console.error('Error actualizando story points', err)
-    });
+    ).subscribe();
   }
 
+  /* Actualizar historia */
   updateItemDetails(
     sprintId: string,
     itemId: string,
@@ -341,218 +363,113 @@ export class BacklogService {
       title?: string;
       module?: string;
       description?: string;
-      subtasks?: IBacklogSubtask[];
       key?: string;
+      subtasks?: IBacklogSubtask[];
     }
   ) {
-    const titleClean = payload.title?.trim();
-    const moduleClean = payload.module?.trim();
-    const descriptionClean =
-      payload.description !== undefined ? payload.description.trim() : undefined;
-    const keyClean = payload.key?.trim();
-
-    this.sprintsSignal.update(sprints =>
-      sprints.map(sprint => {
-        if (sprint.id !== sprintId) return sprint;
-
-        const updatedItems = sprint.items.map(item => {
-          if (item.id !== itemId) return item;
-
-          const updated: IBacklogItem = {
-            ...item,
-            ...(titleClean ? { title: titleClean } : {}),
-            ...(moduleClean !== undefined ? { module: moduleClean } : {}),
-            ...(descriptionClean !== undefined ? { description: descriptionClean } : {}),
-            ...(keyClean ? { key: keyClean } : {}),
-            ...(payload.subtasks
-              ? {
-                  subtasks: payload.subtasks.map(st => ({
-                    ...st
-                  }))
-                }
-              : {})
-          };
-
-          return updated;
-        });
-
-        return this.recalcStoryPoints({
-          ...sprint,
-          items: updatedItems
-        });
-      })
-    );
-
-    const itemNum = Number(itemId);
-    if (!itemNum) return;
+    const num = Number(itemId);
+    if (!num) return;
 
     const body: any = {};
-    if (titleClean !== undefined) body.title = titleClean;
-    if (moduleClean !== undefined) body.module = moduleClean;
-    if (descriptionClean !== undefined) body.description = descriptionClean;
-    if (keyClean !== undefined) body.key = keyClean;
-    if (payload.subtasks !== undefined) body.subtasks = payload.subtasks;
 
-    this.http.put<IResponse<any>>(
-      `${this.baseUrl}/items/${itemNum}`,
-      body
-    ).subscribe({
-      error: (err) => console.error('Error actualizando historia', err)
-    });
-  }
+    if (payload.title !== undefined) body.title = payload.title.trim();
+    if (payload.module !== undefined) body.module = payload.module.trim();
+    if (payload.description !== undefined) body.description = payload.description.trim();
+    if (payload.key !== undefined) body.key = payload.key.trim();
 
-  /* Funciones Sprints */
-
-  updateSprintName(sprintId: string, name: string) {
-    const clean = name.trim();
-    if (!clean) return;
-
-    this.sprintsSignal.update(sprints =>
-      sprints.map(sprint =>
-        sprint.id === sprintId ? { ...sprint, name: clean } : sprint
-      )
-    );
-
-    const idNum = Number(sprintId);
-    if (!idNum) return;
-
-    this.http.put<IResponse<any>>(
-      `${this.baseUrl}/sprints/${idNum}`,
-      { name: clean }
-    ).subscribe({
-      error: (err) => console.error('Error actualizando nombre de sprint', err)
-    });
-  }
-
-  updateSprintDates(sprintId: string, dates: string) {
-    const clean = dates.trim();
-
-    this.sprintsSignal.update(sprints =>
-      sprints.map(sprint =>
-        sprint.id === sprintId ? { ...sprint, dates: clean } : sprint
-      )
-    );
-
-    const idNum = Number(sprintId);
-    if (!idNum) return;
-
-    this.http.put<IResponse<any>>(
-      `${this.baseUrl}/sprints/${idNum}`,
-      { dates: clean }
-    ).subscribe({
-      error: (err) => console.error('Error actualizando dates de sprint', err)
-    });
-  }
-
-  updateSprintFromDialog(
-    sprintId: string,
-    payload: {
-      name: string;
-      goal: string;
-      startDate: string;
-      startTime: string;
-      endDate: string;
-      endTime: string;
+    if (payload.subtasks !== undefined) {
+      body.subtasks = payload.subtasks.map(st => ({
+        id: st.id ? Number(st.id) : null,
+        code: st.id,
+        title: st.title.trim(),
+        description: st.description.trim(),
+        status: st.status
+      }));
     }
-  ) {
-    const { name, goal, startDate, startTime, endDate, endTime } = payload;
-    const nameClean = name.trim();
-    const goalClean = goal.trim();
-
-    const hasDates = startDate.trim() && endDate.trim();
-    const datesLabel = hasDates
-      ? `${startDate} ${startTime || ''} - ${endDate} ${endTime || ''}`.trim()
-      : '';
 
     this.sprintsSignal.update(sprints =>
-      sprints.map(sprint =>
-        sprint.id === sprintId
-          ? {
-              ...sprint,
-              name: nameClean || sprint.name,
-              goal: goalClean || sprint.goal,
-              startDate,
-              startTime,
-              endDate,
-              endTime,
-              dates: datesLabel
-            }
-          : sprint
+      sprints.map(s =>
+        s.id === sprintId
+          ? this.recalcStoryPoints({
+              ...s,
+              items: s.items.map(i =>
+                i.id === itemId
+                  ? {
+                      ...i,
+                      ...payload,
+                      subtasks: payload.subtasks
+                        ? payload.subtasks.map(st => ({
+                            id: st.id,
+                            title: st.title,
+                            description: st.description,
+                            status: st.status
+                          }))
+                        : i.subtasks
+                    }
+                  : i
+              )
+            })
+          : s
       )
     );
 
-    const idNum = Number(sprintId);
-    if (!idNum) return;
-
     this.http.put<IResponse<any>>(
-      `${this.baseUrl}/sprints/${idNum}`,
-      {
-        name: nameClean || undefined,
-        goal: goalClean,
-        startDate,
-        startTime,
-        endDate,
-        endTime
-      }
-    ).subscribe({
-      error: (err) => console.error('Error actualizando sprint desde modal', err)
-    });
+      `${this.baseUrl}/items/${num}`,
+      body
+    ).subscribe(() => this.loadFromApi());
   }
 
-  /* Mover historia a otro sprint */
-
+  /* Mover historia */
   moveItemToSprint(fromSprintId: string, toSprintId: string, itemId: string) {
+    const num = Number(itemId);
+    const dest = Number(toSprintId);
+    if (!num || !dest) return;
     if (fromSprintId === toSprintId) return;
 
-    const itemNum = Number(itemId);
-    const toNum = Number(toSprintId);
-    if (!itemNum || !toNum) return;
+    let moved: IBacklogItem | null = null;
 
     this.sprintsSignal.update(sprints => {
-      let movingItem: IBacklogItem | null = null;
+      const removed = sprints.map(s =>
+        s.id !== fromSprintId
+          ? s
+          : this.recalcStoryPoints({
+              ...s,
+              items: s.items.filter(i => {
+                if (i.id === itemId) moved = i;
+                return i.id !== itemId;
+              })
+            })
+      );
 
-      const afterRemove = sprints.map(sprint => {
-        if (sprint.id !== fromSprintId) return sprint;
+      if (!moved) return sprints;
 
-        const remainingItems: IBacklogItem[] = [];
-        for (const it of sprint.items) {
-          if (it.id === itemId) {
-            movingItem = it;
-          } else {
-            remainingItems.push(it);
-          }
-        }
-
-        return this.recalcStoryPoints({
-          ...sprint,
-          items: remainingItems
-        });
-      });
-
-      if (!movingItem) {
-        return sprints;
-      }
-
-      const afterAdd = afterRemove.map(sprint => {
-        if (sprint.id !== toSprintId) return sprint;
-
-        const without = sprint.items.filter(it => it.id !== itemId);
-        const newItems = [...without, movingItem as IBacklogItem];
-
-        return this.recalcStoryPoints({
-          ...sprint,
-          items: newItems
-        });
-      });
-
-      return afterAdd;
+      return removed.map(s =>
+        s.id === toSprintId
+          ? this.recalcStoryPoints({
+              ...s,
+              items: [...s.items, moved!]
+            })
+          : s
+      );
     });
 
     this.http.put<IResponse<any>>(
-      `${this.baseUrl}/items/${itemNum}`,
-      { sprintId: toNum }
-    ).subscribe({
-      error: (err) => console.error('Error moviendo historia de sprint', err)
-    });
+      `${this.baseUrl}/items/${num}`,
+      {
+        sprintId: dest,
+        title: moved!.title,
+        key: moved!.key,
+        description: moved!.description,
+        module: moved!.module,
+        storyPoints: moved!.storyPoints,
+        subtasks: moved!.subtasks?.map(st => ({
+          id: null,
+          code: st.id,
+          title: st.title,
+          description: st.description,
+          status: st.status
+        })) ?? []
+      }
+    ).subscribe(() => this.loadFromApi());
   }
 }
