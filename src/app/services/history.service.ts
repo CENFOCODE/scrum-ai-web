@@ -10,9 +10,9 @@ export class HistoryService {
 
   constructor(private http: HttpClient) {}
 
-  getAllHistory() {
-    return this.http.get<IHistory[]>(`${this.baseURL}all`);
-  }
+  getHistory(userId?: number) {
+  return this.http.get(`${this.baseURL}/history/${userId ?? 0}`);
+}
 
   getByUser(userId: number) {
     return this.http.get<IHistory[]>(`${this.baseURL}user/${userId}`);
