@@ -262,13 +262,20 @@ export class BacklogService {
   }
 
   deleteItem(sprintId: string, itemId: string) {
-    const num = Number(itemId);
-    if (!num) return;
+  const itemNum = Number(itemId);
 
-    this.http.delete<IResponse<null>>(
-      `${this.baseUrl}/items/${num}`
-    ).subscribe(() => this.loadFromApi());
-  }
+  this.sprintsSignal.update(sprints =>
+    sprints.map(s =>
+      s.id === sprintId
+        ? { ...s, items: s.items.filter(i => i.id !== itemId) }
+        : s
+    )
+  );
+
+  this.http.delete<IResponse<null>>(
+    `${this.baseUrl}/items/${itemNum}`
+  ).subscribe(() => this.loadFromApi());
+}
 
   updateStatus(sprintId: string, itemId: string, status: BacklogStatus) {
     this.sprintsSignal.update(sprints =>
@@ -421,55 +428,42 @@ export class BacklogService {
 
   /* Mover historia */
   moveItemToSprint(fromSprintId: string, toSprintId: string, itemId: string) {
-    const num = Number(itemId);
-    const dest = Number(toSprintId);
-    if (!num || !dest) return;
-    if (fromSprintId === toSprintId) return;
+  const fromId = Number(fromSprintId);
+  const toId = Number(toSprintId);
+  const itemNum = Number(itemId);
 
-    let moved: IBacklogItem | null = null;
+  if (!fromId || !toId || !itemNum) return;
 
-    this.sprintsSignal.update(sprints => {
-      const removed = sprints.map(s =>
-        s.id !== fromSprintId
-          ? s
-          : this.recalcStoryPoints({
-              ...s,
-              items: s.items.filter(i => {
-                if (i.id === itemId) moved = i;
-                return i.id !== itemId;
-              })
-            })
-      );
-
-      if (!moved) return sprints;
-
-      return removed.map(s =>
-        s.id === toSprintId
-          ? this.recalcStoryPoints({
-              ...s,
-              items: [...s.items, moved!]
-            })
-          : s
-      );
-    });
-
-    this.http.put<IResponse<any>>(
-      `${this.baseUrl}/items/${num}`,
-      {
-        sprintId: dest,
-        title: moved!.title,
-        key: moved!.key,
-        description: moved!.description,
-        module: moved!.module,
-        storyPoints: moved!.storyPoints,
-        subtasks: moved!.subtasks?.map(st => ({
-          id: null,
-          code: st.id,
-          title: st.title,
-          description: st.description,
-          status: st.status
-        })) ?? []
+  this.sprintsSignal.update(sprints =>
+    sprints.map(s => {
+      if (s.id === fromSprintId) {
+        return {
+          ...s,
+          items: s.items.filter(i => i.id !== itemId)
+        };
       }
-    ).subscribe(() => this.loadFromApi());
-  }
+
+      if (s.id === toSprintId) {
+        const allSprints = this.sprintsSignal();
+        const fromSprint = allSprints.find(sp => sp.id === fromSprintId);
+        const foundItem = fromSprint?.items.find(it => it.id === itemId);
+
+        return {
+          ...s,
+          items: foundItem ? [...s.items, foundItem] : s.items
+        };
+      }
+
+      return s;
+    })
+  );
+
+  this.http.put<IResponse<any>>(
+    `${this.baseUrl}/items/${itemNum}`,
+    {
+      sprintId: toId
+    }
+  ).subscribe(() => this.loadFromApi());
+}
+
 }
