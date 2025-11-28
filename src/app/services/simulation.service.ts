@@ -31,4 +31,9 @@ export class SimulationService {
   createSimulationUser(simulationUser: ISimulationUser): Observable<ISimulationUser> {
     return this.http.post<ISimulationUser>(`${this.baseUrl}simulationUser`, simulationUser);
   }
+
+completeSimulation(id: number) {
+  return this.http.put(`${this.baseUrl}/simulation/${id}/complete`, {});
+}
+
 }
