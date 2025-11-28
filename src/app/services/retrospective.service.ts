@@ -8,15 +8,20 @@ import { ISimulations } from '../interfaces';
 })
 export class RetrospectiveService {
 
-  private baseURL = 'retrospective/'; 
+  private retrospectiveURL = 'retrospective/'; 
+  private simulationURL = 'simulation/';
 
   constructor(private http: HttpClient) {}
 
   saveRetrospective(payload: any) {
-    return this.http.post(`${this.baseURL}save`, payload);
+    return this.http.post(`${this.retrospectiveURL}save`, payload);
   }
 
-  getBySimulation(simulationId: ISimulations) {
-    return this.http.get(`${this.baseURL}${simulationId}`);
+  getBySimulation(simulationId: number) {
+    return this.http.get(`${this.retrospectiveURL}${simulationId}`);
+  }
+
+  completeSimulation(simulationId: number) {
+    return this.http.put(`${this.simulationURL}${simulationId}/complete`, {});
   }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HistoryService } from '../../services/history.service';
-import { ISimulations } from '../../interfaces';
+import { ISimulations, IHistory } from '../../interfaces';
 
 @Component({
   selector: 'app-history',
@@ -31,25 +31,40 @@ export class HistoryComponent implements OnInit {
   }
 
   loadHistory() {
-    this.historyService.getHistory().subscribe({
-  next: (res: any[]) => {
-    this.simulations = res.map(h => h.simulation);
-    this.filteredSimulations = [...this.simulations];
-  },
-  error: (err) => console.error(err)
-});
-  }
+  this.historyService.getHistory().subscribe({
+    next: (res: IHistory[]) => {
 
-  filterBy(type: string) {
-    this.selectedFilter = type;
+      if (!Array.isArray(res)) {
+        console.error("Formato inesperado en history:", res);
+        this.simulations = [];
+        this.filteredSimulations = [];
+        return;
+      }
 
-    if (type === 'all') {
+      // Extraer la simulación de cada history
+      this.simulations = res
+        .filter(h => h.simulation)                   // Validar que exista simulation
+        .map((h: IHistory) => h.simulation as ISimulations);
+
+      // Copia para el filtrado
       this.filteredSimulations = [...this.simulations];
-      return;
-    }
+    },
+    error: (err) => console.error(err)
+  });
+}
 
-    this.filteredSimulations = this.simulations.filter(
-      s => s.scenario?.ceremonyType?.toLowerCase() === type
-    );
+filterBy(type: string) {
+  this.selectedFilter = type;
+
+  if (type === 'all') {
+    this.filteredSimulations = [...this.simulations];
+    return;
   }
+
+  this.filteredSimulations = this.simulations.filter(
+    s => s.scenario?.ceremonyType?.toLowerCase() === type
+  );
+}
+
+
 }

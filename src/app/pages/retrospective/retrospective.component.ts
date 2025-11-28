@@ -193,6 +193,28 @@ saveRetrospective() {
   console.log("SimulationId reconocido:", this.simulationId);
   }
 
+  finishSimulation() {
+  if (!this.simulationId) {
+    console.error("No simulationId found!", this.simulationId);
+    alert("Error: no se encontró el ID de la simulación.");
+    return;
+  }
+
+  this.retrospectiveService.completeSimulation(this.simulationId)
+    .subscribe({
+      next: (res) => {
+        console.log("Simulation completed:", res);
+        alert("¡Simulación finalizada correctamente!");
+        this.router.navigate(['/app/history']);
+      },
+      error: (err) => {
+        console.error(err);
+        alert("Error finalizando la simulación.");
+      }
+    });
+}
+
+
 }
 
 
