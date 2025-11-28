@@ -32,7 +32,8 @@ export class SimulationService {
     return this.http.post<ISimulationUser>(`${this.baseUrl}simulationUser`, simulationUser);
   }
 
-  completeSimulation(simulationId: number) {
-  return this.http.put(`${this.baseUrl}simulation/${simulationId}/complete`, {});
+completeSimulation(id: number) {
+  return this.http.put(`${this.baseUrl}/simulation/${id}/complete`, {});
 }
+
 }

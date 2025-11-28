@@ -31,16 +31,13 @@ export class HistoryComponent implements OnInit {
   }
 
   loadHistory() {
-    this.historyService.getAllHistory().subscribe({
-      next: (res: any[]) => {
-        // history tiene simulation → scenario → ceremonyType
-        this.simulations = res.map(h => h.simulation);
-        this.filteredSimulations = [...this.simulations];
-      },
-      error: (err) => {
-        console.error('Error cargando historial:', err);
-      }
-    });
+    this.historyService.getHistory().subscribe({
+  next: (res: any[]) => {
+    this.simulations = res.map(h => h.simulation);
+    this.filteredSimulations = [...this.simulations];
+  },
+  error: (err) => console.error(err)
+});
   }
 
   filterBy(type: string) {
