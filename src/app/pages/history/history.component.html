@@ -1,0 +1,36 @@
+<div class="history-container">
+
+  <h2 class="title">Historial de secciones</h2>
+
+  <!-- Botones de filtro -->
+  <div class="filters">
+
+    <button 
+      class="filter-btn" 
+      [class.active]="selectedFilter === 'all'"
+      (click)="filterBy('all')">
+      Todos
+    </button>
+
+    <button
+      *ngFor="let f of filters"
+      class="filter-btn"
+      [class.active]="selectedFilter === f.key"
+      (click)="filterBy(f.key)">
+      {{ f.label }}
+    </button>
+
+  </div>
+
+  <!-- Lista -->
+  <div class="history-list">
+
+    <div *ngFor="let sim of filteredSimulations" class="history-card">
+      <p><strong>Tipo de ceremonia:</strong> {{ sim.scenario?.ceremonyType }}</p>
+      <p><strong>Dificultad:</strong> {{ sim.difficultyLevel }}</p>
+      <p><strong>Rol:</strong> {{ sim.createdBy?.role?.name || 'N/A' }}</p>
+    </div>
+
+  </div>
+
+</div>

@@ -17,6 +17,7 @@ import { WebsocketTestComponent } from './components/websocketTest/websocketTest
 import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
+import { HistoryComponent } from './pages/history/history.component';
 import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
 
 
@@ -157,6 +158,19 @@ export const routes: Routes = [
           ],
           name: 'Video Room',
           showInSidebar: false
+        }
+      },
+      {
+        path: 'history',
+        component: HistoryComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'History',
+          showInSidebar: true
         }
       }
 

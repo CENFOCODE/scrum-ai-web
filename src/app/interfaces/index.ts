@@ -153,3 +153,12 @@ export interface IScenarioTemplate {
   createdAt?: string;        
   updatedAt?: string;        
 }
+
+export interface IHistory {
+  id?: number;
+  user?: IUser;
+  simulation?: ISimulations;
+  createdAt?: Date;
+  transcript?: string;
+  finalScore?: number;
+}

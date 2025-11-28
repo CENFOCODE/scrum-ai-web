@@ -157,6 +157,10 @@ export class CreateSessionComponent {
       alert('Error: el backend no devolvió el id de la Simulation.');
       throw new Error('Simulation sin id');
     }
+
+    this.simulation = createdSim;
+
+
       const newSimUser: ISimulationUser = {
         scrumRole: this.selectedRole,
         assignedAt: new Date(),
@@ -170,7 +174,10 @@ export class CreateSessionComponent {
   ).subscribe({
     next: (res) => {
       this.isLoading = false;
-      this.redirectToDashboard();
+      this.redirectToScenarioPage(this.selectedScenario?.name, {
+        scenario: this.selectedScenario,
+        simulationUser: res
+      });
       this.sessionCreated.emit(res);
     },
     error: (err) => {
@@ -215,7 +222,16 @@ export class CreateSessionComponent {
 
   if (routePath) {
     console.log(`➡️ Redirigiendo a: ${routePath}`);
-    this.router.navigate([routePath], { state: stateData });
+    this.router.navigate([routePath], { 
+      state: {
+        ...(stateData || {}),
+        simulation: this.simulation,    
+        simulationId: this.simulation?.id,
+        scenario: this.selectedScenario,
+        simulationUser: this.simulationUser,
+        aiTemplate: this.scenarioTemplate
+      }
+    });
   } else {
     this.notice.set({
       type: 'error',
@@ -245,4 +261,3 @@ private redirectToDashboard() {
     });
 }
 }
-
