@@ -184,7 +184,7 @@ export class CreateSessionComponent {
       console.error('Error en el flujo', err);
       this.isLoading = false;
       
-      // Manejar el error 404 de plantilla no encontrada
+      
       if (err.status === 404) {
         this.notice.set({
           type: 'warning',
@@ -259,5 +259,7 @@ private redirectToDashboard() {
       simulationUser: this.simulationUser,
       aiTemplate: this.scenarioTemplate 
     });
-}
+  }
+
+
 }

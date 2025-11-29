@@ -10,6 +10,9 @@ import { RetrospectiveService } from '../../services/retrospective.service';
 import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
 import { IScenario, ISimulationUser, IScenarioTemplate, ISimulations } from '../../interfaces';
 import { SimulationService } from '../../services/simulation.service';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { RippleModule } from 'primeng/ripple';
 
 interface RetroNote {
   text: string;
@@ -32,10 +35,13 @@ interface RetroSection {
     RouterModule,
     ButtonModule,
     ConfirmDialogComponent,
-    ChatbotComponent
+    ChatbotComponent,
+    ToastModule, 
+    RippleModule
   ],
   templateUrl: './retrospective.component.html',
-  styleUrl: './retrospective.component.scss'
+  styleUrl: './retrospective.component.scss',
+  providers: [MessageService]
 })
 export class RetrospectiveComponent implements OnInit{
 
@@ -49,7 +55,7 @@ export class RetrospectiveComponent implements OnInit{
   constructor(
     private router: Router, 
     private retrospectiveService: RetrospectiveService,
-
+    private messageService: MessageService
   ) {
     // Obtenemos los datos pasados desde create-session
     const nav = this.router.getCurrentNavigation();
@@ -175,16 +181,17 @@ saveRetrospective() {
     retrospective: payloadSections
   };
 
-  console.log("Payload final que se enviará:", payload);
 
   this.retrospectiveService.saveRetrospective(payload).subscribe({
     next: (res) => {
-      console.log("Guardado en backend:", res);
-      alert("¡Notas guardadas correctamente!");
+      this.messageService.clear();
+      this.messageService.add({severity:'success', summary: 'Éxito', detail: 'Retrospectiva guardada correctamente.'});
+
     },
     error: (err) => {
       console.error(err);
-      alert("Error guardando las notas.");
+      this.messageService.clear();
+      this.messageService.add({severity:'error', summary: 'Error', detail: 'Error al guardar la retrospectiva.'});
     }
   });
 }
@@ -195,21 +202,23 @@ saveRetrospective() {
 
   finishSimulation() {
   if (!this.simulationId) {
-    console.error("No simulationId found!", this.simulationId);
-    alert("Error: no se encontró el ID de la simulación.");
+    this.messageService.clear();
+    this.messageService.add({severity:'error', summary: 'Error', detail: 'No se encontró el ID de la simulación.'});
     return;
   }
 
   this.retrospectiveService.completeSimulation(this.simulationId)
     .subscribe({
       next: (res) => {
-        console.log("Simulation completed:", res);
-        alert("¡Simulación finalizada correctamente!");
+        this.messageService.clear();
+        this.messageService.add({key:'¡Simulación finalizada correctamente!', severity:'success', summary: 'Éxito', detail: 'key:¡Simulación finalizada correctamente!'});
+
         this.router.navigate(['/app/history']);
       },
       error: (err) => {
         console.error(err);
-        alert("Error finalizando la simulación.");
+        this.messageService.clear();
+        this.messageService.add({severity:'error', summary: 'Error', detail: 'Error al finalizar la simulación.'});
       }
     });
 }

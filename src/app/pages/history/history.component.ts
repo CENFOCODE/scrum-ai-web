@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HistoryService } from '../../services/history.service';
-import { ISimulations, IHistory } from '../../interfaces';
+import { ISimulations, IHistory, ISimulationUser } from '../../interfaces';
 
 @Component({
   selector: 'app-history',
@@ -14,6 +14,7 @@ export class HistoryComponent implements OnInit {
 
   simulations: ISimulations[] = [];
   filteredSimulations: ISimulations[] = [];
+  simulationUser: ISimulationUser | null = null;
 
   selectedFilter: string = 'all';
 
@@ -41,12 +42,22 @@ export class HistoryComponent implements OnInit {
         return;
       }
 
-      // Extraer la simulación de cada history
       this.simulations = res
-        .filter(h => h.simulation)                   // Validar que exista simulation
-        .map((h: IHistory) => h.simulation as ISimulations);
+        .filter(h => h.simulation)
+        .map((h: IHistory) => {
+          const sim = h.simulation as ISimulations;
 
-      // Copia para el filtrado
+                if (h.simulationUser) {
+
+            (sim as any).simulationUsers = [h.simulationUser];
+            } else {
+
+            (sim as any).simulationUsers = [];
+            }
+
+          return sim;
+        });
+
       this.filteredSimulations = [...this.simulations];
     },
     error: (err) => console.error(err)

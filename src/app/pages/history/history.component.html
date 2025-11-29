@@ -28,7 +28,7 @@
     <div *ngFor="let sim of filteredSimulations" class="history-card">
       <p><strong>Tipo de ceremonia:</strong> {{ sim.scenario?.ceremonyType }}</p>
       <p><strong>Dificultad:</strong> {{ sim.difficultyLevel }}</p>
-      <p><strong>Rol:</strong> {{ sim.createdBy?.role?.name || 'N/A' }}</p>
+      <p><strong>Scrum Role:</strong> {{ sim.simulationUsers?.[0]?.scrumRole || 'N/A' }}</p>
     </div>
 
   </div>

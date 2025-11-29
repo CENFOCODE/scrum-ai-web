@@ -135,6 +135,7 @@ export interface ISimulations {
   startDate?: Date;
   createdBy?: IUser;
   scenario?: IScenario;
+  simulationUsers?: ISimulationUser[];
 }
 
 export interface ISimulationUser {
@@ -161,4 +162,5 @@ export interface IHistory {
   createdAt?: Date;
   transcript?: string;
   finalScore?: number;
+  simulationUser?: ISimulationUser; 
 }
