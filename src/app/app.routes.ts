@@ -18,6 +18,7 @@ import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
 import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
+import { HomePageComponent } from './pages/home-page/home-page.component';
 
 
 export const routes: Routes = [
@@ -79,8 +80,19 @@ export const routes: Routes = [
           showInSidebar: true
         }
       },
-
-
+      {
+        path: 'home',
+        component: HomePageComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user
+          ],
+          name: 'Home',
+          showInSidebar: true
+        }
+      },
       {
         path: 'dashboard',
         component: DashboardComponent,
