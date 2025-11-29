@@ -18,6 +18,7 @@ import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
 import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
+import { SessionFinishedComponent } from './pages/session-finished/session-finished.component';
 
 
 export const routes: Routes = [
@@ -131,6 +132,19 @@ export const routes: Routes = [
           ],
           name: 'Scenario',
           showInSidebar: true
+        }
+      },
+      {
+        path: 'session-finished',
+        component: SessionFinishedComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'Session Finished',
+          showInSidebar: false 
         }
       },
       {

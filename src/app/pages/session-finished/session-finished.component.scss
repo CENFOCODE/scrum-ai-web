@@ -1,0 +1,77 @@
+$petroleo: #1C3844;
+$arena: #EBE4DA;
+$coral: #C77454;
+
+/* Contenedor principal */
+.session-finished-container .card {
+  border: none;
+  border-radius: 10px;
+}
+
+/* Pasos */
+.sf-steps {
+  font-size: 14px;
+  color: $petroleo;
+}
+
+/* Descripción */
+.sf-description {
+  color: $petroleo;
+  font-size: 14px;
+  max-width: 97%;
+}
+
+/* Imagen */
+.sf-image {
+  width: 80%;
+  height: 320px;
+  background: #d9d9d9;
+  border-radius: 8px;
+  margin: 0 auto;
+}
+
+/* Cards */
+.sf-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.sf-card {
+  background: #e2e2e2;
+  padding: 20px 22px;
+  border-radius: 12px;
+}
+
+.sf-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: $petroleo;
+  margin-bottom: 10px;
+}
+
+/* Participantes */
+.sf-list {
+  padding-left: 22px;
+  list-style-type: none;
+
+  li {
+    position: relative;
+    margin-bottom: 6px;
+    font-size: 15px;
+    color: $petroleo;
+
+    &::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background-color: $coral;
+    border-radius: 50%;
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    }
+  }
+}
+
