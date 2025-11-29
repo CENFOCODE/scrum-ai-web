@@ -211,17 +211,26 @@ saveRetrospective() {
     .subscribe({
       next: (res) => {
         this.messageService.clear();
-        this.messageService.add({key:'¡Simulación finalizada correctamente!', severity:'success', summary: 'Éxito', detail: 'key:¡Simulación finalizada correctamente!'});
-
+        this.messageService.add({severity:'success', summary: 'Éxito', detail: 'Simulación finalizada correctamente.'});
         this.router.navigate(['/app/history']);
       },
       error: (err) => {
-        console.error(err);
-        this.messageService.clear();
-        this.messageService.add({severity:'error', summary: 'Error', detail: 'Error al finalizar la simulación.'});
+        if (err.status === 409) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Aviso',
+          detail: 'Ya existe un historial para esta simulación.'
+        });
+      } else {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al finalizar la simulación.'
+        });
       }
+    }
     });
-}
+  }
 
 
 }
