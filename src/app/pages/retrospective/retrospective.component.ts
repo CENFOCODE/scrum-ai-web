@@ -143,7 +143,12 @@ export class RetrospectiveComponent implements OnInit{
     section.notes.push({ text: '' });
   }
 
+
+retroData: any = null;
+
 saveRetrospective() {
+
+  
 
   const payloadSections: any = {
     good: [],
@@ -177,9 +182,11 @@ saveRetrospective() {
     }
 
   const payload = {
+    simulationUserId: this.simulationUser?.id,
     simulationId: this.simulationId,
     retrospective: payloadSections
   };
+    this.retroData = payload; // ← guardamos lo que enviamos al backend
 
 
   this.retrospectiveService.saveRetrospective(payload).subscribe({
@@ -198,6 +205,8 @@ saveRetrospective() {
 
   ngOnInit() {
   console.log("SimulationId reconocido:", this.simulationId);
+  console.log("simulationUser recibido:", this.simulationUser);
+  console.log("simulationUserId:", this.simulationUser?.id);
   }
 
   finishSimulation() {

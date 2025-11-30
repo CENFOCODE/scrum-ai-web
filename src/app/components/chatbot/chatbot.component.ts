@@ -3,29 +3,6 @@ import { CommonModule } from '@angular/common';
 import { AiService } from '../../services/ai.service';
 import { IScenario, IScenarioTemplate, ISimulationUser } from '../../interfaces';
 
-/**
- * Componente del Chat Scrum AI conectado al backend (Groq).
- *
- * RESPONSABILIDADES:
- * ------------------
- * ✅ Capturar el input del usuario.
- * ✅ Enviar el mensaje al backend (Groq API vía Spring Boot).
- * ✅ Renderizar la respuesta generada por la IA.
- * ✅ Mostrar el estado de carga mientras se espera respuesta.
- * ✅ Inicializar con prompt específico de ceremonia.
- *
- * ESTE COMPONENTE NO:
- * --------------------
- * ❌ No genera prompts avanzados.
- * ❌ No gestiona WebRTC.
- * ❌ No aplica lógica de ceremonias Scrum.
- *
- * RELACIÓN CON OTROS ARCHIVOS:
- * ----------------------------
- * - AiService → envía las solicitudes a /ai/ask
- * - AIController.java → recibe la solicitud del frontend
- * - GroqService.java → ejecuta el request a Groq
- */
 @Component({
   selector: 'app-chatbot',
   standalone: true,
