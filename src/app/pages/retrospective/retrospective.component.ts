@@ -13,6 +13,7 @@ import { SimulationService } from '../../services/simulation.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
+import { ViewChild } from '@angular/core';
 
 interface RetroNote {
   text: string;
@@ -44,6 +45,8 @@ interface RetroSection {
   providers: [MessageService]
 })
 export class RetrospectiveComponent implements OnInit{
+
+  @ViewChild(ChatbotComponent) chatbot!: ChatbotComponent;
 
 
     simulation: ISimulations = {};
@@ -191,12 +194,24 @@ saveRetrospective() {
 
   this.retrospectiveService.saveRetrospective(payload).subscribe({
     next: (res) => {
+
+      const feedback = res.feedbackMessage;
+
+      // Enviar feedback al chatbot
+      setTimeout(() => {
+        this.chatbot.messages.push({
+          from: 'Scrum AI',
+          prompt: feedback
+        });
+      }, 0);
+      
       this.messageService.clear();
       this.messageService.add({severity:'success', summary: 'Éxito', detail: 'Retrospectiva guardada correctamente.'});
 
+
+
     },
-    error: (err) => {
-      console.error(err);
+    error: () => {
       this.messageService.clear();
       this.messageService.add({severity:'error', summary: 'Error', detail: 'Error al guardar la retrospectiva.'});
     }

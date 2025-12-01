@@ -14,7 +14,7 @@ export class RetrospectiveService {
   constructor(private http: HttpClient) {}
 
   saveRetrospective(payload: any) {
-    return this.http.post(`${this.retrospectiveURL}save`, payload);
+    return this.http.post<any>(`${this.retrospectiveURL}save`, payload);
   }
 
   getBySimulation(simulationId: number) {

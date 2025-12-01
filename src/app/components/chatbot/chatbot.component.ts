@@ -16,42 +16,26 @@ export class ChatbotComponent implements OnInit {
   @Input() aiTemplate: IScenarioTemplate | null = null;
   @Input() scenario: ISimulationUser | null = null;
 
-  /**
-   * Historial del chat.
-   * Cada entrada contiene:
-   * - from: "Usuario" | "Scrum AI"
-   * - prompt: texto enviado o recibido
-   */
   messages: { from: string; prompt?: string }[] = [];
 
-  /** Indica si la IA está generando respuesta */
   loading = false;
 
-  /** Indica si el chatbot está visible/abierto */
+
   visible = false;
 
   constructor(private aiService: AiService) { }
 
-  /**
-   * Alterna la visibilidad del chatbot
-   */
   toggleChatbot() {
     this.visible = !this.visible;
   }
 
-  /**
-   * Inicializa el chat con el prompt de la plantilla AI
-   */
+
   ngOnInit() {
-    // Contexto inicial del asistente (se envía de forma invisible)
+
     const contextPrompt = 'Eres un asistente de Scrum donde tienes como objetivo ayudar a los usuarios en los errores más comunes en Scrum, el usuario tiene que seleccionar la ceremonia, ya sea Planning, Daily, Review o Retrospective y tiene que seleccionar tambien la dificultad.';
 
     if (this.aiTemplate?.promptTemplate) {
-      // Agregar el prompt como mensaje del usuario
-      this.messages.push({
-        from: 'Usuario',
-        prompt: this.aiTemplate.promptTemplate
-      });
+
 
       // Enviar automáticamente el prompt a la IA con el contexto
       this.loading = true;
