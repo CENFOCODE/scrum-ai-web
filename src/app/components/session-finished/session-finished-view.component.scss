@@ -1,0 +1,103 @@
+$petroleo: #1C3844;
+$arena: #EBE4DA;
+$coral: #C77454;
+
+/* Pasos */
+.sf-steps {
+  font-size: 14px;
+  color: $petroleo;
+  display: flex;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.sf-step-link {
+  cursor: pointer;
+  color: $petroleo;
+  text-decoration: underline;
+
+  &:hover {
+    opacity: .7;
+  }
+}
+
+.sf-step-current {
+  font-weight: 700;
+  color: $petroleo;
+}
+
+/* Descripción */
+.sf-description {
+  color: $petroleo;
+  font-size: 14px;
+  max-width: 92%;
+}
+
+.sf-image {
+  width: 70%;
+  max-width: 900px;
+  height: 260px;
+  background: #EBE4DA;
+  border-radius: 8px;
+  margin: 0 auto;
+}
+
+/* Cards */
+.sf-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.sf-card {
+  background: #EBE4DA;
+  padding: 20px 22px;
+  border-radius: 12px;
+}
+
+.sf-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: $petroleo;
+  margin-bottom: 10px;
+}
+
+/* Participantes */
+.sf-list {
+  padding-left: 22px;
+  list-style-type: none;
+
+  li {
+    position: relative;
+    margin-bottom: 6px;
+    font-size: 15px;
+    color: $petroleo;
+
+    &::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      background-color: $coral;
+      border-radius: 50%;
+      position: absolute;
+      left: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  }
+}
+
+.sf-step {
+  cursor: pointer;
+  color: $petroleo;
+  font-size: 14px;
+  text-decoration: none;   
+  font-weight: 400;        
+}
+
+.sf-step-current {
+  color: $petroleo;
+  font-size: 14px;
+  font-weight: 400; 
+  text-decoration: none;
+}

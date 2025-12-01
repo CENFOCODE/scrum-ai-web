@@ -1,47 +1,14 @@
-<div class="container my-4 session-finished-container">
+<div class="container my-4">
   <div class="card p-4 shadow-sm">
 
-    <div class="sf-steps mb-2">
-      Paso 1 / Paso 2 / Paso 3 / Paso 4
-    </div>
+    <!-- Componente de contenido -->
+    <app-session-finished-view
+      [participantes]="participantes"
+      [durationOne]="durationOne"
+      [durationTwo]="durationTwo">
+    </app-session-finished-view>
 
-    <!-- Título y descripción -->
-    <h2 class="fw-semibold mb-2">Ceremonia finalizada</h2>
-
-    <p class="sf-description mb-4">
-      La ceremonia ha concluido exitosamente. A continuación se muestra
-      un resumen general de la sesión realizada, incluyendo los participantes,
-      la duración y los principales resultados obtenidos. Utilice esta información
-      para documentar el proceso y continuar con las siguientes etapas del desarrollo.
-    </p>
-
-    <!-- Imagen -->
-    <div class="sf-image mb-4"></div>
-
-    <!-- Contenedores -->
-    <div class="sf-cards">
-
-      <!-- Participantes -->
-      <div class="sf-card">
-        <h3 class="sf-card-title">Participantes</h3>
-        <ul class="sf-list">
-          <li *ngFor="let p of participantes">{{ p }}</li>
-        </ul>
-      </div>
-
-      <!-- Duración -->
-      <div class="sf-card">
-        <h3 class="sf-card-title">Duración</h3>
-        <p>{{ durationOne }}</p>
-      </div>
-
-      <div class="sf-card">
-        <h3 class="sf-card-title">Duración</h3>
-        <p>{{ durationTwo }}</p>
-      </div>
-
-    </div>
-
+    <!-- Botón siguiente -->
     <div class="d-flex justify-content-end mt-4">
       <button class="primary-btn px-4" (click)="nextStep()">
         Siguiente
