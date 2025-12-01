@@ -1,22 +1,28 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { ISimulations } from '../interfaces';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SessionFinishedService {
 
-  constructor() {}
+  private api = environment.apiUrl;  
 
-  getSummary() {
-    return {
-      participantes: [
-        'Lorem ipsum dolor Rol',
-        'Lorem ipsum dolor Rol',
-        'Lorem ipsum dolor Rol',
-        'Lorem ipsum dolor Rol'
-      ],
-      duracion1: 'Lorem ipsum dolor',
-      duracion2: 'Lorem ipsum dolor'
-    };
+  constructor(private http: HttpClient) {}
+
+  getLastSimulation(): Observable<ISimulations | null> {
+
+    return this.http.get<ISimulations[]>(`${this.api}simulation`).pipe(
+      map((list: ISimulations[]) => {
+        if (!Array.isArray(list) || list.length === 0) {
+          return null;
+        }
+
+        return list[list.length - 1];
+      })
+    );
   }
 }

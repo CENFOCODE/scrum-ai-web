@@ -1,29 +1,25 @@
 <div class="sf-steps mb-3 d-flex gap-2 align-items-center">
-
   <span routerLink="/app/scenario" class="sf-step" role="button">Paso 1</span>
   <span>/</span>
-
   <span routerLink="/app/scenario" class="sf-step" role="button">Paso 2</span>
   <span>/</span>
-
   <span routerLink="/app/scenario" class="sf-step" role="button">Paso 3</span>
   <span>/</span>
-
   <span class="sf-step-current">Paso 4</span>
-
 </div>
 
 <h2 class="fw-semibold mb-2">Ceremonia finalizada</h2>
 
 <p class="sf-description mb-4">
-  La ceremonia ha concluido exitosamente. A continuación se muestra un resumen
-  general de la sesión realizada, incluyendo los participantes, la duración y 
-  los principales resultados obtenidos. Utilice esta información para documentar 
-  el proceso y continuar con las siguientes etapas del desarrollo.
+  La ceremonia ha concluido exitosamente. Los datos generados durante la sesión
+  están disponibles para análisis y retroalimentación.
 </p>
 
-<!-- Imagen -->
-<div class="sf-image mb-4"></div>
+<!-- Score -->
+<div class="sf-score-container mb-4">
+  <h1 class="sf-score">{{ scoreFinal }}</h1>
+  <p class="sf-score-label">Calificación obtenida</p>
+</div>
 
 <!-- Cards -->
 <div class="sf-cards">
@@ -37,12 +33,15 @@
 
   <div class="sf-card">
     <h3 class="sf-card-title">Resumen</h3>
-    <p>{{ durationOne }}</p>
+    <p><strong>Usuario:</strong> {{ userName }}</p>
+    <p><strong>Rol:</strong> {{ userRole }}</p>
+    <p><strong>Ceremonia:</strong> {{ ceremonyName }}</p>
+    <p><strong>Dificultad:</strong> {{ dificultad }}</p>
   </div>
 
   <div class="sf-card">
     <h3 class="sf-card-title">Duración</h3>
-    <p>{{ durationTwo }}</p>
+    <p>{{ durationFinal }}</p>
   </div>
 
 </div>

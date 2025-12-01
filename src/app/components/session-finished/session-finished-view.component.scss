@@ -2,6 +2,33 @@ $petroleo: #1C3844;
 $arena: #EBE4DA;
 $coral: #C77454;
 
+/* Contenedor score */
+.sf-score-container {
+  width: 80%;
+  height: 230px;
+  margin: 0 auto;
+  background: #EBE4DA;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Score */
+.sf-score {
+  font-size: 5rem;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1;
+}
+
+/* Texto de score */
+.sf-score-label {
+  margin-top: 0.5rem;
+  font-size: 1.2rem;
+}
+
 /* Pasos */
 .sf-steps {
   font-size: 14px;
