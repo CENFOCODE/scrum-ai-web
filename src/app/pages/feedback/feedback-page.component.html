@@ -10,13 +10,13 @@ están disponibles para análisis y retroalimentación.
     <div class="sf-card">
         <h3 class="sf-card-title">Feedback</h3>
         <div *ngIf="feedback">
-            {{ feedback }}
+            <markdown [data]="feedback"></markdown>
         </div>
     </div>
     <div class="sf-card">
         <h3 class="sf-card-title">Resumen</h3>
             <p><strong>Usuario:</strong> {{ authService.getUser().name }}</p>
-            <p><strong>Rol:</strong> {{ simulation?.simulationUsers?.[0]?.scrumRole || 'N/A' }}</p>
+            <p><strong>Rol:</strong> {{ simulationUser?.scrumRole || 'N/A' }}</p>
             <p><strong>Ceremonia:</strong> {{ scenario?.name }}</p>
             <p><strong>Dificultad:</strong> {{ simulation?.difficultyLevel }}</p>
     </div>

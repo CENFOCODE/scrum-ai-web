@@ -4,13 +4,14 @@ import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { FeedbackService } from '../../services/feedback.service';
 import { ISimulationFeedback } from '../../interfaces';
+import { MarkdownModule } from 'ngx-markdown';
 
 
 
 @Component({
 selector: 'app-feedback-page',
 standalone: true,
-imports: [CommonModule],
+imports: [CommonModule, MarkdownModule],
 templateUrl: './feedback-page.component.html',
 styleUrls: ['./feedback-page.component.scss'],
 })

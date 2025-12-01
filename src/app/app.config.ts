@@ -8,11 +8,13 @@ import { baseUrlInterceptor } from './interceptors/base-url.interceptor';
 import { accessTokenInterceptor } from './interceptors/access-token.interceptor';
 import { handleErrorsInterceptor } from './interceptors/handle-errors.interceptor';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideMarkdown } from 'ngx-markdown';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes), 
     provideClientHydration(),
+    provideMarkdown(),
     provideHttpClient(
       withInterceptors([
         baseUrlInterceptor,
