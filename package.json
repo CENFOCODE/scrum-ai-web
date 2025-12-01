@@ -23,6 +23,7 @@
     "@ctrl/ngx-emoji-mart": "^9.2.0",
     "@ng-bootstrap/ng-bootstrap": "^16.0.0",
     "ngx-markdown": "^17.2.1",
+    "ngx-logger": "^5.0.12",
     "primeicons": "^7.0.0",
     "primeng": "^17.18.15",
     "rxjs": "~7.8.0",
