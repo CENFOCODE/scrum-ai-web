@@ -26,15 +26,14 @@ export class BacklogComponent implements OnInit {
 
   ngOnInit(): void {
     this.itemsMenu = [
-      { label: 'Planning Paso 1', route: 'appscenario' },
-      { label: 'Planning Paso 2', route: 'appplanning' },
-      { label: 'Planning Paso 3', route: 'appbacklog' }
+      { label: 'Planning Paso 1', route: '/app/scenario' },
+      { label: 'Planning Paso 2', route: '/app/planning' },
+      { label: 'Planning Paso 3', route: '/app/backlog' }
     ];
     this.home = { label: 'Home', routerLink: '/' };
-    // Backlog page will show backlog automatically - no sprint creation automatically on load
   }
 
   goBack() {
-    this.router.navigate(['appplanning']);
+    this.router.navigate(['/app/planning']);
   }
 }
