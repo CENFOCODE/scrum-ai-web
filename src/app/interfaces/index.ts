@@ -117,7 +117,7 @@ export interface ICeremony {
 
 export interface IScenario {
   id?: number;
-  backlog?: string;
+  backlog?: string | string[];
   ceremonyType?: string;
   description?: string;
   difficultyLevel?: string;
@@ -125,6 +125,12 @@ export interface IScenario {
   goals?: string;
   name?: string;
   team?: string;
+  initialTasks?: {
+    title: string;
+    description?: string;
+  }[];
+  templates?: IScenarioTemplate[];
+ 
 }
 
 export interface ISimulations {

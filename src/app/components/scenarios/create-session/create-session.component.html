@@ -36,7 +36,10 @@
           <!-- Objectives -->
           <div id="csd-objectives" class="csd-surface">
             <h3 id="csd-objectives-title" class="mb-2">Objetivos</h3>
-            <p id="csd-objectives-text" class="mb-0">{{ selectedScenario.description }}</p>
+            <p id="csd-objectives-text" class="mb-0">
+              {{ selectedScenario.goals || selectedScenario.description }}
+            </p>
+
           </div>
 
           <!-- Rol / difficulty -->
@@ -45,7 +48,7 @@
             <div id="csd-selects" class="csd-selects">
               <!-- Difficulty -->
               <mat-form-field id="csd-select-difficulty-ff" appearance="outline" class="csd-ff">
-                <mat-select id="csd-select-difficulty" [(ngModel)]="selectedDifficulty" panelClass="csd-select-panel" disableOptionCentering placeholder="Dificultad" required>
+                <mat-select (selectionChange)="onDifficultyAndRolSelected()" id="csd-select-difficulty" [(ngModel)]="selectedDifficulty" panelClass="csd-select-panel" disableOptionCentering placeholder="Dificultad" required>
                   <mat-option *ngFor="let diff of difficultyLevels" [value]="diff" >
                     {{ diff }}
                   </mat-option>
@@ -54,7 +57,7 @@
 
               <!-- Role -->
               <mat-form-field id="csd-select-role-ff" appearance="outline" class="csd-ff">
-                <mat-select id="csd-select-role" [(ngModel)]="selectedRole" panelClass="csd-select-panel" disableOptionCentering placeholder="Rol" required>
+                <mat-select (selectionChange)="onDifficultyAndRolSelected()" id="csd-select-role" [(ngModel)]="selectedRole" panelClass="csd-select-panel" disableOptionCentering placeholder="Rol" required>
                   <mat-option *ngFor="let role of scrumRoles" [value]="role">
                     {{ role }}
                   </mat-option>

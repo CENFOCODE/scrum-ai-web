@@ -4,7 +4,16 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+
+// Servicios
 import { SimulationService } from '../../services/simulation.service';
+
+// Componentes hijos
+import { VideoRoomComponent } from '../../components/videoRoom/videoRoom.component';
+import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
+
+// Interfaces
+import { IScenarioTemplate } from '../../interfaces';
 
 interface Task {
   title: string;
@@ -18,7 +27,9 @@ interface Task {
     BreadcrumbModule,
     RouterModule,
     CommonModule,
-    DragDropModule
+    DragDropModule,
+    VideoRoomComponent,
+    ChatbotComponent,
   ],
   templateUrl: './daily.component.html',
   styleUrls: ['./daily.component.scss']
@@ -27,25 +38,14 @@ export class DailyComponent implements OnInit {
 
   scenario: any;
   simulationUser: any;
+  aiTemplate: IScenarioTemplate | null = null;
 
   itemsMenu: MenuItem[] | undefined;
 
-  todo: Task[] = [
-    { title: 'Diseñar mockups', description: 'Pantallas iniciales del sistema' },
-    { title: 'Configurar entorno', description: 'Instalar dependencias Angular' }
-  ];
-
-  inProgress: Task[] = [
-    { title: 'Desarrollar módulo de login', description: 'Autenticación con JWT' }
-  ];
-
-  qa: Task[] = [
-    { title: 'Pruebas de integración', description: 'Endpoints backend' }
-  ];
-
-  done: Task[] = [
-    { title: 'Reunión inicial', description: 'Definición de requerimientos' }
-  ];
+  todo: Task[] = [];
+  inProgress: Task[] = [];
+  qa: Task[] = [];
+  done: Task[] = [];
 
   connectedLists: string[] = ['todoList', 'inProgressList', 'qaList', 'doneList'];
 
@@ -56,49 +56,78 @@ export class DailyComponent implements OnInit {
 
   ngOnInit() {
 
-    // 1️⃣ Intentamos leer los datos enviados por navegación
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras?.state;
 
-    console.log("Datos recibidos en DailyComponent via navigation:", state);
+    this.scenario = state?.['scenario'] || this.simulationService.selectedScenario$();
+    this.simulationUser = state?.['simulationUser'] || this.simulationService.selectedUser$();
+    this.aiTemplate = state?.['aiTemplate'] || null;
 
-    this.scenario = state?.['scenario'] || null;
-    this.simulationUser = state?.['simulationUser'] || null;
-
-    // 2️⃣ Si vienen null (por refresh, F5, acceso directo)
-    if (!this.scenario) {
-      this.scenario = this.simulationService.selectedScenario$();
-    }
-
-    if (!this.simulationUser) {
-      this.simulationUser = this.simulationService.selectedUser$();
-    }
-
-    // 3️⃣ Validación final (si todo está null)
     if (!this.scenario || !this.simulationUser) {
-      console.warn("❌ No hay datos cargados. Redirigiendo.");
+      console.warn("No hay datos cargados. Redirigiendo.");
       this.router.navigate(['app/scenario']);
       return;
     }
 
-    // 4️⃣ Breadcrumb
-    this.itemsMenu = [
-      { label: 'Daily Paso 1', route:'/app/daily' },
-      { label: 'Daily Paso 2' },
-      { label: 'Daily Paso 3' }
+    console.log("🟣 DailyComponent scenario recibido:", this.scenario);
+
+    // --------------------------------------------
+    // 1️⃣ Si hay board previo, restaurarlo
+    // --------------------------------------------
+    const savedBoard = this.simulationService.dailyBoard$();
+    if (savedBoard) {
+      this.todo = savedBoard.todo || [];
+      this.inProgress = savedBoard.inProgress || [];
+      this.qa = savedBoard.qa || [];
+      this.done = savedBoard.done || [];
+      return;
+    }
+
+    // --------------------------------------------
+    // 2️⃣ SI HAY initialTasks DINÁMICAS → construir Kanban
+    // --------------------------------------------
+    if (Array.isArray(this.scenario.initialTasks) && this.scenario.initialTasks.length > 0) {
+      console.log("✔ Cargando tareas dinámicas desde initialTasks:", this.scenario.initialTasks);
+
+      this.todo = this.scenario.initialTasks.map((t: any) => ({
+        title: t.title,
+        description: t.description || ""
+      }));
+
+      this.inProgress = [];
+      this.qa = [];
+      this.done = [];
+      return;
+    }
+
+    // --------------------------------------------
+    // 3️⃣ Si no hay tareas dinámicas → fallback
+    // --------------------------------------------
+    console.warn("⚠ No hay initialTasks dinámicas. Usando default.");
+    this.setDefaultBoard();
+  }
+
+  // BOARD DEFAULT
+  private setDefaultBoard() {
+    this.todo = [
+      { title: 'Diseñar mockups', description: 'Pantallas iniciales del sistema' },
+      { title: 'Configurar entorno', description: 'Instalar dependencias Angular' }
     ];
 
-    console.log("✔ Datos finales usados en DailyComponent:", {
-      scenario: this.scenario,
-      simulationUser: this.simulationUser
-    });
+    this.inProgress = [
+      { title: 'Desarrollar módulo de login', description: 'Autenticación con JWT' }
+    ];
+
+    this.qa = [
+      { title: 'Pruebas de integración', description: 'Endpoints backend' }
+    ];
+
+    this.done = [
+      { title: 'Reunión inicial', description: 'Definición de requerimientos' }
+    ];
   }
 
-
-  trackTask(index: number, task: Task) {
-    return task.title;
-  }
-
+  // Drag and drop
   drop(event: CdkDragDrop<Task[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
@@ -112,27 +141,25 @@ export class DailyComponent implements OnInit {
     }
   }
 
-  getDailyBoardState() {
-    return {
+  // Guardar y seguir
+  goNext() {
+    const board = {
       todo: this.todo,
       inProgress: this.inProgress,
       qa: this.qa,
       done: this.done
     };
-  }
 
-  goNext() {
-    const board = this.getDailyBoardState();
-
-    console.log('Estado de la Daily listo para enviar:', board);
-
-    //Guardar board en SimulationService
     this.simulationService.setDailyBoard(board);
-
     this.router.navigate(['app/daily-questions']);
   }
 
   goBackToCreateSession() {
-    this.router.navigate(['app/scenario']);
+    this.router.navigate(['/app/scenario']);
+  }
+
+  // Información de la ceremonia (rol + sala + participantes)
+  onCeremonyInfo(info: any) {
+    this.simulationService.setDailyCeremonyInfo(info);
   }
 }

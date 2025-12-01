@@ -56,4 +56,15 @@ export class AiService extends BaseService<IAIResponse> {
   askAI(body: { prompt: string }): Observable<IResponse<IAIResponse>> {
     return this.addCustomSource("ask", body);
   }
+
+  dailyChat(payload: any): Observable<string> {
+  return this.http.post(
+    `http://localhost:8080/api/daily/chat`,
+    payload,
+    { responseType: 'text' } // El backend devuelve STRING
+  );
+}
+
+
+
 }

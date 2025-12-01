@@ -36,7 +36,7 @@ export class DailyQuestionsComponent implements OnInit {
     const nav = this.router.getCurrentNavigation();
     this.board = nav?.extras?.state?.['board'];
 
-    // 🔥 Seguridad: si se entra directo o con F5
+    //  Seguridad: si se entra directo o con F5
     if (!this.board) {
       this.router.navigate(['app/daily']);
     }

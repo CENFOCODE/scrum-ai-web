@@ -51,6 +51,11 @@ get dailyBoard$() {
   return this.dailyBoardSignal;
 }
 
+getDailyBoard() {
+  return this.dailyBoardSignal();
+}
+
+
 get dailyAnswers$() {
   return this.dailyAnswersSignal;
 }
@@ -77,5 +82,19 @@ clearDaily() {
   this.dailyBoardSignal.set(null);
   this.dailyAnswersSignal.set(null);
 }
+
+// -----------------------------------------
+// INFO DE CEREMONIA (roles activos + sala + rol del usuario)
+// -----------------------------------------
+private dailyCeremonyInfoSignal = signal<any | null>(null);
+
+get dailyCeremonyInfo$() {
+  return this.dailyCeremonyInfoSignal;
+}
+
+setDailyCeremonyInfo(info: any) {
+  this.dailyCeremonyInfoSignal.set(info);
+}
+
 }
  
