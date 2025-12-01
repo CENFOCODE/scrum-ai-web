@@ -13,7 +13,7 @@
   transition: width 0.3s ease;
 
   &.closed {
-    width: 60px;
+    width: 0px;
     box-shadow: none;
 
     .chatbot-header,
