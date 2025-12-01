@@ -165,7 +165,7 @@ export class BacklogService {
 
   private mapSubtask(api: IBacklogSubtaskApi): IBacklogSubtask {
     return {
-      id: String(api.id),
+      id: api.code ?? '',
       title: api.title ?? '',
       description: api.description ?? '',
       status: api.status ?? 'TO DO'
@@ -388,14 +388,15 @@ export class BacklogService {
     if (payload.key !== undefined) body.key = payload.key.trim();
 
     if (payload.subtasks !== undefined) {
-      body.subtasks = payload.subtasks.map(st => ({
-        id: st.id ? Number(st.id) : null,
-        code: null,
-        title: st.title.trim(),
-        description: st.description.trim(),
-        status: st.status
-      }));
-    }
+    body.subtasks = payload.subtasks.map(st => ({
+      id: null,
+      code: st.id,
+      title: st.title.trim(),
+      description: st.description.trim(),
+      status: st.status
+    }));
+  }
+
 
     this.sprintsSignal.update(sprints =>
       sprints.map(s =>
