@@ -87,7 +87,7 @@
             <!-- Dates -->
             <span class="csd-backlog-sprint-meta"
                   *ngIf="!isBacklogSprint(sprint) && !isCompletedContainer(sprint)">
-              <ng-container *ngIf="!sprint.dates; else showDates">
+              <ng-container *ngIf="!sprint.dates || sprint.dates.trim() === ''; else showDates">
                 <button type="button" class="csd-backlog-inline-link"
                         (click)="openEditSprintDialog(sprint)">
                   Agregar fechas

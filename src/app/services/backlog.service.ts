@@ -186,15 +186,18 @@ export class BacklogService {
   }
 
   private mapSprint(api: IBacklogSprintApi): IBacklogSprint {
+    const start = `${api.startDate || ''} ${api.startTime || ''}`.trim();
+    const end = `${api.endDate || ''} ${api.endTime || ''}`.trim();
+
     const formattedDates =
       api.dates ||
-      `${api.startDate || ''} ${api.startTime || ''} - ${api.endDate || ''} ${api.endTime || ''}`.trim();
-
+      (start && end ? `${start} - ${end}` : '');
+      
     return this.recalcStoryPoints({
       id: String(api.id),
       name: api.name,
       goal: api.goal ?? '',
-      dates: formattedDates || 'Agregar fechas',
+      dates: formattedDates?.trim() ? formattedDates : undefined,
       startDate: api.startDate,
       startTime: api.startTime,
       endDate: api.endDate,
