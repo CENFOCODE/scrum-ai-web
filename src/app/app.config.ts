@@ -10,11 +10,13 @@ import { handleErrorsInterceptor } from './interceptors/handle-errors.intercepto
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
 import { importProvidersFrom } from '@angular/core';
+import { provideMarkdown } from 'ngx-markdown';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes), 
     provideClientHydration(),
+    provideMarkdown(),
     provideHttpClient(
       withInterceptors([
         baseUrlInterceptor,

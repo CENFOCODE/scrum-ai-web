@@ -12,6 +12,8 @@ import { IScenario, IScenarioTemplate, ISimulations, ISimulationUser } from '../
 import { AuthService } from '../../../services/auth.service';
 import { switchMap, map } from 'rxjs/operators';
 import { ScenarioTemplateService } from '../../../services/scenario-template.service';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 type NoticeType = 'success' | 'warning' | 'error';
 interface Notice {
@@ -29,7 +31,8 @@ interface Notice {
     MatSelectModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    ToastModule   
   ],
   templateUrl: './create-session.component.html',
   styleUrls: ['./create-session.component.scss']
@@ -157,6 +160,10 @@ export class CreateSessionComponent {
       alert('Error: el backend no devolvió el id de la Simulation.');
       throw new Error('Simulation sin id');
     }
+
+    this.simulation = createdSim;
+
+
       const newSimUser: ISimulationUser = {
         scrumRole: this.selectedRole,
         assignedAt: new Date(),
@@ -169,15 +176,22 @@ export class CreateSessionComponent {
     })
   ).subscribe({
     next: (res) => {
-      this.isLoading = false;
-      this.redirectToDashboard();
-      this.sessionCreated.emit(res);
-    },
+  this.isLoading = false;
+
+  this.simulationUser = res;
+
+  this.redirectToScenarioPage(this.selectedScenario?.name, {
+    scenario: this.selectedScenario,
+    simulationUser: res
+  });
+
+  this.sessionCreated.emit(res);
+},
     error: (err) => {
       console.error('Error en el flujo', err);
       this.isLoading = false;
       
-      // Manejar el error 404 de plantilla no encontrada
+
       if (err.status === 404) {
         this.notice.set({
           type: 'warning',
@@ -215,7 +229,17 @@ export class CreateSessionComponent {
 
   if (routePath) {
     console.log(`➡️ Redirigiendo a: ${routePath}`);
-    this.router.navigate([routePath], { state: stateData });
+    this.router.navigate([routePath], { 
+      state: {
+        ...(stateData || {}),
+        simulation: this.simulation,    
+        simulationId: this.simulation?.id,
+        scenario: this.selectedScenario,
+        simulationUser: this.simulationUser,
+        simulationUserId: this.simulationUser?.id,
+        aiTemplate: this.scenarioTemplate
+      }
+    });
   } else {
     this.notice.set({
       type: 'error',
@@ -243,6 +267,7 @@ private redirectToDashboard() {
       simulationUser: this.simulationUser,
       aiTemplate: this.scenarioTemplate 
     });
-}
-}
+  }
 
+
+}
