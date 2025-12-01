@@ -164,3 +164,11 @@ export interface IHistory {
   finalScore?: number;
   simulationUser?: ISimulationUser; 
 }
+
+export interface ISimulationFeedback {
+  id?: number;
+  createdAt?: Date;
+  user?: IUser;
+  message?: string;
+  simulation?: ISimulations;
+}

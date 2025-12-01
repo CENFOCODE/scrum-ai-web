@@ -8,12 +8,13 @@ import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogComponent } from '../../components/confirm/confirm-dialog.component';
 import { RetrospectiveService } from '../../services/retrospective.service';
 import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
-import { IScenario, ISimulationUser, IScenarioTemplate, ISimulations } from '../../interfaces';
+import { IScenario, ISimulationUser, IScenarioTemplate, ISimulations, ISimulationFeedback } from '../../interfaces';
 import { SimulationService } from '../../services/simulation.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
 import { ViewChild } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
 
 interface RetroNote {
   text: string;
@@ -48,7 +49,7 @@ export class RetrospectiveComponent implements OnInit{
 
   @ViewChild(ChatbotComponent) chatbot!: ChatbotComponent;
 
-
+    feedbackText: ISimulationFeedback[] = [];
     simulation: ISimulations = {};
     scenario: IScenario | null = null;
     simulationId: number | null = null;
@@ -58,7 +59,8 @@ export class RetrospectiveComponent implements OnInit{
   constructor(
     private router: Router, 
     private retrospectiveService: RetrospectiveService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    public authService: AuthService,
   ) {
     // Obtenemos los datos pasados desde create-session
     const nav = this.router.getCurrentNavigation();
@@ -150,7 +152,7 @@ export class RetrospectiveComponent implements OnInit{
 retroData: any = null;
 
 saveRetrospective() {
-
+  
   
 
   const payloadSections: any = {
@@ -208,7 +210,7 @@ saveRetrospective() {
       this.messageService.clear();
       this.messageService.add({severity:'success', summary: 'Éxito', detail: 'Retrospectiva guardada correctamente.'});
 
-
+      
 
     },
     error: () => {
@@ -236,7 +238,18 @@ saveRetrospective() {
       next: (res) => {
         this.messageService.clear();
         this.messageService.add({severity:'success', summary: 'Éxito', detail: 'Simulación finalizada correctamente.'});
-        this.router.navigate(['/app/history']);
+        
+         const feedback = this.feedbackText;
+
+         this.router.navigate(['/app/feedback'], {
+          state: {
+            simulationId: this.simulationId,
+            scenario: this.scenario,
+            simulationUser: this.simulationUser,
+            simulation: this.simulation,
+            feedback: feedback
+          }
+        });
       },
       error: (err) => {
         if (err.status === 409) {

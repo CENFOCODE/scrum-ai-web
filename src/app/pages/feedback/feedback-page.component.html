@@ -1,0 +1,27 @@
+
+<h2 class="fw-semibold mb-2">Ceremonia finalizada</h2>
+<p class="sf-description mb-4">
+La ceremonia ha concluido exitosamente. Los datos generados durante la sesión
+están disponibles para análisis y retroalimentación.
+</p>
+
+<!-- Cards -->
+<div class="sf-cards">
+    <div class="sf-card">
+        <h3 class="sf-card-title">Feedback</h3>
+        <div *ngIf="feedback">
+            {{ feedback }}
+        </div>
+    </div>
+    <div class="sf-card">
+        <h3 class="sf-card-title">Resumen</h3>
+            <p><strong>Usuario:</strong> {{ authService.getUser().name }}</p>
+            <p><strong>Rol:</strong> {{ simulation?.simulationUsers?.[0]?.scrumRole || 'N/A' }}</p>
+            <p><strong>Ceremonia:</strong> {{ scenario?.name }}</p>
+            <p><strong>Dificultad:</strong> {{ simulation?.difficultyLevel }}</p>
+    </div>
+    <div class="sf-card">
+        <h3 class="sf-card-title">Duración</h3>
+        <p></p>
+    </div>
+</div>

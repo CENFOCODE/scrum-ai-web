@@ -16,8 +16,6 @@ export class HistoryService {
   );
 }
 
-
-
   getHistoryByUser(userId: number): Observable<any[]> {
   return this.http.get<any>(`${this.baseURL}/${userId}`).pipe(
     map(res => res.data ?? res)

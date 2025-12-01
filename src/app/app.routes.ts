@@ -20,6 +20,7 @@ import { ScenarioComponent } from './pages/scenario/scenario.component';
 import { HistoryComponent } from './pages/history/history.component';
 import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
 import { RetrospectiveComponent} from './pages/retrospective/retrospective.component'
+import { FeedbackPageComponent } from './pages/feedback/feedback-page.component';
 
 
 export const routes: Routes = [
@@ -186,7 +187,21 @@ export const routes: Routes = [
           name: 'History',
           showInSidebar: true
         }
+      },
+      {
+        path: 'feedback',
+        component: FeedbackPageComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'Feedback',
+          showInSidebar: true
+        }
       }
+      
 
 
     ],
