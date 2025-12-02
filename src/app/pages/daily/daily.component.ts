@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Router } from '@angular/router';
 import { SimulationService } from '../../services/simulation.service';
+import { ViewChild } from '@angular/core';
 
 // Componentes hijos
 import { VideoRoomComponent } from '../../components/videoRoom/videoRoom.component';
@@ -13,6 +14,9 @@ import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
 
 // Interfaces
 import { IScenarioTemplate } from '../../interfaces';
+import { IScenario } from '../../interfaces';
+import { ISimulations } from '../../interfaces';
+import { ISimulationUser } from '../../interfaces'; 
 
 interface Task {
   title: string;
@@ -35,9 +39,13 @@ interface Task {
 })
 export class DailyComponent implements OnInit {
 
+  @ViewChild(ChatbotComponent) chatbot!: ChatbotComponent;
+
   /** datos del create-scenario */
-    scenario: any;
-  simulationUser: any;
+  simulation: ISimulations = {};
+  scenario: IScenario | null = null;
+  simulationId: number | null = null;
+  simulationUser: ISimulationUser | null = null;
   aiTemplate: IScenarioTemplate | null = null;
 
   itemsMenu: MenuItem[] | undefined;
@@ -48,20 +56,41 @@ export class DailyComponent implements OnInit {
   done: Task[] = [];
 
   connectedLists: string[] = ['todoList', 'inProgressList', 'qaList', 'doneList'];
+  
 
   constructor(
     private router: Router,
     private simulationService: SimulationService
-  ) {}
+  ) {
+    const nav = this.router.getCurrentNavigation();
+    if(nav?.extras?.state) {
+      this.scenario = nav.extras.state['scenario'] || null;
+      this.simulationUser = nav.extras.state['simulationUser'] || null;
+      this.aiTemplate = nav.extras.state['aiTemplate'] || null;
+      this.simulation = nav.extras.state['simulation'] || {};
+
+      this.simulationId = nav.extras.state['simulationId'] || null;
+
+      if (!this.simulationId && this.simulation?.id) {
+        this.simulationId = this.simulation.id;
+      }
+
+      if (!this.simulationId && this.simulationUser?.simulation?.id) {
+        this.simulationId = this.simulationUser.simulation.id;
+      }
+    }
+  }
 
   ngOnInit() {
 
-    const navigation = this.router.getCurrentNavigation();
-    const state = navigation?.extras?.state;
+    // const navigation = this.router.getCurrentNavigation();
+    // const state = navigation?.extras?.state;
 
-    this.scenario = state?.['scenario'] || this.simulationService.selectedScenario$();
-    this.simulationUser = state?.['simulationUser'] || this.simulationService.selectedUser$();
-    this.aiTemplate = state?.['aiTemplate'] || null;
+    // this.scenario = state?.['scenario'] || this.simulationService.selectedScenario$();
+    
+    // this.aiTemplate = state?.['aiTemplate'] || null;
+
+    console.log(this.scenario, this.simulationUser);
 
     if (!this.scenario || !this.simulationUser) {
       console.warn("No hay datos cargados. Redirigiendo.");
@@ -164,7 +193,7 @@ export class DailyComponent implements OnInit {
   }
 
   finishSimulation() {
-  const simulationId = this.simulationUser?.simulationId;
+  const simulationId = this.simulationId;
 
   if (!simulationId) {
     console.error("No simulationId found!");

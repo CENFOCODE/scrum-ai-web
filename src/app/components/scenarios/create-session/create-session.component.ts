@@ -162,45 +162,52 @@ export class CreateSessionComponent {
     // ---------------------------
     createSimulation() {
         // VALIDACIONES
-        if (!this.selectedDifficulty.trim()) {
-            this.notice.set({type: 'warning', text: 'Selecciona una dificultad'});
-            return;
-        }
+        if (!this.selectedDifficulty|| !this.selectedRole) {
+          this.notice.set({
+          type: 'warning',
+          text: 'Atención: Debes seleccionar un rol'
+       });
+      }
+      if (this.selectedDifficulty.trim() === '') {
+        this.notice.set({
+          type: 'warning',
+          text: 'Atención: Debes seleccionar una dificultad'
+      });
+      return;
+      }
+      if (this.selectedRole.trim() === '') {
+      this.notice.set({
+          type: 'warning',
+          text: 'Atención: Debes seleccionar un rol'
+        });
+      return;
+      }
+      const currentUserId = this.authService.getUserId();
+      if (!currentUserId) {
+          alert('Error: no se encontró el usuario actual.');
+          return;
+      }
 
-        if (this.selectedRole.trim() === '') {
-            this.notice.set({
-                type: 'warning',
-                text: 'Atención: Debes seleccionar un rol'
-            });
-            return;
-        }
+      const stepOrder = this.getStepOrder();
 
-        const currentUserId = this.authService.getUserId();
-        if (!currentUserId) {
-            alert('Error: no se encontró el usuario actual.');
-            return;
-        }
+      // ⭐ 2. BUSCAR TEMPLATE ESPECÍFICO EN EL ESCENARIO
+      const template = this.selectedScenario?.templates?.find(
+          t => t.stepOrder === stepOrder
+      );
 
-        const stepOrder = this.getStepOrder();
+      // ⭐ Guardar escenario actualizado global
+      this.simulationService.setSelectedScenario(this.selectedScenario!);
 
-        // ⭐ 2. BUSCAR TEMPLATE ESPECÍFICO EN EL ESCENARIO
-        const template = this.selectedScenario?.templates?.find(
-            t => t.stepOrder === stepOrder
-        );
-
-        // ⭐ Guardar escenario actualizado global
-        this.simulationService.setSelectedScenario(this.selectedScenario!);
-
-        this.isLoading = true;
-        const userId = this.authService.getUser().id;
-        const now = new Date();
-        const newSimulation: ISimulations = {
-            difficultyLevel: this.selectedDifficulty,
-            startDate: now,
-            endDate: new Date(now.getTime() + 60 * 60000),
-            createdBy: {id: userId},
-            scenario: {id: this.selectedScenario?.id}
-        };
+      this.isLoading = true;
+      const userId = this.authService.getUser().id;
+      const now = new Date();
+      const newSimulation: ISimulations = {
+          difficultyLevel: this.selectedDifficulty,
+          startDate: now,
+          endDate: new Date(now.getTime() + 60 * 60000),
+          createdBy: {id: userId},
+          scenario: {id: this.selectedScenario?.id}
+      };
 
 
         this.scenarioTemplateService.getTemplate(
@@ -299,7 +306,7 @@ export class CreateSessionComponent {
         const routePath = routes[normalizedName];
 
         if (routePath) {
-            console.log(`➡️ Redirigiendo a: ${routePath}`);
+            console.log(`Redirigiendo a: ${routePath}`);
             this.router.navigate([routePath], {
                 state: {
                     ...(stateData || {}),
