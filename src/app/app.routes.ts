@@ -17,7 +17,11 @@ import { WebsocketTestComponent } from './components/websocketTest/websocketTest
 import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
+import { HistoryComponent } from './pages/history/history.component';
 import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
+import { HomePageComponent } from './pages/home-page/home-page.component';
+import { RetrospectiveComponent} from './pages/retrospective/retrospective.component'
+import { FeedbackPageComponent } from './pages/feedback/feedback-page.component';
 
 
 export const routes: Routes = [
@@ -79,8 +83,19 @@ export const routes: Routes = [
           showInSidebar: true
         }
       },
-
-
+      {
+        path: 'home',
+        component: HomePageComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user
+          ],
+          name: 'Home',
+          showInSidebar: true
+        }
+      },
       {
         path: 'dashboard',
         component: DashboardComponent,
@@ -117,6 +132,19 @@ export const routes: Routes = [
             IRoleType.user,
           ],
           name: 'daily',
+          showInSidebar: false
+        }
+      },
+      {
+        path: 'retrospective',
+        component: RetrospectiveComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'retrospective',
           showInSidebar: false
         }
       },
@@ -158,7 +186,34 @@ export const routes: Routes = [
           name: 'Video Room',
           showInSidebar: false
         }
+      },
+      {
+        path: 'history',
+        component: HistoryComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'History',
+          showInSidebar: true
+        }
+      },
+      {
+        path: 'feedback',
+        component: FeedbackPageComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'Feedback',
+          showInSidebar: true
+        }
       }
+      
 
 
     ],

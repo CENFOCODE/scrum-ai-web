@@ -4,29 +4,6 @@ import { AiService } from '../../services/ai.service';
 import { TranscriptStateService } from '../../services/transcript-state.service';
 import { IScenario, IScenarioTemplate, ISimulationUser } from '../../interfaces';
 
-/**
- * Componente del Chat Scrum AI conectado al backend (Groq).
- *
- * RESPONSABILIDADES:
- * ------------------
- * ✅ Capturar el input del usuario.
- * ✅ Enviar el mensaje al backend (Groq API vía Spring Boot).
- * ✅ Renderizar la respuesta generada por la IA.
- * ✅ Mostrar el estado de carga mientras se espera respuesta.
- * ✅ Inicializar con prompt específico de ceremonia.
- *
- * ESTE COMPONENTE NO:
- * --------------------
- * ❌ No genera prompts avanzados.
- * ❌ No gestiona WebRTC.
- * ❌ No aplica lógica de ceremonias Scrum.
- *
- * RELACIÓN CON OTROS ARCHIVOS:
- * ----------------------------
- * - AiService → envía las solicitudes a /ai/ask
- * - AIController.java → recibe la solicitud del frontend
- * - GroqService.java → ejecuta el request a Groq
- */
 @Component({
   selector: 'app-chatbot',
   standalone: true,
@@ -40,18 +17,11 @@ export class ChatbotComponent implements OnInit {
   @Input() aiTemplate: IScenarioTemplate | null = null;
   @Input() scenario: ISimulationUser | null = null;
 
-  /**
-   * Historial del chat.
-   * Cada entrada contiene:
-   * - from: "Usuario" | "Scrum AI"
-   * - prompt: texto enviado o recibido
-   */
   messages: { from: string; prompt?: string }[] = [];
 
-  /** Indica si la IA está generando respuesta */
   loading = false;
 
-  /** Indica si el chatbot está visible/abierto */
+
   visible = false;
 
   constructor(
@@ -59,26 +29,17 @@ export class ChatbotComponent implements OnInit {
     private transcriptState: TranscriptStateService
   ) { }
 
-  /**
-   * Alterna la visibilidad del chatbot
-   */
   toggleChatbot() {
-    this.visible = true;
+    this.visible = !this.visible;
   }
 
-  /**
-   * Inicializa el chat con el prompt de la plantilla AI
-   */
+
   ngOnInit() {
-    // Contexto inicial del asistente (se envía de forma invisible)
+
     const contextPrompt = 'Eres un asistente de Scrum donde tienes como objetivo ayudar a los usuarios en los errores más comunes en Scrum, el usuario tiene que seleccionar la ceremonia, ya sea Planning, Daily, Review o Retrospective y tiene que seleccionar tambien la dificultad.';
 
     if (this.aiTemplate?.promptTemplate) {
-      // Agregar el prompt como mensaje del usuario
-      this.messages.push({
-        from: 'Usuario',
-        prompt: this.aiTemplate.promptTemplate
-      });
+
 
       // Enviar automáticamente el prompt a la IA con el contexto
       this.loading = true;

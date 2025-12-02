@@ -12,6 +12,8 @@ import { IScenario, IScenarioTemplate, ISimulations, ISimulationUser, ICeremonyS
 import { AuthService } from '../../../services/auth.service';
 import { switchMap, map } from 'rxjs/operators';
 import { ScenarioTemplateService } from '../../../services/scenario-template.service';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { CeremonySessionService } from '../../../services/ceremony-session.service';
 
 type NoticeType = 'success' | 'warning' | 'error';
@@ -30,7 +32,8 @@ interface Notice {
     MatSelectModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    ToastModule   
   ],
   templateUrl: './create-session.component.html',
   styleUrls: ['./create-session.component.scss']
@@ -161,11 +164,15 @@ ceremonySession: ICeremonySession = {};
       alert('Error: el backend no devolvió el id de la Simulation.');
       throw new Error('Simulation sin id');
     }
+
+    this.simulation = createdSim;
+
+
       const newSimUser: ISimulationUser = {
         scrumRole: this.selectedRole,
         assignedAt: new Date(),
         simulation: { id: createdSim.id },
-        user: { id : userId}
+        user: { id: currentUserId }
       };
 
       
@@ -189,24 +196,39 @@ ceremonySession: ICeremonySession = {};
       
       return this.ceremonySessionService.createCeremonySession(newCeremonySession);
     })
- ).subscribe({
-      next: (ceremonySessionResponse) => {
-        this.isLoading = false;
+  ).subscribe({
+    next: (res) => {
+  this.isLoading = false;
 
-        if (ceremonySessionResponse.data) {
-          this.ceremonySession = ceremonySessionResponse.data;
-        } else if (ceremonySessionResponse.id) {
-          this.ceremonySession = ceremonySessionResponse;
-        } else {
-          this.ceremonySession = { id: 1 };
-        }
+  this.simulationUser = res;
 
-        this.redirectToDashboard();
-        this.sessionCreated.emit(ceremonySessionResponse);
-      },
+  this.redirectToScenarioPage(this.selectedScenario?.name, {
+    scenario: this.selectedScenario,
+    simulationUser: res
+  });
+
+  this.sessionCreated.emit(res);
+},
     error: (err) => {
       console.error('Error en el flujo', err);
       this.isLoading = false;
+      
+
+      if (err.status === 404) {
+        this.notice.set({
+          type: 'warning',
+          text: `No se encontró una plantilla para ${this.selectedScenario?.name} con dificultad ${this.selectedDifficulty} y rol ${this.selectedRole}. Continuando sin plantilla específica.`
+        });
+        
+        // Redirigir al dashboard sin plantilla
+        this.scenarioTemplate = {};
+        this.redirectToDashboard();
+      } else {
+        this.notice.set({
+          type: 'error',
+          text: 'Error al crear la sesión. Por favor, intenta nuevamente.'
+        });
+      }
     }
   });
 }
@@ -229,7 +251,17 @@ ceremonySession: ICeremonySession = {};
 
   if (routePath) {
     console.log(`➡️ Redirigiendo a: ${routePath}`);
-    this.router.navigate([routePath], { state: stateData });
+    this.router.navigate([routePath], { 
+      state: {
+        ...(stateData || {}),
+        simulation: this.simulation,    
+        simulationId: this.simulation?.id,
+        scenario: this.selectedScenario,
+        simulationUser: this.simulationUser,
+        simulationUserId: this.simulationUser?.id,
+        aiTemplate: this.scenarioTemplate
+      }
+    });
   } else {
     this.notice.set({
       type: 'error',
@@ -262,6 +294,7 @@ private redirectToDashboard() {
       aiTemplate: this.scenarioTemplate,
       ceremonySessionId: this.ceremonySession.id
     });
-}
-}
+  }
 
+
+}
