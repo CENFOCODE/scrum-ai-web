@@ -12,6 +12,8 @@ import { IScenario, IScenarioTemplate, ISimulations, ISimulationUser, IParticipa
 import { AuthService } from '../../../services/auth.service';
 import { switchMap, map } from 'rxjs/operators';
 import { ScenarioTemplateService } from '../../../services/scenario-template.service';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import {InvitationService} from "../../../services/invitation.service";
 import {SocketService} from "../../../services/socket.service";
 import {VideoRoomComponent} from "../../videoRoom/videoRoom.component";
@@ -33,6 +35,8 @@ interface Notice {
     MatSelectModule,
     MatInputModule,
     MatButtonModule,
+    MatIconModule,
+    ToastModule,
     MatIconModule,
     VideoRoomComponent
   ],
@@ -189,6 +193,10 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
       alert('Error: el backend no devolvió el id de la Simulation.');
       throw new Error('Simulation sin id');
     }
+
+    this.simulation = createdSim;
+
+
       const newSimUser: ISimulationUser = {
         scrumRole: this.selectedRole,
         assignedAt: new Date(),
@@ -201,29 +209,30 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
     })
   ).subscribe({
     next: (res) => {
-      this.isLoading = false;
+  this.isLoading = false;
 
-      if (this.hasInvitedUsers) {
-        const roomId = `room-${res.simulation?.id || Date.now()}`;
-        this.socketService.sendMessage({
-          type: 'create-room',
-          room: roomId,
-          host: this.authService.getUser()?.name || 'Host',
-          role: this.selectedRole
-        });
-      }
+  this.simulationUser = res;
 
-      this.redirectToScenarioPage(this.selectedScenario?.name, {
-        scenario: this.selectedScenario,
-        simulationUser: res
-      });
-      this.sessionCreated.emit(res);
-    },
+  if (this.hasInvitedUsers) {
+    const roomId = `room-${res.simulation?.id || Date.now()}`;
+    this.socketService.sendMessage({
+      type: 'create-room',
+      room: roomId,
+      host: this.authService.getUser()?.name || 'Host',
+      role: this.selectedRole
+    });
+  }
+  this.redirectToScenarioPage(this.selectedScenario?.name, {
+    scenario: this.selectedScenario,
+    simulationUser: res
+  });
+  this.sessionCreated.emit(res);
+},
     error: (err) => {
       console.error('Error en el flujo', err);
       this.isLoading = false;
+      
 
-      // Manejar el error 404 de plantilla no encontrada
       if (err.status === 404) {
         this.notice.set({
           type: 'warning',
@@ -261,7 +270,17 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
 
   if (routePath) {
     console.log(`➡️ Redirigiendo a: ${routePath}`);
-    this.router.navigate([routePath], { state: stateData });
+    this.router.navigate([routePath], {
+      state: {
+        ...(stateData || {}),
+        simulation: this.simulation,
+        simulationId: this.simulation?.id,
+        scenario: this.selectedScenario,
+        simulationUser: this.simulationUser,
+        simulationUserId: this.simulationUser?.id,
+        aiTemplate: this.scenarioTemplate
+      }
+    });
   } else {
     this.notice.set({
       type: 'error',
@@ -274,20 +293,20 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
 }
 
 private redirectToDashboard() {
-
-    this.router.navigate(['/app/dashboard'], {
+   
+    this.router.navigate(['/app/dashboard'], { 
       state: {
         scenario: this.selectedScenario,
         simulationUser: this.simulationUser,
-        aiTemplate: this.scenarioTemplate
+        aiTemplate: this.scenarioTemplate 
       }
-    });
-
-
+    }); 
+    
+ 
     console.log('Datos enviados al dashboard:', {
       scenario: this.selectedScenario,
       simulationUser: this.simulationUser,
-      aiTemplate: this.scenarioTemplate,
+      aiTemplate: this.scenarioTemplate
     });
 }
 
@@ -403,5 +422,6 @@ private redirectToDashboard() {
       }
     });
   }
-}
 
+
+}
