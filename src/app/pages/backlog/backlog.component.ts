@@ -4,11 +4,12 @@ import { Router, RouterModule } from '@angular/router';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MenuItem } from 'primeng/api';
 import { BacklogBoardComponent } from '../../components/backlog-board/backlog-board.component';
+import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
 
 @Component({
   selector: 'app-backlog',
   standalone: true,
-  imports: [CommonModule, RouterModule, BreadcrumbModule, BacklogBoardComponent],
+  imports: [CommonModule, RouterModule, BreadcrumbModule, BacklogBoardComponent, ChatbotComponent],
   templateUrl: './backlog.component.html',
   styleUrls: ['./backlog.component.scss']
 })

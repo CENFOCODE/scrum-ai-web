@@ -5,6 +5,7 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MenuItem } from 'primeng/api';
 
 import { PlanningBoardComponent } from '../../components/planning-board/planning-board.component';
+import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
 
 @Component({
   selector: 'app-planning',
@@ -13,7 +14,8 @@ import { PlanningBoardComponent } from '../../components/planning-board/planning
     CommonModule,
     RouterModule,
     BreadcrumbModule,
-    PlanningBoardComponent
+    PlanningBoardComponent,
+    ChatbotComponent
   ],
   templateUrl: './planning.component.html',
   styleUrl: './planning.component.scss'
