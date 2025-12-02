@@ -109,64 +109,68 @@
           <!-- Story points + Start Sprint + menu -->
           <div class="csd-backlog-sprint-controls">
 
-            <button type="button" class="csd-sp-btn csd-sp-btn--todo">
-              {{ sprint.storyPoints.todo }}
-            </button>
+            <!-- PÍLDORAS: ocultar SOLO en el contenedor de sprints completados -->
+            <ng-container *ngIf="!isCompletedContainer(sprint)">
+              <button type="button" class="csd-sp-btn csd-sp-btn--todo">
+                {{ sprint.storyPoints.todo }}
+              </button>
 
-            <button type="button" class="csd-sp-btn csd-sp-btn--inprogress">
-              {{ sprint.storyPoints.inProgress }}
-            </button>
+              <button type="button" class="csd-sp-btn csd-sp-btn--inprogress">
+                {{ sprint.storyPoints.inProgress }}
+              </button>
 
-            <button type="button" class="csd-sp-btn csd-sp-btn--done">
-              {{ sprint.storyPoints.done }}
-            </button>
+              <button type="button" class="csd-sp-btn csd-sp-btn--done">
+                {{ sprint.storyPoints.done }}
+              </button>
+            </ng-container>
 
-            <!-- Crear sprint -->
-            <button *ngIf="isBacklogSprint(sprint)"
-                    type="button"
-                    class="btn btn-outline-secondary btn-sm"
-                    (click)="handleAddSprint()">
-              Crear sprint
-            </button>
+          <!-- Crear sprint -->
+          <button *ngIf="isBacklogSprint(sprint)"
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  (click)="handleAddSprint()">
+            Crear sprint
+          </button>
 
-            <!-- Iniciar / Completar -->
-            <button *ngIf="
-                !isBacklogSprint(sprint) &&
-                !isCompletedContainer(sprint) &&
-                sprint.status !== 'COMPLETED'
-              "
-              type="button"
-              class="btn btn-outline-secondary btn-sm"
-              (click)="handleStartSprint(sprint)">
-              {{ sprint.status === 'ACTIVE' ? 'Completar sprint' : 'Iniciar sprint' }}
-            </button>
+          <!-- Iniciar / Completar -->
+          <button *ngIf="
+              !isBacklogSprint(sprint) &&
+              !isCompletedContainer(sprint) &&
+              sprint.status !== 'COMPLETED'
+            "
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            (click)="handleStartSprint(sprint)">
+            {{ sprint.status === 'ACTIVE' ? 'Completar sprint' : 'Iniciar sprint' }}
+          </button>
 
-            <!-- Sprint menu -->
-            <div class="csd-backlog-more-wrapper"
-                 *ngIf="!isBacklogSprint(sprint) && !isCompletedContainer(sprint)">
+          <!-- Sprint menu -->
+          <div class="csd-backlog-more-wrapper"
+              *ngIf="!isBacklogSprint(sprint) && !isCompletedContainer(sprint)">
+            <button type="button"
+                    class="csd-backlog-more-btn"
+                    (click)="openSprintMenu(sprint)">⋯</button>
+
+            <div class="csd-backlog-sprint-menu"
+                *ngIf="menuSprintId === sprint.id">
+
               <button type="button"
-                      class="csd-backlog-more-btn"
-                      (click)="openSprintMenu(sprint)">⋯</button>
+                      class="csd-backlog-sprint-menu-item csd-backlog-sprint-menu-item--edit"
+                      (click)="handleEditSprintFromMenu(sprint)">
+                Editar sprint
+              </button>
 
-              <div class="csd-backlog-sprint-menu"
-                   *ngIf="menuSprintId === sprint.id">
+              <button type="button"
+                      class="csd-backlog-sprint-menu-item csd-backlog-sprint-menu-item--danger"
+                      (click)="handleDeleteSprintFromMenu(sprint)">
+                Eliminar sprint
+              </button>
 
-                <button type="button"
-                        class="csd-backlog-sprint-menu-item csd-backlog-sprint-menu-item--edit"
-                        (click)="handleEditSprintFromMenu(sprint)">
-                  Editar sprint
-                </button>
-
-                <button type="button"
-                        class="csd-backlog-sprint-menu-item csd-backlog-sprint-menu-item--danger"
-                        (click)="handleDeleteSprintFromMenu(sprint)">
-                  Eliminar sprint
-                </button>
-
-              </div>
             </div>
-
           </div>
+
+        </div>
+
         </header>
 
         <div class="csd-backlog-sprint-goal" *ngIf="!isCollapsed(sprint)">
@@ -184,7 +188,7 @@
               <h5 class="mt-3 mb-2">{{ sc.name }} ({{ sc.items.length }} historias)</h5>
 
               <article class="csd-backlog-item-row"
-                       *ngFor="let item of sc.items">
+                       *ngFor="let item of filterCompletedItems(sc.items)">
 
                 <div class="csd-backlog-col csd-backlog-col--key">
                   <span class="csd-backlog-key">{{ item.key }}</span>

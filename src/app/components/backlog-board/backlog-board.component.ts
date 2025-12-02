@@ -57,6 +57,16 @@ export class BacklogBoardComponent {
   movingItem: { sprintId: string; item: IBacklogItem } | null = null;
   targetSprintId: string = '';
 
+  filterCompletedItems(items: IBacklogItem[]) {
+    const term = this.searchTerm().trim().toLowerCase();
+    if (!term) return items;
+    return items.filter(i =>
+      i.title.toLowerCase().includes(term) ||
+      i.key.toLowerCase().includes(term) ||
+      (i.module ?? '').toLowerCase().includes(term)
+    );
+  }
+
   getCompletedSprints(): IBacklogSprint[] {
     return this.sprints().filter(s => s.status === 'COMPLETED');
   }
@@ -120,6 +130,14 @@ export class BacklogBoardComponent {
       }
       return true;
     }
+
+    if (this.isCompletedContainer(sprint)) {
+    const completed = this.getCompletedSprints();
+    const matches = completed.some(sc =>
+      this.filterCompletedItems(sc.items).length > 0
+    );
+    return matches;
+  }
 
     const filtered = this.filteredItems(sprint);
     if (filtered.length === 0) {
