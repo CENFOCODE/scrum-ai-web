@@ -87,6 +87,115 @@ ceremonySession: ICeremonySession = {};
   closeNotice() {
     this.notice.set(null);
   }
+createGroupSimulation() {
+    if (!this.selectedDifficulty|| !this.selectedRole) {
+      this.notice.set({
+        type: 'warning',
+        text: 'Atención: Debes seleccionar un rol'
+      });
+    }
+    if (this.selectedDifficulty.trim() === '') {
+    this.notice.set({
+        type: 'warning',
+        text: 'Atención: Debes seleccionar una dificultad'
+      });
+    return;
+  }
+  if (this.selectedRole.trim() === '') {
+    this.notice.set({
+        type: 'warning',
+        text: 'Atención: Debes seleccionar un rol'
+      });
+    return;
+  }
+    const currentUserId = this.authService.getUserId();
+    if (!currentUserId) {
+      alert('Error: no se encontró el usuario actual.');
+      return;
+    }
+ this.isLoading = true;
+  const userId = this.authService.getUser().id;
+  const now = new Date();
+  const newSimulation: ISimulations = {
+    difficultyLevel: this.selectedDifficulty,
+    startDate: now,
+    endDate: new Date(now.getTime() + 60 * 60000),
+    createdBy: { id : userId },
+    scenario: { id: this.selectedScenario?.id}
+  };
+  this.scenarioTemplateService.getTemplate(
+    this.selectedScenario?.id || 0,
+    this.scenarioTemplateService.mapDifficultyToNumber(this.selectedDifficulty),
+    this.selectedRole
+  ).pipe(
+    switchMap((templateResponse: any) => {
+      if (templateResponse && templateResponse.promptTemplate) {
+        this.scenarioTemplate = templateResponse;
+      }
+      else if (templateResponse && templateResponse.data) {
+        if (Array.isArray(templateResponse.data) && templateResponse.data.length > 0) {
+          this.scenarioTemplate = templateResponse.data[0];
+        } else if (templateResponse.data.promptTemplate) {
+          this.scenarioTemplate = templateResponse.data;
+        }
+      } else {
+        this.scenarioTemplate = {};
+      }
+      return this.simulationService.createSimulation(newSimulation);
+    }),
+    switchMap((createdSim) => {
+      if (!createdSim.id) {
+      alert('Error: el backend no devolvió el id de la Simulation.');
+      throw new Error('Simulation sin id');
+    }
+      const newSimUser: ISimulationUser = {
+        scrumRole: this.selectedRole,
+        assignedAt: new Date(),
+        simulation: { id: createdSim.id },
+        user: { id : userId}
+      };
+      return this.simulationService.createSimulationUser(newSimUser);
+    }),
+    // :marca_de_verificación_blanca: NUEVO: Crear CeremonySession
+    switchMap((simUser) => {
+      if (!simUser.simulation?.id) {
+    throw new Error('SimulationUser sin simulation.id');
+  }
+  // Validar que selectedScenario existe
+  if (!this.selectedScenario?.name) {
+    throw new Error('Scenario sin nombre');
+  }
+      const newCeremonySession = {
+        ceremonyType: this.selectedScenario.name,
+        simulationId: simUser.simulation.id,
+        startTime: new Date()
+      };
+      return this.ceremonySessionService.createCeremonySession(newCeremonySession);
+    })
+ ).subscribe({
+      next: (ceremonySessionResponse) => {
+        this.isLoading = false;
+        if (ceremonySessionResponse.data) {
+          this.ceremonySession = ceremonySessionResponse.data;
+        } else if (ceremonySessionResponse.id) {
+          this.ceremonySession = ceremonySessionResponse;
+        } else {
+          this.ceremonySession = { id: 1 };
+        }
+        this.redirectToDashboard();
+        this.sessionCreated.emit(ceremonySessionResponse);
+      },
+    error: (err) => {
+      console.error('Error en el flujo', err);
+      this.isLoading = false;
+    }
+  });
+}
+
+
+
+
+
 
   
   createSimulation() {

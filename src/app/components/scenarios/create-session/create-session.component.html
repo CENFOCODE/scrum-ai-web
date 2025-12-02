@@ -85,10 +85,11 @@
           </aside>
         </div>
 
-        <div id="csd-actions" class="d-flex justify-content-end mt-3">
+      <div id="csd-actions" class="d-flex justify-content-between mt-4">
           <button (click)="createSimulation()" [disabled]="isLoading" class="primary-btn">
           {{ isLoading ? 'Creando...' : 'Iniciar Ceremonia' }}
           </button>
+          <button  (click)="createGroupSimulation()" class="primary-btn btn-success px-4" >Iniciar Ceremonia Grupal</button>
         </div>
       </div>
     </section>
