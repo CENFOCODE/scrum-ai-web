@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AiService } from '../../services/ai.service';
 import { SimulationService } from '../../services/simulation.service';
-import { IScenarioTemplate } from '../../interfaces';
+import {IScenarioTemplate, ISimulationUser} from '../../interfaces';
 
 /**
  * ============================================================
@@ -45,6 +45,7 @@ export class ChatbotComponent implements OnInit {
 
   /** Plantilla proveniente de scenario_templates (Planning/Review/Retro) */
   @Input() aiTemplate: IScenarioTemplate | null = null;
+  @Input() scenario: ISimulationUser | null = null;
 
   /** Modo de funcionamiento */
   @Input() mode: 'daily' | 'general' = 'general';
@@ -52,7 +53,6 @@ export class ChatbotComponent implements OnInit {
   /** Historial del chat */
   messages: { from: string; prompt?: string }[] = [];
 
-  /** Spinner de carga */
   loading = false;
 
   /** Mostrar/ocultar chatbot */
@@ -76,14 +76,6 @@ export class ChatbotComponent implements OnInit {
    */
   ngOnInit() {
 
-    if (this.mode === 'daily') {
-      this.messages.push({
-        from: 'Scrum AI',
-        prompt: 'Bienvenido a la Daily. Puedes iniciar cuando gustes.'
-      });
-      return;
-    }
-
     // Modo general (Planning/Review/Retro o Training)
     const contextPrompt =
       'Eres un asistente de Scrum y debes ayudar según la ceremonia seleccionada.';
@@ -95,45 +87,51 @@ export class ChatbotComponent implements OnInit {
         prompt: this.aiTemplate.promptTemplate
       });
 
+      // Enviar automáticamente el prompt a la IA con el contexto
       this.loading = true;
-
       const fullPrompt = `${contextPrompt}\n\n${this.aiTemplate.promptTemplate}`;
-
+      
       this.aiService.askAI({ prompt: fullPrompt }).subscribe({
         next: (response) => {
-          this.messages.push({ from: 'Scrum AI', prompt: response.data.answer });
+          this.messages.push({
+            from: 'Scrum AI',
+            prompt: response.data.answer
+          });
           this.loading = false;
         },
         error: () => {
-          this.messages.push({ from: 'Scrum AI', prompt: '⚠️ Error al comunicarse con la IA.' });
+          this.messages.push({
+            from: 'Scrum AI',
+            prompt: '⚠️ Error al comunicarse con la IA.'
+          });
           this.loading = false;
         }
       });
 
     } else {
-      // Sin plantilla (modo entrenamiento o base)
+      // Mensaje por defecto de la IA si no hay plantilla
       this.messages.push({
         from: 'Scrum AI',
-        prompt: 'Hola, ¿en qué puedo ayudarte?'
+        prompt: '¡Hola! Soy tu asistente de Scrum. ¿En qué puedo ayudarte hoy?'
       });
     }
   }
 
   /**
-   * ============================================================
-   * ENVÍO DE MENSAJE
-   * ============================================================
-   * Este método envía el mensaje del usuario a la IA.
-   * Cada ceremonia puede extender este método usando su modo:
+   * Envía el texto del input hacia Groq usando AiService.
+   * - Añade el mensaje del usuario al historial.
+   * - Limpia el input.
+   * - Inicia estado de carga.
+   * - Incluye el contexto del prompt inicial.
+   * - Añade la respuesta generada por IA.
    *
-   *   - GENERAL → prompt plano
-   *   - DAILY → payload estructurado (roles, respuestas, tablero)
-   *
+   * @param input Elemento <input> que contiene el texto ingresado.
    */
   sendMessage(input: HTMLInputElement) {
     const text = input.value.trim();
     if (!text) return;
 
+    // Registrar mensaje local
     this.messages.push({ from: 'Usuario', prompt: text });
     input.value = '';
     this.loading = true;
@@ -188,7 +186,7 @@ export class ChatbotComponent implements OnInit {
      */
     const contextPrompt =
       'Eres un asistente experto en Scrum y debes guiar según la ceremonia.';
-    
+
     let fullPrompt = `${contextPrompt}\n\n`;
 
     // Si existe plantilla del escenario → agregarla
@@ -198,6 +196,7 @@ export class ChatbotComponent implements OnInit {
 
     fullPrompt += `Usuario: ${text}\nScrum AI:`;
 
+    // Solicitud al backend → GroqService con contexto completo
     this.aiService.askAI({ prompt: fullPrompt }).subscribe({
       next: (response) => {
         this.messages.push({

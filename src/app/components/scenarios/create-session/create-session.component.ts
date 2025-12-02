@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, effect } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,13 +10,12 @@ import { Router } from '@angular/router';
 
 // Servicios
 import { SimulationService } from '../../../services/simulation.service';
-import { AuthService } from '../../../services/auth.service';
-
-// Interfaces
 import { IScenario, IScenarioTemplate, ISimulations, ISimulationUser } from '../../../interfaces';
-
-// RxJS operator
-import { switchMap } from 'rxjs/operators';
+import { AuthService } from '../../../services/auth.service';
+import { switchMap, map } from 'rxjs/operators';
+import { ScenarioTemplateService } from '../../../services/scenario-template.service';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 type NoticeType = 'success' | 'warning' | 'error';
 interface Notice {
@@ -34,213 +33,311 @@ interface Notice {
     MatSelectModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    ToastModule
   ],
   templateUrl: './create-session.component.html',
   styleUrls: ['./create-session.component.scss']
 })
 export class CreateSessionComponent {
 
-  @Input() ceremonyData!: IScenario;
-  @Output() backToSelection = new EventEmitter<void>();
-  @Output() sessionCreated = new EventEmitter<any>();
+    @Input() ceremonyData!: IScenario;
+    @Output() backToSelection = new EventEmitter<void>();
+    @Output() sessionCreated = new EventEmitter<any>();
 
-  notice = signal<Notice | null>(null);
-  selectedScenario: IScenario | null = null;
+    notice = signal<Notice | null>(null);
 
-  difficultyLevels = ['Baja', 'Media', 'Alta'];
-  scrumRoles = ['Scrum Master', 'Developer', 'Product Owner', 'QA'];
+    selectedScenario: IScenario | null = null
 
-  selectedDifficulty = '';
-  selectedRole = '';
+    difficultyLevels = ['Baja', 'Media', 'Alta'];
+    scrumRoles = ['Scrum Master', 'Developer', 'Product Owner', 'QA'];
 
-  simulation: ISimulations = {};
-  simulationUser: ISimulationUser = {};
+    selectedDifficulty = '';
+    selectedRole = '';
+    scenario?: IScenario;
+    simulation: ISimulations = {};
+    simulationUser: ISimulationUser = {};
+    scenarioTemplate: IScenarioTemplate = {};
 
-  isLoading = false;
-
-  constructor(
-    private simulationService: SimulationService,
-    public authService: AuthService,
-    private router: Router
-  ) {
-
-    // Sincroniza el escenario seleccionado globalmente
-    effect(() => {
-      const ceremonyData = this.simulationService.selectedScenario$();
-      if (ceremonyData) this.selectedScenario = ceremonyData;
-    });
-
-    // Si viene data por navegación
-    const nav = this.router.getCurrentNavigation();
-    this.ceremonyData = nav?.extras?.state?.['scenario'];
-  }
-  closeNotice() {
-  this.notice.set(null);
-}
-
-isArray(value: any): value is string[] {
-  return Array.isArray(value);
-}
-
-
-  // ---------------------------
-  // GENERA TAREAS A PARTIR DEL PROMPT
-  // ---------------------------
-  private generateTasksFromPrompt(prompt: string): { title: string, description?: string }[] {
-    if (!prompt) return [];
-
-    const sentences = prompt
-      .split(/[\.\n]/) // dividir por punto o por salto de línea
-      .map(s => s.trim())
-      .filter(s => s.length > 0);
-
-    return sentences.map(s => ({
-      title: s,
-      description: ""
-    }));
-  }
-
-  // Convertir dificultad a número para el seeder
-  private mapDifficultyToNumber(diff: string): number {
-    const map: any = { 'Baja': 1, 'Media': 2, 'Alta': 3 };
-    return map[diff] || 1;
-  }
-
-  // Convertir rol a índice igual que el seeder
-  private mapRoleToIndex(role: string): number {
-    const map: any = {
-      'Scrum Master': 1,
-      'Developer': 2,
-      'Product Owner': 3,
-      'QA': 4
-    };
-    return map[role] || 1;
-  }
-
-  // ⭐ 1. Determina difficulty y role → stepOrder del template
-private getStepOrder(): number {
-  const mapDifficulty: any = { 'Baja': 1, 'Media': 2, 'Alta': 3 };
-  const mapRole: any = {
-    'Scrum Master': 1,
-    'Developer': 2,
-    'Product Owner': 3,
-    'QA': 4
-  };
-
-  const diffNumber = mapDifficulty[this.selectedDifficulty];
-  const roleIndex = mapRole[this.selectedRole];
-
-  return diffNumber * 1000 + roleIndex;
-}
-
-onDifficultyAndRolSelected () {
-  if(this.selectedRole === "" || this.selectedDifficulty === "") {
-    return;
-  }
-  const stepOrder = this.getStepOrder();
-
-  const template = this.selectedScenario?.templates?.find(
-    t => t.stepOrder === stepOrder
-  );
-
-  if (template?.promptTemplate) {
-    console.log(" Objetivo cargado desde template:", template.promptTemplate);
-
-    this.selectedScenario!.goals = template.promptTemplate;
-  } else {
-    console.warn(" No se encontró template para rol + dificultad");
-  }
-}
-
-  // ---------------------------
-  // CREAR SIMULACIÓN
-  // ---------------------------
-createSimulation() {
-  // VALIDACIONES
-  if (!this.selectedDifficulty.trim()) {
-    this.notice.set({ type: 'warning', text: 'Selecciona una dificultad' });
-    return;
-  }
-
-  if (!this.selectedRole.trim()) {
-    this.notice.set({ type: 'warning', text: 'Selecciona un rol' });
-    return;
-  }
-
-  const currentUserId = this.authService.getUserId();
-  if (!currentUserId) {
-    alert('No se encontró el usuario actual.');
-    return;
-  }
-
-  const stepOrder = this.getStepOrder();
-
-  // ⭐ 2. BUSCAR TEMPLATE ESPECÍFICO EN EL ESCENARIO
-  const template = this.selectedScenario?.templates?.find(
-    t => t.stepOrder === stepOrder
-  );
-
-  // ⭐ Guardar escenario actualizado global
-  this.simulationService.setSelectedScenario(this.selectedScenario!);
-
-  // ⭐ 4. Crear la simulación normalmente
-  const now = new Date();
-  const newSimulation: ISimulations = {
-    difficultyLevel: this.selectedDifficulty,
-    startDate: now,
-    endDate: new Date(now.getTime() + 60 * 60000),
-    createdBy: { id: currentUserId },
-    scenario: { id: this.selectedScenario?.id }
-  };
-
-  this.simulationService.createSimulation(newSimulation)
-    .pipe(
-      switchMap((createdSim) => {
-        const newSimUser: ISimulationUser = {
-          scrumRole: this.selectedRole,
-          assignedAt: new Date(),
-          simulation: { id: createdSim.id },
-          user: { id: currentUserId }
-        };
-        return this.simulationService.createSimulationUser(newSimUser);
-      })
-    )
-    .subscribe({
-      next: (simUser) => {
-        this.simulationService.setSelectedUser(simUser);
-        this.router.navigate(
-          ['/app/' + this.selectedScenario!.name!.toLowerCase()],
-          {
-            state: {
-              scenario: this.selectedScenario,
-              simulationUser: simUser,
-              aiTemplate: template
+    constructor(
+        private simulationService: SimulationService,
+        public authService: AuthService,
+        private router: Router,
+        private scenarioTemplateService: ScenarioTemplateService
+    ) {
+        effect(() => {
+            const ceremonyData = this.simulationService.selectedScenario$();
+            if (ceremonyData) {
+                this.selectedScenario = ceremonyData;
             }
-          }
-        );
-      },
-      error: () => {
-        this.notice.set({
-          type: 'error',
-          text: 'Error al crear la sesión.'
         });
-      }
-    });
-}
-
-  private redirectToScenarioPage(scenarioName?: string, stateData?: any) {
-    const routes: any = {
-      'daily': '/app/daily',
-      'planning': '/app/planning',
-      'review': '/app/review',
-      'retrospective': '/app/retrospective'
-    };
-
-    const path = routes[scenarioName?.toLowerCase() || ''];
-    if (path) {
-      this.router.navigate([path], { state: stateData });
+        const nav = this.router.getCurrentNavigation();
+        this.ceremonyData = nav?.extras?.state?.['scenario'];
     }
-  }
+
+
+    isLoading = false;
+
+
+    closeNotice() {
+        this.notice.set(null);
+    }
+
+    isArray(value: any): value is string[] {
+        return Array.isArray(value);
+    }
+
+
+    // ---------------------------
+    // GENERA TAREAS A PARTIR DEL PROMPT
+    // ---------------------------
+    private generateTasksFromPrompt(prompt: string): { title: string, description?: string }[] {
+        if (!prompt) return [];
+
+        const sentences = prompt
+            .split(/[\.\n]/) // dividir por punto o por salto de línea
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+
+        return sentences.map(s => ({
+            title: s,
+            description: ""
+        }));
+    }
+
+    // Convertir dificultad a número para el seeder
+    private mapDifficultyToNumber(diff: string): number {
+        const map: any = {'Baja': 1, 'Media': 2, 'Alta': 3};
+        return map[diff] || 1;
+    }
+
+    // Convertir rol a índice igual que el seeder
+    private mapRoleToIndex(role: string): number {
+        const map: any = {
+            'Scrum Master': 1,
+            'Developer': 2,
+            'Product Owner': 3,
+            'QA': 4
+        };
+        return map[role] || 1;
+    }
+
+    // ⭐ 1. Determina difficulty y role → stepOrder del template
+    private getStepOrder(): number {
+        const mapDifficulty: any = {'Baja': 1, 'Media': 2, 'Alta': 3};
+        const mapRole: any = {
+            'Scrum Master': 1,
+            'Developer': 2,
+            'Product Owner': 3,
+            'QA': 4
+        };
+
+        const diffNumber = mapDifficulty[this.selectedDifficulty];
+        const roleIndex = mapRole[this.selectedRole];
+
+        return diffNumber * 1000 + roleIndex;
+    }
+
+    onDifficultyAndRolSelected() {
+        if (this.selectedRole === "" || this.selectedDifficulty === "") {
+            return;
+        }
+        const stepOrder = this.getStepOrder();
+
+        const template = this.selectedScenario?.templates?.find(
+            t => t.stepOrder === stepOrder
+        );
+
+        if (template?.promptTemplate) {
+            console.log(" Objetivo cargado desde template:", template.promptTemplate);
+
+            this.selectedScenario!.goals = template.promptTemplate;
+        } else {
+            console.warn(" No se encontró template para rol + dificultad");
+        }
+    }
+
+    // ---------------------------
+    // CREAR SIMULACIÓN
+    // ---------------------------
+    createSimulation() {
+        // VALIDACIONES
+        if (!this.selectedDifficulty.trim()) {
+            this.notice.set({type: 'warning', text: 'Selecciona una dificultad'});
+            return;
+        }
+
+        if (this.selectedRole.trim() === '') {
+            this.notice.set({
+                type: 'warning',
+                text: 'Atención: Debes seleccionar un rol'
+            });
+            return;
+        }
+
+        const currentUserId = this.authService.getUserId();
+        if (!currentUserId) {
+            alert('Error: no se encontró el usuario actual.');
+            return;
+        }
+
+        const stepOrder = this.getStepOrder();
+
+        // ⭐ 2. BUSCAR TEMPLATE ESPECÍFICO EN EL ESCENARIO
+        const template = this.selectedScenario?.templates?.find(
+            t => t.stepOrder === stepOrder
+        );
+
+        // ⭐ Guardar escenario actualizado global
+        this.simulationService.setSelectedScenario(this.selectedScenario!);
+
+        this.isLoading = true;
+        const userId = this.authService.getUser().id;
+        const now = new Date();
+        const newSimulation: ISimulations = {
+            difficultyLevel: this.selectedDifficulty,
+            startDate: now,
+            endDate: new Date(now.getTime() + 60 * 60000),
+            createdBy: {id: userId},
+            scenario: {id: this.selectedScenario?.id}
+        };
+
+
+        this.scenarioTemplateService.getTemplate(
+            this.selectedScenario?.id || 0,
+            this.scenarioTemplateService.mapDifficultyToNumber(this.selectedDifficulty),
+            this.selectedRole
+        ).pipe(
+            switchMap((templateResponse: any) => {
+
+                if (templateResponse && templateResponse.promptTemplate) {
+                    this.scenarioTemplate = templateResponse;
+                } else if (templateResponse && templateResponse.data) {
+                    if (Array.isArray(templateResponse.data) && templateResponse.data.length > 0) {
+                        this.scenarioTemplate = templateResponse.data[0];
+                    } else if (templateResponse.data.promptTemplate) {
+                        this.scenarioTemplate = templateResponse.data;
+                    }
+                } else {
+                    this.scenarioTemplate = {};
+                }
+
+
+                return this.simulationService.createSimulation(newSimulation);
+            }),
+            switchMap((createdSim) => {
+                if (!createdSim.id) {
+                    alert('Error: el backend no devolvió el id de la Simulation.');
+                    throw new Error('Simulation sin id');
+                }
+
+                this.simulation = createdSim;
+
+
+                const newSimUser: ISimulationUser = {
+                    scrumRole: this.selectedRole,
+                    assignedAt: new Date(),
+                    simulation: {id: createdSim.id},
+                    user: {id: currentUserId}
+                };
+
+
+                return this.simulationService.createSimulationUser(newSimUser);
+            })
+        ).subscribe({
+            next: (res) => {
+                this.isLoading = false;
+
+                this.simulationUser = res;
+
+                this.redirectToScenarioPage(this.selectedScenario?.name, {
+                    scenario: this.selectedScenario,
+                    simulationUser: res
+                });
+
+                this.sessionCreated.emit(res);
+            },
+            error: (err) => {
+                console.error('Error en el flujo', err);
+                this.isLoading = false;
+
+
+                if (err.status === 404) {
+                    this.notice.set({
+                        type: 'warning',
+                        text: `No se encontró una plantilla para ${this.selectedScenario?.name} con dificultad ${this.selectedDifficulty} y rol ${this.selectedRole}. Continuando sin plantilla específica.`
+                    });
+
+                    // Redirigir al dashboard sin plantilla
+                    this.scenarioTemplate = {};
+                    this.redirectToDashboard();
+                } else {
+                    this.notice.set({
+                        type: 'error',
+                        text: 'Error al crear la sesión. Por favor, intenta nuevamente.'
+                    });
+                }
+            }
+        });
+    }
+
+    private redirectToScenarioPage(scenarioName?: string, stateData?: any) {
+        if (!scenarioName) {
+            alert('Error: el escenario no tiene nombre definido.');
+            return;
+        }
+
+        const normalizedName = scenarioName.trim().toLowerCase();
+
+        const routes: Record<string, string> = {
+            'daily': '/app/daily',
+            'planning': '/app/planning',
+            'review': '/app/review',
+            'retrospective': '/app/retrospective'
+        };
+
+        const routePath = routes[normalizedName];
+
+        if (routePath) {
+            console.log(`➡️ Redirigiendo a: ${routePath}`);
+            this.router.navigate([routePath], {
+                state: {
+                    ...(stateData || {}),
+                    simulation: this.simulation,
+                    simulationId: this.simulation?.id,
+                    scenario: this.selectedScenario,
+                    simulationUser: this.simulationUser,
+                    simulationUserId: this.simulationUser?.id,
+                    aiTemplate: this.scenarioTemplate
+                }
+            });
+        } else {
+            this.notice.set({
+                type: 'error',
+                text: `Error: No se encontró una ruta para el escenario "${scenarioName}".`
+            });
+            this.isLoading = false;
+            return;
+        }
+
+    }
+
+    private redirectToDashboard() {
+
+        this.router.navigate(['/app/dashboard'], {
+            state: {
+                scenario: this.selectedScenario,
+                simulationUser: this.simulationUser,
+                aiTemplate: this.scenarioTemplate
+            }
+        });
+
+
+        console.log('Datos enviados al dashboard:', {
+            scenario: this.selectedScenario,
+            simulationUser: this.simulationUser,
+            aiTemplate: this.scenarioTemplate
+        });
+    }
 
 }

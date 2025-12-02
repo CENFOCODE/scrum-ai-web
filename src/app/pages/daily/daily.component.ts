@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-
-// Servicios
+import { Router } from '@angular/router';
 import { SimulationService } from '../../services/simulation.service';
 
 // Componentes hijos
@@ -36,7 +35,8 @@ interface Task {
 })
 export class DailyComponent implements OnInit {
 
-  scenario: any;
+  /** datos del create-scenario */
+    scenario: any;
   simulationUser: any;
   aiTemplate: IScenarioTemplate | null = null;
 
@@ -127,7 +127,7 @@ export class DailyComponent implements OnInit {
     ];
   }
 
-  // Drag and drop
+
   drop(event: CdkDragDrop<Task[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
@@ -162,4 +162,22 @@ export class DailyComponent implements OnInit {
   onCeremonyInfo(info: any) {
     this.simulationService.setDailyCeremonyInfo(info);
   }
+
+  finishSimulation() {
+  const simulationId = this.simulationUser?.simulationId;
+
+  if (!simulationId) {
+    console.error("No simulationId found!");
+    return;
+  }
+
+  this.simulationService.completeSimulation(simulationId)
+    .subscribe({
+      next: (res) => {
+        console.log("Simulation completed:", res);
+        this.router.navigate(['/app/history']); // opcional
+      },
+      error: (err) => console.error(err)
+    });
+}
 }
