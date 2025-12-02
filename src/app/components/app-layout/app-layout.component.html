@@ -1,39 +1,3 @@
-<!--<div class="ltr">-->
-<!--  <div class="page-wrapper compact-wrapper">-->
-<!--    <app-topbar></app-topbar>-->
-
-<!--    <div class="page-body-wrapper">-->
-<!--      <div-->
-<!--        class="sidebar-wrapper"-->
-<!--        sidebar-layout="default-sidebar"-->
-<!--        icon="stroke-svg"-->
-<!--        [ngClass]="{ close_icon: !layoutService.sidebarOpen }"-->
-<!--      >-->
-<!--        <app-sidebar></app-sidebar>-->
-<!--      </div>-->
-
-<!--      <div class="page-body">-->
-<!--        <main class="container-fluid">-->
-<!--          <router-outlet></router-outlet>-->
-<!--        </main>-->
-<!--      </div>-->
-
-
-<!--    </div>-->
-<!--  </div>-->
-<!--</div>-->
-
-<!--&lt;!&ndash; <sdiv-->
-<!--  class="bg-overlay"-->
-<!--  [ngClass]="{ active: layoutService.sidebarOpen }"-->
-<!--&gt;</div> &ndash;&gt;-->
-
-<!--<app-topbar></app-topbar>-->
-<!--<app-sidebar></app-sidebar>-->
-
-<!--<main class="container-fluid">-->
-<!--  <router-outlet></router-outlet>-->
-<!--</main>-->
 <app-topbar></app-topbar>
 <div class="layout" [class.sidebar-open]="sidebarVisible">
 
@@ -47,6 +11,8 @@
       <router-outlet></router-outlet>
     </main>
   </div>
+
+  <app-call class="pt-5"></app-call>
 
 </div>
 

@@ -19,7 +19,7 @@ export class SimulationService {
   }
 
 
-  setSelectedScenario(scenario: IScenario) {
+  setSelectedScenario(scenario: IScenario | null) {
     this.selectedScenarioSignal.set(scenario);
   }
 

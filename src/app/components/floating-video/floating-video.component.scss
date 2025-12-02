@@ -175,6 +175,14 @@
   transition: background 0.15s;
 }
 
+.bg-red{
+  background-color: red;
+}
+
+.bg-red:hover{
+  background-color: #7c0606 !important;
+}
+
 .btn-icon:hover {
   background: rgba(0, 0, 0, 0.9);
 }
