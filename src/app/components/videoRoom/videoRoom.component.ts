@@ -1,23 +1,63 @@
-import { Component, OnInit } from '@angular/core';
-import { SocketService } from '../../services/socket.service';
-import { CommonModule } from '@angular/common';
-
+import {Component, EventEmitter, inject, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
+import {SocketService} from '../../services/socket.service';
+import {CommonModule} from '@angular/common';
+import {DragDropModule} from '@angular/cdk/drag-drop';
+import {AuthService} from "../../services/auth.service";
+import {ActivatedRoute} from "@angular/router";
+import {FormsModule} from "@angular/forms";
+import {InvitationService} from "../../services/invitation.service";
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import {MatFormField, MatLabel} from "@angular/material/form-field";
+import {MatInput} from "@angular/material/input";
+import { ToastModule } from 'primeng/toast';
+import { RippleModule } from 'primeng/ripple';
+import {MessageService} from "primeng/api";
+import {UserService} from "../../services/user.service";
 
 @Component({
   selector: 'videoRoom',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DragDropModule, FormsModule, DialogModule, ButtonModule, InputTextModule, MatFormField, MatInput, MatLabel, ToastModule, RippleModule],
   templateUrl: './videoRoom.component.html',
-  styleUrls: ['./videoRoom.component.scss']
+  styleUrls: ['./videoRoom.component.scss'],
+  providers: [MessageService],
+  encapsulation: ViewEncapsulation.None
 })
 export class VideoRoomComponent implements OnInit {
 
-  // Nombre aleatorio por si el usuario no ingresa uno
-  username = `user-${Math.floor(Math.random() * 1000)}`;
+  @Input() autoJoinRoomId?: string | null;
+  @Input() selectedRole?: string;
+  @Output() participantJoined = new EventEmitter<{email: string, role: string}>();
+  @Output() participantLeft = new EventEmitter<string>();
+
+  private userService = inject(UserService);
+  private authService = inject(AuthService);
+  private invitationService = inject(InvitationService);
+  private userNamesCache = new Map<string, string>();
+  private remoteCameraStates = new Map<string, boolean>();
+
+  videoWidth = 260;
+  videoHeight = 160;
+  resizing = false;
+  micOn = true;
+  camOn = true;
+  isMinimized = false;
+
+  user = this.authService.getUser();
+  username = this.user.email;
 
   role = '';
   room = '';
   isConnected = false;
+  isRoomCreator = false;
+
+  roomToJoin = '';
+  emailToInvite = '';
+
+  inviteVisible: boolean = false;
+  joinVisible: boolean = false;
 
   // Stream local (cámara + micrófono)
   localStream!: MediaStream;
@@ -28,77 +68,296 @@ export class VideoRoomComponent implements OnInit {
   // Streams remotos por usuario
   remoteStreams = new Map<string, MediaStream>();
 
-  constructor(private socketService: SocketService) {}
+  constructor(private socketService: SocketService, private route: ActivatedRoute, private messageService: MessageService) {}
 
   async ngOnInit() {
-    // Pregunta el username al entrar
-    this.username = prompt('Ingresa tu nombre de usuario:')?.trim() || this.username;
-
-    // Conecta al WebSocket
     await this.connectSocket();
-
-    // Habilita cámara y micrófono
     await this.initLocalVideo();
 
-    // Registra este usuario en el backend
     this.socketService.sendMessage({
       type: 'register-user',
       username: this.username
     });
+
+    if (this.autoJoinRoomId) {
+      console.log('Intentando auto-join a: ', this.autoJoinRoomId);
+      this.joinRoom(this.autoJoinRoomId);
+    }
+
+    window.addEventListener("resize", () => {
+      if (this.videoWidth > window.innerWidth - 40)
+        this.videoWidth = window.innerWidth - 40;
+
+      if (this.videoHeight > window.innerHeight - 40)
+        this.videoHeight = window.innerHeight - 40;
+    });
   }
 
-  /**
-   * Establece conexión WebSocket y registra el listener de mensajes.
-   */
   async connectSocket() {
     try {
       await this.socketService.connect();
       this.isConnected = true;
-
-      // Cada mensaje entrante del backend llega a handleSignal(...)
       this.socketService.onMessage((msg) => this.handleSignal(msg));
-
     } catch (err) {
       console.error('No se pudo conectar al WebSocket:', err);
     }
   }
 
-  /**
-   * Inicializa la cámara y micrófono SIN eco.
-   *    IMPORTANTE: echoCancellation elimina la retroalimentación.
-   */
+  async getUserName(email: string): Promise<string> {
+    if (this.userNamesCache.has(email)) {
+      return this.userNamesCache.get(email)!;
+    }
+
+    try {
+      const response = await this.userService.getUserByEmail(email).toPromise();
+      const fullName = response?.data?.name
+        ? `${response.data.name} ${response.data.lastname || ''}`.trim()
+        : email;
+
+      this.userNamesCache.set(email, fullName);
+      return fullName;
+    } catch (error) {
+      console.error('Error obteniendo nombre:', error);
+      return email;
+    }
+  }
+
+  getInitials(fullName: string) {
+    if (!fullName) return '?';
+    const parts = fullName.trim().split(' ');
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  updateVideoLayout() {
+    const container = document.getElementById('videoGrid');
+    if (!container) return;
+
+    const cells = container.querySelectorAll('.video-cell');
+    const count = cells.length;
+    const actualCount = count > 0 ? count : container.querySelectorAll('video').length;
+
+    let cols = 1;
+    if (actualCount === 1) cols = 1;
+    else if (actualCount === 2) cols = 2;
+    else if (actualCount <= 4) cols = 2;
+    else if (actualCount <= 6) cols = 3;
+    else if (actualCount <= 9) cols = 3;
+    else cols = 4;
+
+    container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  }
+
+  toggleMic() {
+    this.micOn = !this.micOn;
+    if (!this.localStream) return;
+
+    this.localStream.getAudioTracks().forEach(track => {
+      track.enabled = this.micOn;
+    });
+  }
+
+  toggleCam() {
+    this.camOn = !this.camOn;
+    if (!this.localStream) return;
+
+    this.localStream.getVideoTracks().forEach(track => {
+      track.enabled = this.camOn;
+    });
+
+    const localVideo = document.getElementById('localVideo') as HTMLVideoElement;
+    const localCell = localVideo?.closest('.video-cell');
+
+    if (localCell) {
+      if (!this.camOn) {
+        localCell.classList.add('camera-off');
+      } else {
+        localCell.classList.remove('camera-off');
+      }
+    }
+
+    if (this.room) {
+      this.socketService.sendMessage({
+        type: 'camera-toggle',
+        room: this.room,
+        user: this.username,
+        camOn: this.camOn
+      });
+    }
+  }
+
+  updateRemoteCameraState(user: string, camOn: boolean) {
+    this.remoteCameraStates.set(user, camOn);
+
+    const videoElement = document.getElementById(`remote-video-${user}`);
+    if (!videoElement) {
+      console.log(`⏳ Video de ${user} aún no existe, estado guardado en cache`);
+      return;
+    }
+
+    const videoCell = videoElement.closest('.video-cell');
+    if (!videoCell) return;
+
+    if (camOn) {
+      videoCell.classList.remove('camera-off');
+    } else {
+      videoCell.classList.add('camera-off');
+    }
+  }
+
+  showInviteDialog() {
+    this.inviteVisible = true;
+  }
+
+  showJoinDialog(){
+    this.joinVisible = true;
+  }
+
+  startResize(event: MouseEvent) {
+    this.resizing = true;
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startWidth = this.videoWidth;
+    const startHeight = this.videoHeight;
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!this.resizing) return;
+      this.videoWidth = Math.max(160, startWidth + (e.clientX - startX));
+      this.videoHeight = Math.max(90, startHeight + (e.clientY - startY));
+    };
+
+    const onMouseUp = () => {
+      this.resizing = false;
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  }
+
+  toggleMinimize() {
+    this.isMinimized = !this.isMinimized;
+
+    if (this.isMinimized) {
+      this.videoWidth = 180;
+      this.videoHeight = 110;
+    } else {
+      this.videoWidth = 260;
+      this.videoHeight = 160;
+    }
+  }
+
   async initLocalVideo() {
     try {
       this.localStream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: {
-          echoCancellation: true,   //  evita que el micrófono escuche tus bocinas
-          noiseSuppression: true,   // reduce ruido ambiental
-          autoGainControl: true     // estabiliza volumen
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
         }
       });
 
-      // Muestra video local en pantalla
-      const localVideo = document.getElementById('localVideo') as HTMLVideoElement;
+      const videoGrid = document.getElementById('videoGrid');
+      const videoContainer = document.createElement('div');
+      videoContainer.className='video-cell'
+
+      const label = document.createElement('div');
+      label.className = 'user-label';
+      label.innerText = `${this.user.name} ${this.user.lastname} (tú)`;
+
+      const localVideo = document.createElement('video');
+      localVideo.id = 'localVideo';
+      localVideo.autoplay = true;
+      localVideo.muted = true;
+      localVideo.playsInline = true;
       localVideo.srcObject = this.localStream;
 
-      // El video local SIEMPRE debe estar muteado para evitar eco.
-      localVideo.muted = true;
-      localVideo.volume = 0;
+      const initials = document.createElement('div');
+      initials.className = 'initials-badge';
+      initials.innerText = this.getInitials(this.user?.name || '');
 
+      videoContainer.appendChild(initials);
+      videoContainer.appendChild(label);
+      videoContainer.appendChild(localVideo)
+      videoGrid?.appendChild(videoContainer)
+
+      this.updateVideoLayout();
     } catch (err) {
       console.error('Error al acceder a la cámara/micrófono:', err);
     }
   }
 
-  /**
-   * Crea una nueva sala con un ID único.
-   */
+  joinRoomById() {
+    if (!this.roomToJoin || !this.roomToJoin.trim()) {
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Atención',
+        detail: 'Por favor ingresa un ID de sala'
+      })
+      return;
+    }
+
+    this.joinRoom(this.roomToJoin.trim());
+    this.roomToJoin = '';
+    this.joinVisible = false;
+  }
+
+  inviteByEmail() {
+    if (!this.emailToInvite || !this.emailToInvite.includes('@')) {
+      this.messageService.add({
+        severity: 'contrast',
+        summary: 'Atención',
+        detail: 'Ingrese un email válido'
+      })
+      return;
+    }
+
+    if (!this.room) {
+      this.createRoom()
+      this.inviteVisible = false;
+      return;
+    }
+
+    const inviterName = this.authService.getUser()?.name || 'Un usuario';
+
+    this.invitationService.sendInvitation(
+      this.emailToInvite,
+      this.room,
+      inviterName,
+    ).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: `Invitación enviada a ${this.emailToInvite}`
+        })
+        this.emailToInvite = '';
+        this.inviteVisible = false;
+      },
+      error: (err) => {
+        console.error('Error:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al enviar invitación'
+        })
+      }
+    });
+  }
+
   createRoom() {
-    if (!this.isConnected) return alert('El servidor no está conectado.');
+    if (!this.isConnected) return this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'El servidor no está conectado.',
+      sticky: true
+    });
 
     this.room = `room-${Math.random().toString(36).substring(2, 8)}`;
     this.role = 'Scrum Master';
+    this.isRoomCreator = true;
 
     this.socketService.sendMessage({
       type: 'create-room',
@@ -107,19 +366,19 @@ export class VideoRoomComponent implements OnInit {
       role: this.role
     });
 
-    alert(`Sala creada: ${this.room}`);
+    this.messageService.add({
+      severity: 'contrast',
+      summary: 'Sala creada',
+      detail: `Id de la sala: ${this.room}`,
+    });
   }
 
-  /**
-   * Se une a una sala existente.
-   */
   joinRoom(manualRoomId?: string) {
     if (!this.isConnected) return alert('El WebSocket no está conectado.');
 
     let roomId = manualRoomId || prompt('ID de la sala:');
     if (!roomId) return;
 
-    // Si el usuario pega una URL completa, extraemos solo el ID
     if (roomId.includes('http')) {
       const parts = roomId.split('/');
       roomId = parts[parts.length - 1];
@@ -131,55 +390,34 @@ export class VideoRoomComponent implements OnInit {
     }
 
     this.room = roomId;
-    this.role = prompt('Selecciona tu rol:') || 'Invitado';
+
+    // 🔥 Usar rol recibido o pedir uno
+    if (!this.role) {
+      this.role = this.selectedRole || prompt('Selecciona tu rol:') || 'Invitado';
+    }
+
+    this.isRoomCreator = false;
 
     this.socketService.sendMessage({
       type: 'join',
       room: this.room,
       user: this.username,
-      role: this.role
+      role: this.role,
+      camOn: this.camOn
     });
   }
 
-  /**
-   * Envía invitación a otro usuario ya registrado.
-   */
-  inviteUser() {
-    if (!this.room) return alert('Primero crea o únete a una sala.');
-
-    const toUser = prompt('Usuario a invitar:');
-    if (toUser) {
-      this.socketService.sendMessage({
-        type: 'invite',
-        to: toUser,
-        from: this.username,
-        room: this.room
-      });
-    }
-  }
-
-  /**
-   * Prepara la conexión WebRTC hacia otro usuario.
-   *    SOLUCIÓN: se evita duplicar pistas, lo cual causaba eco.
-   */
   async startPeerConnection(targetUser: string) {
     const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-    
+
     const pc = new RTCPeerConnection(config);
     this.peerConnections.set(targetUser, pc);
 
-    /**
-     * Antes agregabas tus pistas dos veces (startPeerConnection + handleOffer)
-     * Lo cual enviaba **dos audios** → eco asegurado.
-     * 
-     * Esta validación evita duplicados.
-     */
     this.localStream.getTracks().forEach(track => {
       const exists = pc.getSenders().find(s => s.track === track);
       if (!exists) pc.addTrack(track, this.localStream);
     });
 
-    // Enviamos candidatos ICE al peer
     pc.onicecandidate = (e) => {
       if (e.candidate) {
         this.socketService.sendMessage({
@@ -192,21 +430,15 @@ export class VideoRoomComponent implements OnInit {
       }
     };
 
-    /**
-     * Recibimos stream remoto.
-     *    Lo enviamos a attachRemoteAV(), que separa audio y video.
-     */
     pc.ontrack = (e) => {
       const stream = e.streams[0];
       this.remoteStreams.set(targetUser, stream);
       this.attachRemoteAV(targetUser, stream);
     };
 
-    // Creamos la oferta WebRTC
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
 
-    // Enviamos la offer al otro usuario
     this.socketService.sendMessage({
       type: 'offer',
       offer,
@@ -216,9 +448,6 @@ export class VideoRoomComponent implements OnInit {
     });
   }
 
-  /**
-   * Router principal de señales WebRTC
-   */
   async handleSignal(msg: any) {
     switch (msg.type) {
 
@@ -230,7 +459,6 @@ export class VideoRoomComponent implements OnInit {
         break;
 
       case 'joinSuccess':
-        // Alguien nuevo entró → creamos conexión hacia él
         if (msg.user && msg.user !== this.username) {
           await this.startPeerConnection(msg.user);
         }
@@ -256,22 +484,48 @@ export class VideoRoomComponent implements OnInit {
         }
         break;
 
+      case 'camera-toggle':
+        if (msg.user && msg.user !== this.username) {
+          this.updateRemoteCameraState(msg.user, msg.camOn);
+        }
+        break;
+
       case 'endCall':
-        alert('Llamada finalizada.');
+        alert(msg.message || 'La llamada fue finalizada por el organizador.');
+        this.cleanupAndReset();
+        break;
+
+      case 'user-left':
+        if (msg.user && msg.user !== this.username) {
+          console.log(`${msg.user} salió de la sala`);
+
+          const videoElement = document.getElementById(`remote-video-${msg.user}`);
+          if (videoElement) {
+            const cellToRemove = videoElement.closest('.video-cell');
+            if (cellToRemove) {
+              cellToRemove.remove();
+            }
+          }
+
+          const pc = this.peerConnections.get(msg.user);
+          if (pc) {
+            pc.close();
+            this.peerConnections.delete(msg.user);
+          }
+
+          this.remoteStreams.delete(msg.user);
+          this.updateVideoLayout();
+        }
         break;
     }
   }
 
-  /**
-   * Procesa una offer entrante y crea una answer.
-   */
   async handleOffer(fromUser: string, offer: RTCSessionDescriptionInit) {
     const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
     const pc = new RTCPeerConnection(config);
     this.peerConnections.set(fromUser, pc);
 
-    // Enviamos ICE al peer
     pc.onicecandidate = (e) => {
       if (e.candidate) {
         this.socketService.sendMessage({
@@ -284,7 +538,6 @@ export class VideoRoomComponent implements OnInit {
       }
     };
 
-    // Recibimos stream remoto
     pc.ontrack = (e) => {
       const stream = e.streams[0];
       this.remoteStreams.set(fromUser, stream);
@@ -310,64 +563,127 @@ export class VideoRoomComponent implements OnInit {
     });
   }
 
-  /**
-   * Separa AUDIO y VIDEO del stream remoto.
-   * Esto elimina por completo el eco y la mezcla incorrecta.
-   */
-  attachRemoteAV(user: string, stream: MediaStream) {
+  async attachRemoteAV(user: string, stream: MediaStream) {
+    const userName = await this.getUserName(user);
 
-    // VIDEO
     let video = document.getElementById(`remote-video-${user}`) as HTMLVideoElement;
-
     if (!video) {
-      const container = document.getElementById('remoteContainer');
-      const wrapper = document.createElement('div');
+      const videoGrid = document.getElementById('videoGrid');
+      if (!videoGrid) return;
 
-      const label = document.createElement('p');
-      label.innerText = user;
-      label.className = 'text-sm text-center';
+      const videoContainer = document.createElement('div');
+      videoContainer.className='video-cell'
 
-      // VIDEO sin audio
+      const initialCamState = this.remoteCameraStates.get(user);
+      if (initialCamState === false) {
+        videoContainer.classList.add('camera-off');
+        console.log(`✅ Aplicando estado de cámara apagada para ${user}`);
+      }
+
+      const label = document.createElement('div');
+      label.className = 'user-label';
+      label.innerText = userName;
+
       video = document.createElement('video');
       video.id = `remote-video-${user}`;
       video.autoplay = true;
       video.playsInline = true;
-      video.muted = true;      // ✅ CLAVE: evita mezcla de audio del elemento <video>
+      video.muted = true;
       video.srcObject = stream;
-      video.width = 240;
-      video.height = 180;
 
-      // AUDIO separado
-      let audio = document.createElement('audio');
+      const audio = document.createElement('audio');
       audio.id = `remote-audio-${user}`;
       audio.autoplay = true;
-      audio.srcObject = stream; // audio limpio sin mezclar
+      audio.srcObject = stream;
 
+      const initials = document.createElement('div');
+      initials.className = 'initials-badge';
+      initials.innerText = this.getInitials(userName);
+      videoContainer.appendChild(initials);
 
-      wrapper.appendChild(label);
-      wrapper.appendChild(video);
-      wrapper.appendChild(audio);
-      container?.appendChild(wrapper);
+      videoContainer.appendChild(label);
+      videoContainer.appendChild(video);
+      videoContainer.appendChild(audio);
+      videoGrid.appendChild(videoContainer);
 
     } else {
       video.srcObject = stream;
       const audio = document.getElementById(`remote-audio-${user}`) as HTMLAudioElement;
       if (audio) audio.srcObject = stream;
     }
+    this.updateVideoLayout();
   }
 
-  /**
-   * Finaliza la llamada y cierra todas las conexiones.
-   */
+  private cleanupAndReset() {
+    if (this.localStream) {
+      this.localStream.getTracks().forEach(track => track.stop());
+    }
+
+    this.peerConnections.forEach(pc => pc.close());
+    this.peerConnections.clear();
+
+    this.remoteStreams.clear();
+
+    const videoGrid = document.getElementById('videoGrid');
+    if (videoGrid) {
+      const remoteCells = videoGrid.querySelectorAll('.video-cell:not(:has(#localVideo))');
+      remoteCells.forEach(cell => cell.remove());
+    }
+
+    this.room = '';
+    this.role = '';
+    this.isRoomCreator = false;
+  }
+
+  leaveCall() {
+    if (!this.room) {
+      alert('No estás en ninguna sala.');
+      return;
+    }
+
+    const confirm = window.confirm('¿Estás seguro de que quieres salir de la llamada?');
+    if (!confirm) return;
+
+    this.socketService.sendMessage({
+      type: 'leave-room',
+      room: this.room,
+      user: this.username
+    });
+
+    this.cleanupAndReset();
+
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Llamada abandonada',
+      detail: 'Has salido de la llamada'
+    });
+  }
+
   endCall() {
+    if (!this.isRoomCreator) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Acción no permitida',
+        detail: 'Solo el creador puede finalizar la llamada para todos'
+      });
+      return;
+    }
+
+    const confirm = window.confirm('¿Finalizar la llamada para TODOS los participantes?');
+    if (!confirm) return;
+
+    // Notificar al servidor que finalizas la llamada
     this.socketService.sendMessage({
       type: 'end-call',
       room: this.room
     });
 
-    this.peerConnections.forEach(pc => pc.close());
-    this.peerConnections.clear();
+    this.cleanupAndReset();
 
-    alert('Llamada finalizada.');
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Llamada finalizada',
+      detail: 'La llamada ha sido finalizada para todos'
+    });
   }
 }

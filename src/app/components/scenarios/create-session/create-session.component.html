@@ -64,9 +64,10 @@
             <!-- Email para invitar -->
             <div class="mt-2">
               <p class="invite-label">Invita a tu equipo</p>
-              <mat-form-field id="csd-invite-email-ff" appearance="outline" class="csd-ff">
-                <input matInput placeholder="Email" type="email" name="inviteEmail" />
-              </mat-form-field>
+              <videoRoom [autoJoinRoomId]="autoJoinRoom"
+                         [selectedRole]="selectedRole"
+              >
+              </videoRoom>
             </div>
           </div>
 

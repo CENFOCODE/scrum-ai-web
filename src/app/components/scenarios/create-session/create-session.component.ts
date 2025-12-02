@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, inject, signal, computed, effect } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, signal, effect, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule} from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,10 +8,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { SimulationService } from '../../../services/simulation.service';
-import { IScenario, IScenarioTemplate, ISimulations, ISimulationUser } from '../../../interfaces';
+import { IScenario, IScenarioTemplate, ISimulations, ISimulationUser, IParticipant } from '../../../interfaces';
 import { AuthService } from '../../../services/auth.service';
 import { switchMap, map } from 'rxjs/operators';
 import { ScenarioTemplateService } from '../../../services/scenario-template.service';
+import {InvitationService} from "../../../services/invitation.service";
+import {SocketService} from "../../../services/socket.service";
+import {VideoRoomComponent} from "../../videoRoom/videoRoom.component";
+import {UserService} from "../../../services/user.service";
 
 type NoticeType = 'success' | 'warning' | 'error';
 interface Notice {
@@ -29,18 +33,20 @@ interface Notice {
     MatSelectModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    VideoRoomComponent
   ],
   templateUrl: './create-session.component.html',
   styleUrls: ['./create-session.component.scss']
 })
 
 
-export class CreateSessionComponent {
+export class CreateSessionComponent implements OnInit, OnDestroy{
   @Input() ceremonyData!: IScenario;
+  @Input() autoJoinRoom: string | null = null;
   @Output() backToSelection = new EventEmitter<void>();
   @Output() sessionCreated = new EventEmitter<any>();
-  
+
 
   notice = signal<Notice | null>(null);
 
@@ -55,13 +61,22 @@ export class CreateSessionComponent {
   simulation: ISimulations = {};
   simulationUser: ISimulationUser = {};
   scenarioTemplate: IScenarioTemplate = {};
+  inviteEmail = '';
+  hasInvitedUsers = false;
+  participants: IParticipant[] = [];
+  isLoading = false;
+
+  private socketService = inject(SocketService);
+  private invitationService = inject(InvitationService);
+  private userService = inject(UserService);
+  private messageSubscription: (() => void) | null = null;
 
  constructor(
     private simulationService: SimulationService,
     public authService: AuthService,
     private router: Router,
     private scenarioTemplateService: ScenarioTemplateService
-   
+
   ) {
   effect(() => {
       const ceremonyData = this.simulationService.selectedScenario$();
@@ -73,16 +88,33 @@ export class CreateSessionComponent {
     this.ceremonyData = nav?.extras?.state?.['scenario'];
   }
 
+  async ngOnInit(){
+    await this.connectToRoom();
+    if (this.autoJoinRoom) {
+      console.log('Room detectado en create-session:', this.autoJoinRoom);
 
-  isLoading = false;
+      // Agregar usuario actual a la lista
+      const currentUser = this.authService.getUser();
+      this.addParticipant(
+        currentUser.email || "",
+        this.selectedRole || 'Invitado',
+        false
+      );
+    }
+    console.log('Listener registrado');
+  }
 
-  
+  ngOnDestroy() {
+    if (this.messageSubscription) {
+      this.messageSubscription();
+    }
+  }
 
   closeNotice() {
     this.notice.set(null);
   }
 
-  
+
   createSimulation() {
     if (!this.selectedDifficulty|| !this.selectedRole) {
       this.notice.set({
@@ -113,7 +145,7 @@ export class CreateSessionComponent {
       return;
     }
 
-    
+
 
 
  this.isLoading = true;
@@ -127,17 +159,17 @@ export class CreateSessionComponent {
     scenario: { id: this.selectedScenario?.id}
   };
 
-  
+
   this.scenarioTemplateService.getTemplate(
     this.selectedScenario?.id || 0,
     this.scenarioTemplateService.mapDifficultyToNumber(this.selectedDifficulty),
     this.selectedRole
   ).pipe(
     switchMap((templateResponse: any) => {
-    
+
       if (templateResponse && templateResponse.promptTemplate) {
         this.scenarioTemplate = templateResponse;
-      } 
+      }
 
       else if (templateResponse && templateResponse.data) {
         if (Array.isArray(templateResponse.data) && templateResponse.data.length > 0) {
@@ -146,10 +178,10 @@ export class CreateSessionComponent {
           this.scenarioTemplate = templateResponse.data;
         }
       } else {
-        this.scenarioTemplate = {}; 
+        this.scenarioTemplate = {};
       }
-      
-     
+
+
       return this.simulationService.createSimulation(newSimulation);
     }),
     switchMap((createdSim) => {
@@ -164,26 +196,40 @@ export class CreateSessionComponent {
         user: { id: currentUserId }
       };
 
-      
+
       return this.simulationService.createSimulationUser(newSimUser);
     })
   ).subscribe({
     next: (res) => {
       this.isLoading = false;
-      this.redirectToDashboard();
+
+      if (this.hasInvitedUsers) {
+        const roomId = `room-${res.simulation?.id || Date.now()}`;
+        this.socketService.sendMessage({
+          type: 'create-room',
+          room: roomId,
+          host: this.authService.getUser()?.name || 'Host',
+          role: this.selectedRole
+        });
+      }
+
+      this.redirectToScenarioPage(this.selectedScenario?.name, {
+        scenario: this.selectedScenario,
+        simulationUser: res
+      });
       this.sessionCreated.emit(res);
     },
     error: (err) => {
       console.error('Error en el flujo', err);
       this.isLoading = false;
-      
+
       // Manejar el error 404 de plantilla no encontrada
       if (err.status === 404) {
         this.notice.set({
           type: 'warning',
           text: `No se encontró una plantilla para ${this.selectedScenario?.name} con dificultad ${this.selectedDifficulty} y rol ${this.selectedRole}. Continuando sin plantilla específica.`
         });
-        
+
         // Redirigir al dashboard sin plantilla
         this.scenarioTemplate = {};
         this.redirectToDashboard();
@@ -228,21 +274,134 @@ export class CreateSessionComponent {
 }
 
 private redirectToDashboard() {
-   
-    this.router.navigate(['/app/dashboard'], { 
+
+    this.router.navigate(['/app/dashboard'], {
       state: {
         scenario: this.selectedScenario,
         simulationUser: this.simulationUser,
-        aiTemplate: this.scenarioTemplate 
+        aiTemplate: this.scenarioTemplate
       }
-    }); 
-    
- 
+    });
+
+
     console.log('Datos enviados al dashboard:', {
       scenario: this.selectedScenario,
       simulationUser: this.simulationUser,
-      aiTemplate: this.scenarioTemplate 
+      aiTemplate: this.scenarioTemplate,
     });
 }
+
+  async connectToRoom() {
+    await this.socketService.connect();
+
+    this.messageSubscription = this.socketService.addMessageListener((msg) => {
+      this.handleParticipantEvents(msg);
+    });
+  }
+
+  handleParticipantEvents(msg: any) {
+    console.log('Mensaje recibido en create-session:', msg);
+
+    switch(msg.type) {
+      case 'joinSuccess':
+        // Alguien se unió
+        if (msg.user && msg.role) {
+          this.addParticipant(msg.user, msg.role, false);
+        }
+        break;
+
+      case 'user-left':
+        // Alguien salió
+        if (msg.user) {
+          this.removeParticipant(msg.user);
+        }
+        break;
+    }
+  }
+
+  async addParticipant(userEmail: string, role: string, isCreator: boolean = false) {
+    console.log('➕ Intentando agregar:', userEmail, role);
+    // Verificar si ya existe
+    const exists = this.participants.find(p => p.email === userEmail);
+    if (exists) {
+      console.log('Participante ya existe:', userEmail);
+      return;
+    }
+
+    // Obtener nombre real
+    let displayName = userEmail;
+    try {
+      const response = await this.userService.getUserByEmail(userEmail).toPromise();
+      if (response?.data?.name) {
+        displayName = `${response.data.name} ${response.data.lastname || ''}`.trim();
+      }
+    } catch (error) {
+      console.error('Error obteniendo nombre:', error);
+    }
+
+    // Agregar a la lista
+    const newParticipant: IParticipant = {
+      email: userEmail,
+      name: displayName,
+      role: role,
+      isCreator: isCreator,
+      difficulty: isCreator ? this.selectedDifficulty : undefined
+    };
+
+    this.participants.push(newParticipant);
+    console.log('✅ Participante agregado:', displayName, role);
+  }
+
+  removeParticipant(userEmail: string) {
+    const index = this.participants.findIndex(p => p.email === userEmail);
+    if (index > -1) {
+      const removed = this.participants.splice(index, 1)[0];
+      console.log('❌ Participante removido:', removed.name);
+    }
+  }
+
+  sendInvitation() {
+    if (!this.inviteEmail || !this.inviteEmail.includes('@')) {
+      this.notice.set({
+        type: 'warning',
+        text: 'Por favor ingresa un email válido'
+      });
+      return;
+    }
+
+    // Si aún no se creó la simulación, marcar que habrá usuarios invitados
+    // if (!this.simulation?.id) {
+    //   this.hasInvitedUsers = true;
+    // }
+
+    const roomId = `room-${Date.now()}`;
+    const inviterName = this.authService.getUser()?.name || 'Un usuario';
+    const ceremonyType = this.selectedScenario?.ceremonyType || 'Ceremonia Scrum';
+    const scenarioId = this.selectedScenario?.id || 0;
+
+    this.invitationService.sendInvitation(
+      this.inviteEmail,
+      roomId,
+      inviterName,
+      // ceremonyType,
+      // scenarioId
+    ).subscribe({
+      next: () => {
+        this.hasInvitedUsers = true; // Marcar que hay invitados
+        this.notice.set({
+          type: 'success',
+          text: `Invitación enviada exitosamente a ${this.inviteEmail}`
+        });
+        this.inviteEmail = '';
+      },
+      error: (err) => {
+        console.error('Error enviando invitación:', err);
+        this.notice.set({
+          type: 'error',
+          text: 'Error al enviar la invitación. Intenta nuevamente.'
+        });
+      }
+    });
+  }
 }
 

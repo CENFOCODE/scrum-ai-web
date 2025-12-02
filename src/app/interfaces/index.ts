@@ -153,3 +153,11 @@ export interface IScenarioTemplate {
   createdAt?: string;        
   updatedAt?: string;        
 }
+
+export interface IParticipant {
+  email: string;
+  name: string;
+  role: string;
+  difficulty?: string; // Solo el creador tiene esto
+  isCreator?: boolean;
+}
