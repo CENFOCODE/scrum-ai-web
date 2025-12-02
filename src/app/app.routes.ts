@@ -66,8 +66,8 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       {
-        path: 'app',
-        redirectTo: 'users',
+        path: '',
+        redirectTo: 'home',
         pathMatch: 'full',
       },
       {
