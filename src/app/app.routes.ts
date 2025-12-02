@@ -76,7 +76,7 @@ export const routes: Routes = [
         pathMatch: 'full',
       },
        {
-        path: 'planning',
+        path: 'backlog',
         component: PlanningComponent,
         data: {
           authorities: [
@@ -84,12 +84,12 @@ export const routes: Routes = [
             IRoleType.superAdmin,
             IRoleType.user,
           ],
-          name: 'planning',
+          name: 'backlog',
           showInSidebar: false 
         }
       },
        {
-        path: 'backlog',
+        path: 'planning',
         component: BacklogComponent,
         data: {
           authorities: [
@@ -97,7 +97,7 @@ export const routes: Routes = [
             IRoleType.superAdmin,
             IRoleType.user,
           ],
-          name: 'backlog',
+          name: 'planning',
           showInSidebar: false 
         }
       },
