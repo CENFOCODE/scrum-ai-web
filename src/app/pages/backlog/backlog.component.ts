@@ -5,6 +5,8 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MenuItem } from 'primeng/api';
 import { BacklogBoardComponent } from '../../components/backlog-board/backlog-board.component';
 import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
+import { IScenario, ISimulationUser, IScenarioTemplate, ISimulations, ISimulationFeedback } from '../../interfaces';
+import { ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-backlog',
@@ -14,27 +16,48 @@ import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
   styleUrls: ['./backlog.component.scss']
 })
 export class BacklogComponent implements OnInit {
-  scenario: any;
-  simulationUser: any;
+  @ViewChild(ChatbotComponent) chatbot!: ChatbotComponent;
+  
+      feedbackText: ISimulationFeedback[] = [];
+      simulation: ISimulations = {};
+      scenario: IScenario | null = null;
+      simulationId: number | null = null;
+      simulationUser: ISimulationUser | null = null;
+      aiTemplate: IScenarioTemplate | null = null;
+
   itemsMenu: MenuItem[] | undefined;
   home: MenuItem | undefined;
 
   constructor(private router: Router) {
     const nav = this.router.getCurrentNavigation();
-    this.scenario = nav?.extras?.state?.['scenario'];
-    this.simulationUser = nav?.extras?.state?.['simulationUser'];
+    if(nav?.extras?.state) {
+      this.scenario = nav.extras.state['scenario'] || null;
+      this.simulationUser = nav.extras.state['simulationUser'] || null;
+      this.aiTemplate = nav.extras.state['aiTemplate'] || null;
+      this.simulation = nav.extras.state['simulation'] || {};
+
+      this.simulationId = nav.extras.state['simulationId'] || null;
+
+      if (!this.simulationId && this.simulation?.id) {
+        this.simulationId = this.simulation.id;
+      }
+
+      if (!this.simulationId && this.simulationUser?.simulation?.id) {
+        this.simulationId = this.simulationUser.simulation.id;
+      }
+    }
   }
 
   ngOnInit(): void {
     this.itemsMenu = [
       { label: 'Planning Paso 1', route: '/app/scenario' },
-      { label: 'Planning Paso 2', route: '/app/planning' },
-      { label: 'Planning Paso 3', route: '/app/backlog' }
+      { label: 'Planning Paso 2', route: '/app/poker' },
+      { label: 'Planning Paso 3', route: '/app/planning' }
     ];
     this.home = { label: 'Home', routerLink: '/' };
   }
 
   goBack() {
-    this.router.navigate(['/app/planning']);
+    this.router.navigate(['/app/poker']);
   }
 }
