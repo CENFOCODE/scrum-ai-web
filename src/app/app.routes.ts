@@ -17,9 +17,12 @@ import { WebsocketTestComponent } from './components/websocketTest/websocketTest
 import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
+import { HistoryComponent } from './pages/history/history.component';
 import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
 import { PlanningComponent } from './pages/planning-poker/planning.component';
 import { BacklogComponent } from './pages/backlog/backlog.component';
+import { RetrospectiveComponent} from './pages/retrospective/retrospective.component'
+import { FeedbackPageComponent } from './pages/feedback/feedback-page.component';
 
 
 export const routes: Routes = [
@@ -153,6 +156,19 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'retrospective',
+        component: RetrospectiveComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'retrospective',
+          showInSidebar: false
+        }
+      },
+      {
         path: 'scenario',
         component: ScenarioComponent,
         data: {
@@ -190,7 +206,34 @@ export const routes: Routes = [
           name: 'Video Room',
           showInSidebar: false
         }
+      },
+      {
+        path: 'history',
+        component: HistoryComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'History',
+          showInSidebar: true
+        }
+      },
+      {
+        path: 'feedback',
+        component: FeedbackPageComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'Feedback',
+          showInSidebar: true
+        }
       }
+      
 
 
     ],

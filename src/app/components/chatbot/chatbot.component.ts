@@ -1,29 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AiService } from '../../services/ai.service';
+import { IScenario, IScenarioTemplate, ISimulationUser } from '../../interfaces';
 
-/**
- * Componente del Chat Scrum AI conectado al backend (Groq).
- *
- * RESPONSABILIDADES:
- * ------------------
- * ✅ Capturar el input del usuario.
- * ✅ Enviar el mensaje al backend (Groq API vía Spring Boot).
- * ✅ Renderizar la respuesta generada por la IA.
- * ✅ Mostrar el estado de carga mientras se espera respuesta.
- *
- * ESTE COMPONENTE NO:
- * --------------------
- * ❌ No genera prompts avanzados.
- * ❌ No gestiona WebRTC.
- * ❌ No aplica lógica de ceremonias Scrum.
- *
- * RELACIÓN CON OTROS ARCHIVOS:
- * ----------------------------
- * - AiService → envía las solicitudes a /ai/ask
- * - AIController.java → recibe la solicitud del frontend
- * - GroqService.java → ejecuta el request a Groq
- */
 @Component({
   selector: 'app-chatbot',
   standalone: true,
@@ -31,26 +10,69 @@ import { AiService } from '../../services/ai.service';
   templateUrl: './chatbot.component.html',
   styleUrls: ['./chatbot.component.scss']
 })
-export class ChatbotComponent {
+export class ChatbotComponent implements OnInit {
 
-  /**
-   * Historial del chat.
-   * Cada entrada contiene:
-   * - from: "Usuario" | "Scrum AI"
-   * - prompt: texto enviado o recibido
-   */
+  /** Input para recibir la plantilla de IA desde el dashboard */
+  @Input() aiTemplate: IScenarioTemplate | null = null;
+  @Input() scenario: ISimulationUser | null = null;
+
   messages: { from: string; prompt?: string }[] = [];
 
-  /** Indica si la IA está generando respuesta */
   loading = false;
 
-  constructor(private aiService: AiService) {}
+
+  visible = false;
+
+  constructor(private aiService: AiService) { }
+
+  toggleChatbot() {
+    this.visible = !this.visible;
+  }
+
+
+  ngOnInit() {
+
+    const contextPrompt = 'Eres un asistente de Scrum donde tienes como objetivo ayudar a los usuarios en los errores más comunes en Scrum, el usuario tiene que seleccionar la ceremonia, ya sea Planning, Daily, Review o Retrospective y tiene que seleccionar tambien la dificultad.';
+
+    if (this.aiTemplate?.promptTemplate) {
+
+
+      // Enviar automáticamente el prompt a la IA con el contexto
+      this.loading = true;
+      const fullPrompt = `${contextPrompt}\n\n${this.aiTemplate.promptTemplate}`;
+      
+      this.aiService.askAI({ prompt: fullPrompt }).subscribe({
+        next: (response) => {
+          this.messages.push({
+            from: 'Scrum AI',
+            prompt: response.data.answer
+          });
+          this.loading = false;
+        },
+        error: () => {
+          this.messages.push({
+            from: 'Scrum AI',
+            prompt: '⚠️ Error al comunicarse con la IA.'
+          });
+          this.loading = false;
+        }
+      });
+
+    } else {
+      // Mensaje por defecto de la IA si no hay plantilla
+      this.messages.push({
+        from: 'Scrum AI',
+        prompt: '¡Hola! Soy tu asistente de Scrum. ¿En qué puedo ayudarte hoy?'
+      });
+    }
+  }
 
   /**
    * Envía el texto del input hacia Groq usando AiService.
    * - Añade el mensaje del usuario al historial.
    * - Limpia el input.
    * - Inicia estado de carga.
+   * - Incluye el contexto del prompt inicial.
    * - Añade la respuesta generada por IA.
    *
    * @param input Elemento <input> que contiene el texto ingresado.
@@ -64,8 +86,20 @@ export class ChatbotComponent {
     input.value = '';
     this.loading = true;
 
-    // Solicitud al backend → GroqService
-    this.aiService.askAI({ prompt: text }).subscribe({
+    // Contexto del asistente
+    const contextPrompt = 'Eres un asistente de Scrum donde tienes como objetivo ayudar a los usuarios en los errores más comunes en Scrum, el usuario tiene que seleccionar la ceremonia, ya sea Planning, Daily, Review o Retrospective y con su dificultad. Si el usuario no elige ser Scrum Master por defecto debes tomar este rol.';
+
+    // Combinar contexto + prompt inicial + mensaje del usuario
+    let fullPrompt = `${contextPrompt}\n\n`;
+
+    if (this.aiTemplate?.promptTemplate) {
+      fullPrompt += `${this.aiTemplate.promptTemplate}\n\n`;
+    }
+
+    fullPrompt += `Usuario: ${text}\nScrum AI:`;
+
+    // Solicitud al backend → GroqService con contexto completo
+    this.aiService.askAI({ prompt: fullPrompt }).subscribe({
       next: (response) => {
         this.messages.push({
           from: 'Scrum AI',

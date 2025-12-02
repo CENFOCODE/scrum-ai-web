@@ -25,12 +25,10 @@ export class ScenarioComponent {
 
     constructor() {
         this.scenarioService.getAll();
-        console.log('Escenarios disponibles:', this.scenarioService.scenario$());
 
         // Efecto para monitorear cambios en los escenarios
         effect(() => {
             const scenarios = this.scenarioService.scenario$();
-            console.log('Escenarios actualizados:', scenarios);
         });
     }
 
@@ -39,6 +37,5 @@ export class ScenarioComponent {
         this.selectedCeremony = ceremony;
         this.simulationService.setSelectedScenario(ceremony);
         this.showCreateSession = true;
-        console.log('Ceremonia seleccionada:', ceremony);
     }
 }

@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Router } from '@angular/router';
+import { SimulationService } from '../../services/simulation.service';
 
 
 interface Task {
@@ -30,15 +31,13 @@ export class DailyComponent implements OnInit {
     scenario: any;
   simulationUser: any;
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    private simulationService: SimulationService
+  ) {
     const nav = this.router.getCurrentNavigation();
     this.scenario = nav?.extras?.state?.['scenario'];
     this.simulationUser = nav?.extras?.state?.['simulationUser'];
-
-    console.log(' Datos recibidos en DailyComponent:', {
-      scenario: this.scenario,
-      simulationUser: this.simulationUser
-    });
   }
 
   goBackToCreateSession() {
@@ -90,4 +89,22 @@ todo: Task[] = [
       );
     }
   }
+
+  finishSimulation() {
+  const simulationId = this.simulationUser?.simulationId;
+
+  if (!simulationId) {
+    console.error("No simulationId found!");
+    return;
+  }
+
+  this.simulationService.completeSimulation(simulationId)
+    .subscribe({
+      next: (res) => {
+        console.log("Simulation completed:", res);
+        this.router.navigate(['/app/history']); // opcional
+      },
+      error: (err) => console.error(err)
+    });
+}
 }

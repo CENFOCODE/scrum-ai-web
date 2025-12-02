@@ -60,9 +60,6 @@ export class SidebarComponent {
 
   paused: any[] = [];
 
-  toggleHistory() {
-    this.historyOpen = !this.historyOpen;
-  }
 
   togglePaused() {
     this.pausedOpen = !this.pausedOpen;
