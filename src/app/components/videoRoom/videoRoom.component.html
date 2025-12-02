@@ -60,7 +60,7 @@
     <button
             *ngIf="room && isRoomCreator"
             (click)="endCall()"
-            class="btn btn-danger">
+            class="btn btn-outline-secondary">
       Finalizar llamada
     </button>
 
@@ -68,12 +68,14 @@
 
   <div class="status-box">
     <p><strong>Usuario:</strong> {{ username }}</p>
-    <p><strong>Rol:</strong> {{ role || 'Ninguno' }}</p>
+    <p><strong>Rol:</strong> {{ selectedRole || 'Ninguno' }}</p>
     <p><strong>Sala:</strong> {{ room || 'No conectado' }}</p>
     <p><strong>WebSocket:</strong> <span [ngClass]="isConnected ? 'ok' : 'fail'">{{ isConnected ? 'Conectado' : 'Desconectado' }}</span></p>
   </div>
 
   <div
+          *ngIf="showVideo"
+          id="video"
           class="floating-video"
           cdkDrag
           [style.width.px]="videoWidth"

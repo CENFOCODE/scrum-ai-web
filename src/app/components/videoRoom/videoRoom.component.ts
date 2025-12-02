@@ -29,6 +29,7 @@ export class VideoRoomComponent implements OnInit {
 
   @Input() autoJoinRoomId?: string | null;
   @Input() selectedRole?: string;
+  @Input() selectedScenario?: string;
   @Output() participantJoined = new EventEmitter<{email: string, role: string}>();
   @Output() participantLeft = new EventEmitter<string>();
 
@@ -58,6 +59,7 @@ export class VideoRoomComponent implements OnInit {
 
   inviteVisible: boolean = false;
   joinVisible: boolean = false;
+  showVideo: boolean = false;
 
   // Stream local (cámara + micrófono)
   localStream!: MediaStream;
@@ -71,8 +73,9 @@ export class VideoRoomComponent implements OnInit {
   constructor(private socketService: SocketService, private route: ActivatedRoute, private messageService: MessageService) {}
 
   async ngOnInit() {
+    console.log(this.selectedScenario);
     await this.connectSocket();
-    await this.initLocalVideo();
+    // await this.initLocalVideo();
 
     this.socketService.sendMessage({
       type: 'register-user',
@@ -81,7 +84,7 @@ export class VideoRoomComponent implements OnInit {
 
     if (this.autoJoinRoomId) {
       console.log('Intentando auto-join a: ', this.autoJoinRoomId);
-      this.joinRoom(this.autoJoinRoomId);
+      await this.joinRoom(this.autoJoinRoomId);
     }
 
     window.addEventListener("resize", () => {
@@ -249,7 +252,10 @@ export class VideoRoomComponent implements OnInit {
   }
 
   async initLocalVideo() {
+
     try {
+      this.showVideo = true;
+
       this.localStream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: {
@@ -261,7 +267,7 @@ export class VideoRoomComponent implements OnInit {
 
       const videoGrid = document.getElementById('videoGrid');
       const videoContainer = document.createElement('div');
-      videoContainer.className='video-cell'
+      videoContainer.className='video-cell local-video'
 
       const label = document.createElement('div');
       label.className = 'user-label';
@@ -276,7 +282,7 @@ export class VideoRoomComponent implements OnInit {
 
       const initials = document.createElement('div');
       initials.className = 'initials-badge';
-      initials.innerText = this.getInitials(this.user?.name || '');
+      initials.innerText = this.getInitials(`${this.user.name} ${this.user.lastname}`);
 
       videoContainer.appendChild(initials);
       videoContainer.appendChild(label);
@@ -289,7 +295,7 @@ export class VideoRoomComponent implements OnInit {
     }
   }
 
-  joinRoomById() {
+  async joinRoomById() {
     if (!this.roomToJoin || !this.roomToJoin.trim()) {
       this.messageService.add({
         severity: 'info',
@@ -299,12 +305,12 @@ export class VideoRoomComponent implements OnInit {
       return;
     }
 
-    this.joinRoom(this.roomToJoin.trim());
+    await this.joinRoom(this.roomToJoin.trim());
     this.roomToJoin = '';
     this.joinVisible = false;
   }
 
-  inviteByEmail() {
+  async inviteByEmail() {
     if (!this.emailToInvite || !this.emailToInvite.includes('@')) {
       this.messageService.add({
         severity: 'contrast',
@@ -315,7 +321,7 @@ export class VideoRoomComponent implements OnInit {
     }
 
     if (!this.room) {
-      this.createRoom()
+      await this.createRoom()
       this.inviteVisible = false;
       return;
     }
@@ -335,6 +341,7 @@ export class VideoRoomComponent implements OnInit {
         })
         this.emailToInvite = '';
         this.inviteVisible = false;
+        this.showVideo = true;
       },
       error: (err) => {
         console.error('Error:', err);
@@ -347,13 +354,15 @@ export class VideoRoomComponent implements OnInit {
     });
   }
 
-  createRoom() {
+  async createRoom() {
     if (!this.isConnected) return this.messageService.add({
       severity: 'error',
       summary: 'Error',
       detail: 'El servidor no está conectado.',
       sticky: true
     });
+
+    await this.initLocalVideo()
 
     this.room = `room-${Math.random().toString(36).substring(2, 8)}`;
     this.role = 'Scrum Master';
@@ -371,9 +380,10 @@ export class VideoRoomComponent implements OnInit {
       summary: 'Sala creada',
       detail: `Id de la sala: ${this.room}`,
     });
+
   }
 
-  joinRoom(manualRoomId?: string) {
+  async joinRoom(manualRoomId?: string) {
     if (!this.isConnected) return alert('El WebSocket no está conectado.');
 
     let roomId = manualRoomId || prompt('ID de la sala:');
@@ -391,11 +401,11 @@ export class VideoRoomComponent implements OnInit {
 
     this.room = roomId;
 
-    // 🔥 Usar rol recibido o pedir uno
-    if (!this.role) {
-      this.role = this.selectedRole || prompt('Selecciona tu rol:') || 'Invitado';
-    }
+    // if (!this.selectedRole) {
+    //   this.role = this.selectedRole || prompt('Selecciona tu rol:') || 'Invitado';
+    // }
 
+    await this.initLocalVideo();
     this.isRoomCreator = false;
 
     this.socketService.sendMessage({
@@ -454,7 +464,7 @@ export class VideoRoomComponent implements OnInit {
       case 'invite':
         if (msg.to === this.username) {
           const accept = confirm(`${msg.message}. ¿Unirte?`);
-          if (accept) this.joinRoom(msg.room);
+          if (accept) await this.joinRoom(msg.room);
         }
         break;
 
@@ -491,7 +501,7 @@ export class VideoRoomComponent implements OnInit {
         break;
 
       case 'endCall':
-        alert(msg.message || 'La llamada fue finalizada por el organizador.');
+        // alert(msg.message || 'La llamada fue finalizada por el organizador.');
         this.cleanupAndReset();
         break;
 
@@ -615,6 +625,7 @@ export class VideoRoomComponent implements OnInit {
   }
 
   private cleanupAndReset() {
+    this.showVideo = false;
     if (this.localStream) {
       this.localStream.getTracks().forEach(track => track.stop());
     }
@@ -626,7 +637,7 @@ export class VideoRoomComponent implements OnInit {
 
     const videoGrid = document.getElementById('videoGrid');
     if (videoGrid) {
-      const remoteCells = videoGrid.querySelectorAll('.video-cell:not(:has(#localVideo))');
+      const remoteCells = videoGrid.querySelectorAll('.video-cell');
       remoteCells.forEach(cell => cell.remove());
     }
 
