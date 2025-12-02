@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AiService } from '../../services/ai.service';
+import { TranscriptStateService } from '../../services/transcript-state.service';
 import { IScenario, IScenarioTemplate, ISimulationUser } from '../../interfaces';
 
 /**
@@ -53,7 +54,10 @@ export class ChatbotComponent implements OnInit {
   /** Indica si el chatbot está visible/abierto */
   visible = false;
 
-  constructor(private aiService: AiService) { }
+  constructor(
+    private aiService: AiService,
+    private transcriptState: TranscriptStateService
+  ) { }
 
   /**
    * Alterna la visibilidad del chatbot
@@ -135,6 +139,12 @@ export class ChatbotComponent implements OnInit {
       fullPrompt += `${this.aiTemplate.promptTemplate}\n\n`;
     }
 
+    const formattedTranscript = this.transcriptState.getFormattedTranscript();  
+    if (formattedTranscript.length > 0) {  
+      fullPrompt += `\n--- Conversación del equipo durante la videollamada ---\n${formattedTranscript}\n\n`;  
+    }
+
+  
     fullPrompt += `Usuario: ${text}\nScrum AI:`;
 
     // Solicitud al backend → GroqService con contexto completo
@@ -154,5 +164,12 @@ export class ChatbotComponent implements OnInit {
         this.loading = false;
       }
     });
+    
+  }
+  public addAIMessage(title: string, content: string) {
+  this.messages.push({
+    from: title,
+    prompt: content
+  });
   }
 }

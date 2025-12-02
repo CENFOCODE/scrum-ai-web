@@ -1,17 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { SocketService } from '../../services/socket.service';
 import { CommonModule } from '@angular/common';
+import { TranscriptStateService } from '../../services/transcript-state.service';
+import { TranscriptService } from '../../services/transcript.service';
+import { AuthService } from '../../services/auth.service';
+import { AiService } from '../../services/ai.service';
+import { ChatbotComponent } from '../chatbot/chatbot.component';
 
 
 @Component({
   selector: 'videoRoom',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ChatbotComponent],
   templateUrl: './videoRoom.component.html',
   styleUrls: ['./videoRoom.component.scss']
 })
 export class VideoRoomComponent implements OnInit {
 
+  @ViewChild(ChatbotComponent) chatbot!: ChatbotComponent;
   // Nombre aleatorio por si el usuario no ingresa uno
   username = `user-${Math.floor(Math.random() * 1000)}`;
 
@@ -19,6 +26,14 @@ export class VideoRoomComponent implements OnInit {
   room = '';
   isConnected = false;
 
+  
+  isTranscribing = false;
+  private transcriptionInterval?: any;
+  private aiAnalysisInterval?: any;
+
+
+  ceremonySessionId = 0;
+  userId = 0;
   // Stream local (cámara + micrófono)
   localStream!: MediaStream;
 
@@ -28,9 +43,28 @@ export class VideoRoomComponent implements OnInit {
   // Streams remotos por usuario
   remoteStreams = new Map<string, MediaStream>();
 
-  constructor(private socketService: SocketService) {}
+  constructor(
+    private socketService: SocketService,
+    private transcriptionService: TranscriptService,
+    private transcriptState: TranscriptStateService,
+    private authService: AuthService,
+    private aiService: AiService,
+    private router: Router
+  ) {}
 
   async ngOnInit() {
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras?.state;
+    
+    if (state && state['ceremonySessionId']) {
+      this.ceremonySessionId = state['ceremonySessionId'];
+    }else {
+   
+      const storedId = localStorage.getItem('ceremonySessionId');
+      if (storedId) {
+        this.ceremonySessionId = parseInt(storedId, 10);
+      }
+    }
     // Pregunta el username al entrar
     this.username = prompt('Ingresa tu nombre de usuario:')?.trim() || this.username;
 
@@ -45,6 +79,8 @@ export class VideoRoomComponent implements OnInit {
       type: 'register-user',
       username: this.username
     });
+    this.userId = this.authService.getUserId() || 0;
+
   }
 
   /**
@@ -104,10 +140,17 @@ export class VideoRoomComponent implements OnInit {
       type: 'create-room',
       room: this.room,
       host: this.username,
-      role: this.role
+      role: this.role,
+      ceremonySessionId: this.ceremonySessionId
     });
 
     alert(`Sala creada: ${this.room}`);
+
+    setTimeout(() => {
+    if (!this.isTranscribing && this.localStream) {
+      this.startTranscription();
+    }
+  }, 1000);
   }
 
   /**
@@ -139,6 +182,12 @@ export class VideoRoomComponent implements OnInit {
       user: this.username,
       role: this.role
     });
+
+  setTimeout(() => {
+    if (!this.isTranscribing && this.localStream) {
+      this.startTranscription();
+    }
+  }, 1500);
   }
 
   /**
@@ -233,6 +282,17 @@ export class VideoRoomComponent implements OnInit {
         // Alguien nuevo entró → creamos conexión hacia él
         if (msg.user && msg.user !== this.username) {
           await this.startPeerConnection(msg.user);
+        }
+
+        if (msg.ceremonySessionId) {
+        this.ceremonySessionId = msg.ceremonySessionId;
+       
+        }
+        break;
+
+        case 'transcript':
+        if (msg.username !== this.username) {  
+          this.transcriptState.addTranscript(msg.username, msg.text, msg.userId);
         }
         break;
 
@@ -356,18 +416,203 @@ export class VideoRoomComponent implements OnInit {
     }
   }
 
-  /**
-   * Finaliza la llamada y cierra todas las conexiones.
-   */
-  endCall() {
-    this.socketService.sendMessage({
-      type: 'end-call',
-      room: this.room
+async startTranscription() {
+  if (this.isTranscribing) {
+    return;
+  }
+
+  if (!this.localStream) {
+    alert('Primero activa tu micrófono');
+    return;
+  }
+
+  this.isTranscribing = true;
+
+ 
+  this.captureAndTranscribeChunk();
+
+
+  this.transcriptionInterval = setInterval(() => {
+    this.captureAndTranscribeChunk();
+  }, 8000);
+
+
+  this.aiAnalysisInterval = setInterval(() => {
+    this.analyzeConversationWithAI();
+  }, 30000);
+}
+
+
+private captureAndTranscribeChunk() {
+  if (!this.localStream || !this.isTranscribing) {
+    return;
+  }
+
+  try {
+    const audioStream = new MediaStream(this.localStream.getAudioTracks());
+    
+    const recorder = new MediaRecorder(audioStream, {
+      mimeType: 'audio/webm;codecs=opus',
+      audioBitsPerSecond: 128000
     });
 
-    this.peerConnections.forEach(pc => pc.close());
-    this.peerConnections.clear();
+    const audioChunks: Blob[] = [];
 
-    alert('Llamada finalizada.');
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        audioChunks.push(event.data);
+      }
+    };
+
+    recorder.onstop = () => {
+      if (audioChunks.length > 0) {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm;codecs=opus' });
+        
+    
+        if (audioBlob.size > 1000) {
+          this.transcribeChunk(audioBlob);
+        }
+      }
+    };
+
+    recorder.start();
+    
+    setTimeout(() => {
+      if (recorder.state === 'recording') {
+        recorder.stop();
+      }
+    }, 10000);
+
+  } catch (err) {
+
   }
+}
+
+private analyzeConversationWithAI() {
+  const formattedTranscript = this.transcriptState.getFormattedTranscript();
+
+  if (formattedTranscript.length === 0) {
+    return;
+  }
+
+  const prompt = `Eres un Scrum Master virtual. Analiza esta conversación del equipo durante la ceremonia y proporciona feedback breve y constructivo (máximo 3 puntos):
+
+--- Conversación del equipo ---
+${formattedTranscript}
+
+Proporciona:
+1. ¿Qué está yendo bien?
+2. ¿Qué se puede mejorar?
+3. Una sugerencia específica para el equipo.
+
+Sé específico con los nombres de los participantes.`;
+
+  this.aiService.askAI({ prompt }).subscribe({
+    next: (response) => {
+      const answer = response?.data?.answer;
+
+      if (this.chatbot && answer) {
+        this.chatbot.addAIMessage('Análisis Automático', answer);
+      }
+    },
+    error: (err) => {
+      // Error silencioso o manejador global
+    }
+  });
+}
+
+private isDuplicateText(newText: string): boolean {
+  const recentTranscripts = this.transcriptState.getFormattedTranscript();
+  const lastChars = recentTranscripts.slice(-200);
+  
+  return lastChars.includes(newText.trim());
+}
+
+/**
+ * Transcribe un chunk de audio y lo guarda en el estado compartido
+ */
+private transcribeChunk(audioBlob: Blob) {
+  const reader = new FileReader();
+
+  reader.onloadend = () => {
+    const base64Audio = (reader.result as string).split(',')[1];
+
+    this.transcriptionService.transcribeChunkOnly(base64Audio).subscribe({
+      next: (response) => {
+        const text = response.data;
+
+        if (text && text.trim().length > 0) {
+          if (!this.isDuplicateText(text)) {
+            this.transcriptState.addTranscript(this.username, text, this.userId);
+
+            this.socketService.sendMessage({
+              type: 'transcript',
+              username: this.username,
+              userId: this.userId,
+              text: text,
+              timestamp: new Date().toISOString(),
+              room: this.room
+            });
+          }
+        }
+      },
+      error: (err) => {
+        // Error silencioso o manejador global
+      }
+    });
+  };
+
+  reader.readAsDataURL(audioBlob);
+}
+
+endCall() {
+  this.socketService.sendMessage({
+    type: 'end-call',
+    room: this.room
+  });
+
+  this.peerConnections.forEach(pc => pc.close());
+  this.peerConnections.clear();
+
+  if (this.transcriptionInterval) {
+    clearInterval(this.transcriptionInterval);
+    this.transcriptionInterval = undefined;
+  }
+
+  if (this.aiAnalysisInterval) {
+    clearInterval(this.aiAnalysisInterval);
+    this.aiAnalysisInterval = undefined;
+  }
+
+  if (this.isTranscribing) {
+    this.isTranscribing = false;
+
+    const allTranscripts = this.transcriptState.getAllTranscripts();
+
+    if (allTranscripts.length > 0) {
+      const transcriptsFormatted = allTranscripts.map(t => ({
+        username: t.username,
+        text: t.text,
+        userId: t.userId,
+        timestamp: t.timestamp.toISOString()
+      }));
+
+      this.transcriptionService.saveBatchTranscripts({
+        ceremonySessionId: this.ceremonySessionId,
+        roomId: this.room,
+        transcripts: transcriptsFormatted
+      }).subscribe({
+        next: () => {
+          this.transcriptState.clearTranscripts();
+          localStorage.removeItem('ceremonySessionId');
+        },
+        error: (err) => {
+
+        }
+      });
+    } else {
+      localStorage.removeItem('ceremonySessionId');
+    }
+  }
+}
 }

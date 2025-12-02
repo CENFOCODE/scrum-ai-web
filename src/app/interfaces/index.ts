@@ -142,6 +142,7 @@ export interface ISimulationUser {
   assignedAt?: Date;
   scrumRole?: string;
   simulation?: ISimulations;
+  user?: IUser;
 }
 
 export interface IScenarioTemplate {
@@ -151,4 +152,12 @@ export interface IScenarioTemplate {
   scenario?: IScenario;      
   createdAt?: string;        
   updatedAt?: string;        
+}
+export interface ICeremonySession {
+  id?: number;
+  ceremonyType?: string;
+  simulationId?: number;
+  startTime?: Date;
+  endTime?: Date;
+  simulation?: ISimulations;
 }

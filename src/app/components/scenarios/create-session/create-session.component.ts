@@ -8,10 +8,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { SimulationService } from '../../../services/simulation.service';
-import { IScenario, IScenarioTemplate, ISimulations, ISimulationUser } from '../../../interfaces';
+import { IScenario, IScenarioTemplate, ISimulations, ISimulationUser, ICeremonySession } from '../../../interfaces';
 import { AuthService } from '../../../services/auth.service';
 import { switchMap, map } from 'rxjs/operators';
 import { ScenarioTemplateService } from '../../../services/scenario-template.service';
+import { CeremonySessionService } from '../../../services/ceremony-session.service';
 
 type NoticeType = 'success' | 'warning' | 'error';
 interface Notice {
@@ -55,12 +56,14 @@ export class CreateSessionComponent {
   simulation: ISimulations = {};
   simulationUser: ISimulationUser = {};
   scenarioTemplate: IScenarioTemplate = {};
+ceremonySession: ICeremonySession = {};
 
  constructor(
     private simulationService: SimulationService,
     public authService: AuthService,
     private router: Router,
-    private scenarioTemplateService: ScenarioTemplateService
+    private scenarioTemplateService: ScenarioTemplateService,
+    private ceremonySessionService: CeremonySessionService
    
   ) {
   effect(() => {
@@ -152,6 +155,7 @@ export class CreateSessionComponent {
      
       return this.simulationService.createSimulation(newSimulation);
     }),
+
     switchMap((createdSim) => {
       if (!createdSim.id) {
       alert('Error: el backend no devolvió el id de la Simulation.');
@@ -166,14 +170,40 @@ export class CreateSessionComponent {
 
       
       return this.simulationService.createSimulationUser(newSimUser);
-    })
-  ).subscribe({
-    next: (res) => {
-      this.isLoading = false;
+    }),
+    // ✅ NUEVO: Crear CeremonySession
+    switchMap((simUser) => {
+      if (!simUser.simulation?.id) {
+    throw new Error('SimulationUser sin simulation.id');
+  }
 
-    this.redirectToDashboard();
-      this.sessionCreated.emit(res);
-    },
+  // Validar que selectedScenario existe
+  if (!this.selectedScenario?.name) {
+    throw new Error('Scenario sin nombre');
+  }
+      const newCeremonySession = {
+        ceremonyType: this.selectedScenario.name,
+        simulationId: simUser.simulation.id,
+        startTime: new Date()
+      };
+      
+      return this.ceremonySessionService.createCeremonySession(newCeremonySession);
+    })
+ ).subscribe({
+      next: (ceremonySessionResponse) => {
+        this.isLoading = false;
+
+        if (ceremonySessionResponse.data) {
+          this.ceremonySession = ceremonySessionResponse.data;
+        } else if (ceremonySessionResponse.id) {
+          this.ceremonySession = ceremonySessionResponse;
+        } else {
+          this.ceremonySession = { id: 1 };
+        }
+
+        this.redirectToDashboard();
+        this.sessionCreated.emit(ceremonySessionResponse);
+      },
     error: (err) => {
       console.error('Error en el flujo', err);
       this.isLoading = false;
@@ -212,12 +242,16 @@ export class CreateSessionComponent {
 }
 
 private redirectToDashboard() {
+  if (this.ceremonySession.id) {
+      localStorage.setItem('ceremonySessionId', this.ceremonySession.id.toString());
+    }
    
     this.router.navigate(['/app/dashboard'], { 
       state: {
         scenario: this.selectedScenario,
         simulationUser: this.simulationUser,
-        aiTemplate: this.scenarioTemplate 
+        aiTemplate: this.scenarioTemplate,
+        ceremonySessionId: this.ceremonySession.id
       }
     }); 
     
@@ -225,7 +259,8 @@ private redirectToDashboard() {
     console.log('Datos enviados al dashboard:', {
       scenario: this.selectedScenario,
       simulationUser: this.simulationUser,
-      aiTemplate: this.scenarioTemplate 
+      aiTemplate: this.scenarioTemplate,
+      ceremonySessionId: this.ceremonySession.id
     });
 }
 }
