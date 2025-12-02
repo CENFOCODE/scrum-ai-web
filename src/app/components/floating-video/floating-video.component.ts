@@ -108,6 +108,54 @@ export class FloatingVideoComponent implements OnInit {
     });
   }
 
+  sendInvitation() {
+    if (!this.emailToInvite || !this.emailToInvite.includes('@')) {
+      this.messageService.add({
+        severity: 'warning',
+        detail: 'Por favor ingresa un email válido'
+      });
+      return;
+    }
+
+    // Si aún no se creó la simulación, marcar que habrá usuarios invitados
+    // if (!this.simulation?.id) {
+    //   this.hasInvitedUsers = true;
+    // }
+
+    const roomId = `room-${Date.now()}`;
+    const inviterName = this.authService.getUser()?.name || 'Un usuario';
+    // const ceremonyType = this.selectedScenario?.ceremonyType || 'Ceremonia Scrum';
+    // const scenarioId = this.selectedScenario?.id || 0;
+
+    console.log(roomId);
+    console.log(inviterName)
+
+    this.invitationService.sendInvitation(
+      this.emailToInvite,
+      roomId,
+      inviterName,
+      // ceremonyType,
+      // scenarioId
+    ).subscribe({
+      next: () => {
+        // this.hasInvitedUsers = true; // Marcar que hay invitados
+        this.messageService.add({
+          severity: 'success',
+          detail: `Invitación enviada exitosamente a ${this.emailToInvite}`
+        });
+        this.emailToInvite = '';
+      },
+      //       this.messageService.add({severity:'success', summary: 'Éxito', detail: 'Retrospectiva guardada correctamente.'});
+      error: (err) => {
+        console.error('Error enviando invitación:', err);
+        this.messageService.add({
+          severity: 'error',
+          detail: 'Error al enviar la invitación. Intenta nuevamente.'
+        });
+      }
+    });
+  }
+
   async connectSocket() {
     try {
       await this.socketService.connect();
@@ -340,30 +388,31 @@ export class FloatingVideoComponent implements OnInit {
 
     const inviterName = this.authService.getUser()?.name || 'Un usuario';
 
-    this.invitationService.sendInvitation(
-      this.emailToInvite,
-      this.room,
-      inviterName,
-    ).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: `Invitación enviada a ${this.emailToInvite}`
-        })
-        this.emailToInvite = '';
-        this.inviteVisible = false;
-        this.showVideo = true;
-      },
-      error: (err) => {
-        console.error('Error:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Error al enviar invitación'
-        })
-      }
-    });
+    // this.invitationService.sendInvitation(
+    //   this.emailToInvite,
+    //   this.room,
+    //   inviterName,
+    // ).subscribe({
+    //   next: () => {
+    //     this.messageService.add({
+    //       severity: 'success',
+    //       summary: 'Éxito',
+    //       detail: `Invitación enviada a ${this.emailToInvite}`
+    //     })
+    //     this.emailToInvite = '';
+    //     this.inviteVisible = false;
+    //     this.showVideo = true;
+    //   },
+    //   error: (err) => {
+    //     console.error('Error:', err);
+    //     this.messageService.add({
+    //       severity: 'error',
+    //       summary: 'Error',
+    //       detail: 'Error al enviar invitación'
+    //     })
+    //   }
+    // });
+    this.sendInvitation();
   }
 
   async createRoom() {

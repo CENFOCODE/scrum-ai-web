@@ -16,7 +16,6 @@ import { ToastModule } from 'primeng/toast';
 import {InvitationService} from "../../../services/invitation.service";
 import {SocketService} from "../../../services/socket.service";
 import {UserService} from "../../../services/user.service";
-import {CallService} from "../../../services/call.service";
 
 type NoticeType = 'success' | 'warning' | 'error';
 interface Notice {
@@ -79,7 +78,6 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
     public authService: AuthService,
     private router: Router,
     private scenarioTemplateService: ScenarioTemplateService,
-    private callService: CallService
   ) {
   effect(() => {
       const ceremonyData = this.simulationService.selectedScenario$();
@@ -105,14 +103,6 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
       );
     }
     console.log('Listener registrado');
-  }
-
-  sendInviteToCall(){
-    this.callService.call("sendInvite");
-  }
-
-  joinToCall(){
-   this.callService.call("joinCall")
   }
 
   ngOnDestroy() {
@@ -389,49 +379,48 @@ private redirectToDashboard() {
     }
   }
 
-  sendInvitation() {
-    if (!this.inviteEmail || !this.inviteEmail.includes('@')) {
-      this.notice.set({
-        type: 'warning',
-        text: 'Por favor ingresa un email válido'
-      });
-      return;
-    }
-
-    // Si aún no se creó la simulación, marcar que habrá usuarios invitados
-    // if (!this.simulation?.id) {
-    //   this.hasInvitedUsers = true;
-    // }
-
-    const roomId = `room-${Date.now()}`;
-    const inviterName = this.authService.getUser()?.name || 'Un usuario';
-    const ceremonyType = this.selectedScenario?.ceremonyType || 'Ceremonia Scrum';
-    const scenarioId = this.selectedScenario?.id || 0;
-
-    this.invitationService.sendInvitation(
-      this.inviteEmail,
-      roomId,
-      inviterName,
-      // ceremonyType,
-      // scenarioId
-    ).subscribe({
-      next: () => {
-        this.hasInvitedUsers = true; // Marcar que hay invitados
-        this.notice.set({
-          type: 'success',
-          text: `Invitación enviada exitosamente a ${this.inviteEmail}`
-        });
-        this.inviteEmail = '';
-      },
-      error: (err) => {
-        console.error('Error enviando invitación:', err);
-        this.notice.set({
-          type: 'error',
-          text: 'Error al enviar la invitación. Intenta nuevamente.'
-        });
-      }
-    });
-  }
-
+  // sendInvitation() {
+  //   if (!this.inviteEmail || !this.inviteEmail.includes('@')) {
+  //     this.notice.set({
+  //       type: 'warning',
+  //       text: 'Por favor ingresa un email válido'
+  //     });
+  //     return;
+  //   }
+  //
+  //   // Si aún no se creó la simulación, marcar que habrá usuarios invitados
+  //   // if (!this.simulation?.id) {
+  //   //   this.hasInvitedUsers = true;
+  //   // }
+  //
+  //   const roomId = `room-${Date.now()}`;
+  //   const inviterName = this.authService.getUser()?.name || 'Un usuario';
+  //   const ceremonyType = this.selectedScenario?.ceremonyType || 'Ceremonia Scrum';
+  //   const scenarioId = this.selectedScenario?.id || 0;
+  //
+  //   this.invitationService.sendInvitation(
+  //     this.inviteEmail,
+  //     roomId,
+  //     inviterName,
+  //     // ceremonyType,
+  //     // scenarioId
+  //   ).subscribe({
+  //     next: () => {
+  //       this.hasInvitedUsers = true; // Marcar que hay invitados
+  //       this.notice.set({
+  //         type: 'success',
+  //         text: `Invitación enviada exitosamente a ${this.inviteEmail}`
+  //       });
+  //       this.inviteEmail = '';
+  //     },
+  //     error: (err) => {
+  //       console.error('Error enviando invitación:', err);
+  //       this.notice.set({
+  //         type: 'error',
+  //         text: 'Error al enviar la invitación. Intenta nuevamente.'
+  //       });
+  //     }
+  //   });
+  // }
 
 }
