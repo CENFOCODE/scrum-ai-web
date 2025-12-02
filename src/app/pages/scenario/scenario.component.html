@@ -13,7 +13,9 @@
     <!-- Vista de creación de sesión -->
     <div *ngIf="showCreateSession && selectedCeremony">
         <app-create-session
-            [ceremonyData]="selectedCeremony" >
+            [ceremonyData]="selectedCeremony"
+            (returnToMainScreen)="onReturnPressed()"
+        >
         </app-create-session>
     </div>
 </div>

@@ -38,4 +38,10 @@ export class ScenarioComponent {
         this.simulationService.setSelectedScenario(ceremony);
         this.showCreateSession = true;
     }
+
+    onReturnPressed(){
+      this.selectedCeremony = null;
+      this.simulationService.setSelectedScenario(null);
+      this.showCreateSession = false;
+    }
 }

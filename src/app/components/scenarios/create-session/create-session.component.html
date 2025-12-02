@@ -66,6 +66,7 @@
               <p class="invite-label">Invita a tu equipo</p>
               <videoRoom [autoJoinRoomId]="autoJoinRoom"
                          [selectedRole]="selectedRole"
+                         [selectedScenario]="selectedScenario.ceremonyType"
               >
               </videoRoom>
             </div>
@@ -86,7 +87,10 @@
           </aside>
         </div>
 
-        <div id="csd-actions" class="d-flex justify-content-end mt-3">
+        <div id="csd-actions" class="d-flex justify-content-between mt-3">
+          <button (click)="onReturnPressed()" class="btn btn-outline-secondary">
+            Volver
+          </button>
           <button (click)="createSimulation()" [disabled]="isLoading" class="primary-btn">
           {{ isLoading ? 'Creando...' : 'Iniciar Ceremonia' }}
           </button>

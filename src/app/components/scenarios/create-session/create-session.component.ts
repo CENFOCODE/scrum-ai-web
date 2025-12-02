@@ -48,6 +48,7 @@ interface Notice {
 export class CreateSessionComponent implements OnInit, OnDestroy{
   @Input() ceremonyData!: IScenario;
   @Input() autoJoinRoom: string | null = null;
+  @Output() returnToMainScreen =  new EventEmitter<IScenario>();
   @Output() backToSelection = new EventEmitter<void>();
   @Output() sessionCreated = new EventEmitter<any>();
 
@@ -118,6 +119,9 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
     this.notice.set(null);
   }
 
+  onReturnPressed(){
+   this.returnToMainScreen.emit();
+  }
 
   createSimulation() {
     if (!this.selectedDifficulty|| !this.selectedRole) {
