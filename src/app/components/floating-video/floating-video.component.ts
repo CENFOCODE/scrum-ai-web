@@ -15,6 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
 import {MessageService} from "primeng/api";
 import {UserService} from "../../services/user.service";
+import {CallService} from "../../services/call.service";
 
 @Component({
   selector: 'app-call',
@@ -23,7 +24,7 @@ import {UserService} from "../../services/user.service";
   templateUrl: './floating-video.component.html',
   styleUrls: ['floating-video.component.scss'],
   providers: [MessageService],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
 export class FloatingVideoComponent implements OnInit {
 
@@ -70,9 +71,20 @@ export class FloatingVideoComponent implements OnInit {
   // Streams remotos por usuario
   remoteStreams = new Map<string, MediaStream>();
 
-  constructor(private socketService: SocketService, private route: ActivatedRoute, private messageService: MessageService) {}
+  constructor(private socketService: SocketService, private route: ActivatedRoute, private messageService: MessageService, private callService: CallService) {}
 
   async ngOnInit() {
+    this.callService.trigger$.subscribe(async event => {
+      switch (event.action) {
+        case 'sendInvite':
+          await this.showInviteDialog();
+          break;
+
+        case 'joinCall':
+          await this.showJoinDialog();
+          break;
+      }
+    });
     console.log(this.selectedScenario);
     await this.connectSocket();
     // await this.initLocalVideo();

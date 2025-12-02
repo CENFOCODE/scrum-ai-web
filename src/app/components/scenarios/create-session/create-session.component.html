@@ -64,11 +64,10 @@
             <!-- Email para invitar -->
             <div class="mt-2">
               <p class="invite-label">Invita a tu equipo</p>
-              <videoRoom [autoJoinRoomId]="autoJoinRoom"
-                         [selectedRole]="selectedRole"
-                         [selectedScenario]="selectedScenario.ceremonyType"
-              >
-              </videoRoom>
+              <div class="d-flex">
+                <button class="primary-btn me-3" (click)="sendInviteToCall()">Invitar</button>
+                <button class="btn btn-outline-secondary" (click)="joinToCall()">Unirse</button>
+              </div>
             </div>
           </div>
 

@@ -1,7 +1,6 @@
 <div>
   <div class="controls">
     <p-toast/>
-    <button (click)="showInviteDialog()" class="primary-btn">Invitar</button>
     <p-dialog header="Enviar invitación" [modal]="true" [(visible)]="inviteVisible" resizable="false" draggable="false">
       <div class="d-flex flex-column">
         <span class="p-text-secondary block mb-3">Ingrese el correo de la persona que quiere invitar</span>
@@ -25,7 +24,6 @@
       </div>
     </p-dialog>
 
-    <button (click)="showJoinDialog()" class="primary-btn">Unirse</button>
     <p-dialog header="Unirse a sesión" [modal]="true" [(visible)]="joinVisible" resizable="false" draggable="false">
       <div class="d-flex flex-column">
         <span class="p-text-secondary block mb-3">Ingrese el id de la sesión a la quiere unirse</span>
@@ -47,17 +45,6 @@
         </div>
       </div>
     </p-dialog>
-
-    <!--    <button (click)="joinRoom()" class="btn-control">Unirse a Sala</button>-->
-    <!--    <button (click)="inviteUser()" class="btn-control">Invitar Usuario</button>-->
-
-  </div>
-
-  <div class="status-box">
-    <p><strong>Usuario:</strong> {{ username }}</p>
-    <p><strong>Rol:</strong> {{ selectedRole || 'Ninguno' }}</p>
-    <p><strong>Sala:</strong> {{ room || 'No conectado' }}</p>
-    <p><strong>WebSocket:</strong> <span [ngClass]="isConnected ? 'ok' : 'fail'">{{ isConnected ? 'Conectado' : 'Desconectado' }}</span></p>
   </div>
 
   <div

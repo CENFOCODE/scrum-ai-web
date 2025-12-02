@@ -13,11 +13,10 @@ import { AuthService } from '../../../services/auth.service';
 import { switchMap, map } from 'rxjs/operators';
 import { ScenarioTemplateService } from '../../../services/scenario-template.service';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import {InvitationService} from "../../../services/invitation.service";
 import {SocketService} from "../../../services/socket.service";
-import {VideoRoomComponent} from "../../videoRoom/videoRoom.component";
 import {UserService} from "../../../services/user.service";
+import {CallService} from "../../../services/call.service";
 
 type NoticeType = 'success' | 'warning' | 'error';
 interface Notice {
@@ -38,7 +37,6 @@ interface Notice {
     MatIconModule,
     ToastModule,
     MatIconModule,
-    VideoRoomComponent
   ],
   templateUrl: './create-session.component.html',
   styleUrls: ['./create-session.component.scss']
@@ -51,7 +49,7 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
   @Output() returnToMainScreen =  new EventEmitter<IScenario>();
   @Output() backToSelection = new EventEmitter<void>();
   @Output() sessionCreated = new EventEmitter<any>();
-
+  @Output() sendInviteEmitter = new EventEmitter<void>();
 
   notice = signal<Notice | null>(null);
 
@@ -80,8 +78,8 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
     private simulationService: SimulationService,
     public authService: AuthService,
     private router: Router,
-    private scenarioTemplateService: ScenarioTemplateService
-
+    private scenarioTemplateService: ScenarioTemplateService,
+    private callService: CallService
   ) {
   effect(() => {
       const ceremonyData = this.simulationService.selectedScenario$();
@@ -107,6 +105,14 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
       );
     }
     console.log('Listener registrado');
+  }
+
+  sendInviteToCall(){
+    this.callService.call("sendInvite");
+  }
+
+  joinToCall(){
+   this.callService.call("joinCall")
   }
 
   ngOnDestroy() {
