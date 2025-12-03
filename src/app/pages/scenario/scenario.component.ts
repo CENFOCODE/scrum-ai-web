@@ -5,7 +5,6 @@ import { ScenarioListComponent } from "../../components/scenarios/scenario-list/
 import { CreateSessionComponent } from "../../components/scenarios/create-session/create-session.component";
 import { IScenario } from "../../interfaces";
 import { SimulationService } from "../../services/simulation.service";
-import {VideoRoomComponent} from "../../components/videoRoom/videoRoom.component";
 
 @Component({
   selector: 'app-scenario',

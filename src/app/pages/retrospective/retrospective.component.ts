@@ -148,8 +148,6 @@ export class RetrospectiveComponent implements OnInit{
 retroData: any = null;
 
 saveRetrospective() {
-  
-
   const payloadSections: any = {
     good: [],
     bad: [],
@@ -186,7 +184,7 @@ saveRetrospective() {
     simulationId: this.simulationId,
     retrospective: payloadSections
   };
-    this.retroData = payload; // ← guardamos lo que enviamos al backend
+    this.retroData = payload;
 
 
   this.retrospectiveService.saveRetrospective(payload).subscribe({
@@ -194,7 +192,6 @@ saveRetrospective() {
 
       const feedback = res.feedbackMessage;
 
-      // Enviar feedback al chatbot
       setTimeout(() => {
         this.chatbot.messages.push({
           from: 'Scrum AI',
