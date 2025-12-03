@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { SimulationService } from '../../../services/simulation.service';
-import { IScenario, IScenarioTemplate, ISimulations, ISimulationUser, ICeremonySession } from '../../../interfaces';
+import { IScenario, IScenarioTemplate, ISimulations, ISimulationUser, ICeremonySession, IParticipant } from '../../../interfaces';
 import { AuthService } from '../../../services/auth.service';
 import { switchMap, map } from 'rxjs/operators';
 import { ScenarioTemplateService } from '../../../services/scenario-template.service';
