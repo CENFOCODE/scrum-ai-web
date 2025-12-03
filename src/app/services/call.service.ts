@@ -7,6 +7,8 @@ export class CallService {
   trigger$ = this.trigger.asObservable();
   private roomIdSource = new Subject<string>();
   roomId$ = this.roomIdSource.asObservable();
+  private creatorRoom = new Subject<boolean>();
+  creatorRoom$ = this.creatorRoom.asObservable();
 
   call(action: string, payload?: any) {
     this.trigger.next({ action, payload });
@@ -15,4 +17,9 @@ export class CallService {
   sendRoomId(roomId: string) {
     this.roomIdSource.next(roomId);
   }
+
+  isCreatorRoom(isCreatorRoom: boolean){
+    this.creatorRoom.next(isCreatorRoom);
+  }
+
 }

@@ -1,6 +1,7 @@
 <div>
   <div class="controls">
     <p-toast/>
+    <p-confirmDialog />
     <p-dialog header="Enviar invitación" [modal]="true" [(visible)]="inviteVisible" resizable="false" draggable="false">
       <div class="d-flex flex-column">
         <span class="p-text-secondary block mb-3">Ingrese el correo de la persona que quiere invitar</span>
@@ -14,7 +15,7 @@
                   autocomplete="off"
                   placeholder="Email a invitar"
                   [(ngModel)]="emailToInvite"
-
+                  (keyup.enter)="inviteByEmail()"
           />
         </mat-form-field>
         <div class="d-flex justify-content-end gap-2">
@@ -68,10 +69,10 @@
       <button class="btn-icon" (click)="toggleCam()">
         <i [ngClass]="camOn ? 'fa-solid fa-video' : 'fa-solid fa-video-slash'"></i>
       </button>
-      <button *ngIf="room && !isRoomCreator" (click)="leaveCall()" class="btn-icon bg-red">
+      <button *ngIf="room && !isRoomCreator" (click)="confirmLeaveCall($event)" class="btn-icon bg-red">
         <i class="fa-solid fa-phone"></i>
       </button>
-      <button *ngIf="room && isRoomCreator" (click)="endCall()" class="btn-icon bg-red">
+      <button *ngIf="room && isRoomCreator" (click)="confirmEndCall($event)" class="btn-icon bg-red">
         <i class="fa-solid fa-phone"></i>
       </button>
     </div>

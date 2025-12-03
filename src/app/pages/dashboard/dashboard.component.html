@@ -6,7 +6,7 @@
     <div class="d-flex">
       <button class="primary-btn me-3" (click)="sendInviteToCall()">Invitar</button>
       <button class="btn btn-outline-secondary" (click)="joinToCall()">Unirse</button>
-      <div class="d-flex" *ngIf="currentRoomId === ''">
+      <div class="d-flex" *ngIf="currentRoomId != ''">
         <p>Id para unirse</p>
         <p>{{ currentRoomId }}</p>
       </div>
