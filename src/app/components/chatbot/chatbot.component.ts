@@ -99,6 +99,7 @@ export class ChatbotComponent implements OnInit {
           });
           this.loading = false;
           this.aiService.setResponse(response.data.answer || '');
+          this.aiService.setChatResponse(response.data.answer || '');
         },
         error: () => {
           this.messages.push({
@@ -160,11 +161,13 @@ export class ChatbotComponent implements OnInit {
         simulationId: ceremonyInfo?.simulationId || null,
         difficulty: ceremonyInfo?.difficulty || 1
       };
+      this.aiService.setChatResponse("\nUsuario: " + text);
 
       this.aiService.dailyChat(payload).subscribe({
         next: (response: string) => {
           this.messages.push({ from: 'Scrum AI', prompt: response });
           this.loading = false;
+          this.aiService.setChatResponse("\nScrum AI: " + response);
         },
         error: () => {
           this.messages.push({
@@ -197,6 +200,8 @@ export class ChatbotComponent implements OnInit {
 
     fullPrompt += `Usuario: ${text}\nScrum AI:`;
 
+    this.aiService.setChatResponse("\nUsuario: " + text);
+
     // Solicitud al backend → GroqService con contexto completo
     this.aiService.askAI({ prompt: fullPrompt }).subscribe({
       next: (response) => {
@@ -205,6 +210,7 @@ export class ChatbotComponent implements OnInit {
           prompt: response.data.answer
         });
         this.loading = false;
+        this.aiService.setChatResponse("\nScrum AI: " + response.data.answer);
       },
       error: () => {
         this.messages.push({

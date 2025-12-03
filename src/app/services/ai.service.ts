@@ -44,9 +44,13 @@ export class AiService extends BaseService<IAIResponse> {
   protected override source: string = 'ai';
 
   aiResponse$ = signal<string | null>(null);
+  aiChat$=signal<string>("");
 
   setResponse(answer: string) {
     this.aiResponse$.set(answer);
+  }
+  setChatResponse(text: string) {
+    this.aiChat$.set(this.aiChat$ + "\n" + text);
   }
 
   /**

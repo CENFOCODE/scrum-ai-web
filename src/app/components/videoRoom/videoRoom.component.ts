@@ -63,7 +63,11 @@ export class VideoRoomComponent implements OnInit {
 
   // Stream local (cámara + micrófono)
   localStream!: MediaStream;
+
+  // Conexiones WebRTC por usuario remoto
   peerConnections = new Map<string, RTCPeerConnection>();
+
+  // Streams remotos por usuario
   remoteStreams = new Map<string, MediaStream>();
 
   constructor(private socketService: SocketService, private route: ActivatedRoute, private messageService: MessageService) {}
@@ -420,9 +424,8 @@ export class VideoRoomComponent implements OnInit {
     this.peerConnections.set(targetUser, pc);
 
     this.localStream.getTracks().forEach(track => {
-      if (!pc.getSenders().find(s => s.track === track)) {
-        pc.addTrack(track, this.localStream);
-      }
+      const exists = pc.getSenders().find(s => s.track === track);
+      if (!exists) pc.addTrack(track, this.localStream);
     });
 
     pc.onicecandidate = (e) => {
@@ -468,11 +471,6 @@ export class VideoRoomComponent implements OnInit {
       case 'joinSuccess':
         if (msg.user && msg.user !== this.username) {
           await this.startPeerConnection(msg.user);
-        }
-
-        if (msg.role && !this.activeRoles.includes(msg.role)) {
-          this.activeRoles.push(msg.role);
-          this.updateCeremonyInfo();
         }
         break;
 
@@ -534,6 +532,7 @@ export class VideoRoomComponent implements OnInit {
 
   async handleOffer(fromUser: string, offer: RTCSessionDescriptionInit) {
     const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
     const pc = new RTCPeerConnection(config);
     this.peerConnections.set(fromUser, pc);
 
@@ -558,9 +557,8 @@ export class VideoRoomComponent implements OnInit {
     await pc.setRemoteDescription(new RTCSessionDescription(offer));
 
     this.localStream.getTracks().forEach(track => {
-      if (!pc.getSenders().find(s => s.track === track)) {
-        pc.addTrack(track, this.localStream);
-      }
+      const exists = pc.getSenders().find(s => s.track === track);
+      if (!exists) pc.addTrack(track, this.localStream);
     });
 
     const answer = await pc.createAnswer();

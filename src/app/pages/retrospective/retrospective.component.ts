@@ -149,7 +149,6 @@ retroData: any = null;
 
 saveRetrospective() {
   
-  
 
   const payloadSections: any = {
     good: [],
