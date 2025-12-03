@@ -14,11 +14,12 @@ import { LandingCenfoComponent } from './pages/landing-cenfo/landing-cenfo.compo
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
 import { WebsocketTestComponent } from './components/websocketTest/websocketTestComponent';
-import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
 import { HistoryComponent } from './pages/history/history.component';
 import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
+import { PlanningComponent } from './pages/planning-poker/planning.component';
+import { BacklogComponent } from './pages/backlog/backlog.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { RetrospectiveComponent} from './pages/retrospective/retrospective.component'
 import { FeedbackPageComponent } from './pages/feedback/feedback-page.component';
@@ -54,7 +55,11 @@ export const routes: Routes = [
     path: 'access-denied',
     component: AccessDeniedComponent,
   },
-
+{
+    path: 'landingcenfo',
+    component: LandingCenfoComponent,
+    canActivate: [GuestGuard],
+  },
   {
     path: '',
     redirectTo: 'landingpage',
@@ -66,9 +71,35 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       {
-        path: 'app',
-        redirectTo: 'users',
+        path: '',
+        redirectTo: 'home',
         pathMatch: 'full',
+      },
+       {
+        path: 'backlog',
+        component: PlanningComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'backlog',
+          showInSidebar: false 
+        }
+      },
+       {
+        path: 'planning',
+        component: BacklogComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'planning',
+          showInSidebar: false 
+        }
       },
       {
         path: 'users',
@@ -171,20 +202,7 @@ export const routes: Routes = [
             IRoleType.user,
           ],
           name: 'WebSocket Test',
-          showInSidebar: false // si no querés que aparezca en el menú lateral
-        }
-      },
-      {
-        path: 'videoRoom',
-        component: VideoRoomComponent,
-        data: {
-          authorities: [
-            IRoleType.admin,
-            IRoleType.superAdmin,
-            IRoleType.user,
-          ],
-          name: 'Video Room',
-          showInSidebar: false
+          showInSidebar: false 
         }
       },
       {
