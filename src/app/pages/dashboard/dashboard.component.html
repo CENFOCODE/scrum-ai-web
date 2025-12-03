@@ -8,6 +8,12 @@
       <button class="btn btn-outline-secondary" (click)="joinToCall()">Unirse</button>
     </div>
   </div>
- 
-  <app-chatbot [aiTemplate]="aiTemplate"/>
+ <app-chatbot 
+    #dashboardChatbot
+    [aiTemplate]="aiTemplate"/>
+
+  <!-- ✅ Floating video emite análisis al dashboard -->
+  <app-call 
+    (aiAnalysisReady)="onAIAnalysis($event)">
+  </app-call>
 </div>
