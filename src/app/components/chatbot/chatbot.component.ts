@@ -1,38 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AiService } from '../../services/ai.service';
-import { SimulationService } from '../../services/simulation.service';
-import {IScenarioTemplate, ISimulationUser} from '../../interfaces';
-
-/**
- * ============================================================
- * 🧠 COMPONENTE UNIVERSAL DE CHAT (Scrum AI)
- * ============================================================
- * Este componente permite interacción con la IA en cualquier ceremonia.
- * Funciona en dos modos:
- *
- *   - "general" → Planning, Review, Retrospective y entrenamiento
- *   - "daily"   → Daily con lógica especial (roles, tablero, impedimentos)
- *
- * Ambos modos conviven de forma independiente.
- *
- * ============================================================
- * ¿CÓMO USARLO EN TU CEREMONIA?
- * ============================================================
- * 1) Si tu ceremonia usa plantillas desde `scenario_templates`:
- *
- *      <app-chatbot [aiTemplate]="template"></app-chatbot>
- *
- * 2) Si tu ceremonia solo necesita mensajes libres:
- *
- *      <app-chatbot></app-chatbot>
- *
- * 3) Para Daily:
- *
- *      <app-chatbot mode="daily"></app-chatbot>
- *
- * ============================================================
- */
+import { TranscriptStateService } from '../../services/transcript-state.service';
+import { IScenario, IScenarioTemplate, ISimulationUser } from '../../interfaces';
 
 @Component({
   selector: 'app-chatbot',
@@ -60,6 +30,8 @@ export class ChatbotComponent implements OnInit {
 
   constructor(
     private aiService: AiService,
+    private transcriptState: TranscriptStateService
+  ) { }
     private simulationService: SimulationService
   ) {}
 
@@ -163,6 +135,12 @@ export class ChatbotComponent implements OnInit {
       fullPrompt += `${this.aiTemplate.promptTemplate}\n\n`;
     }
 
+    const formattedTranscript = this.transcriptState.getFormattedTranscript();  
+    if (formattedTranscript.length > 0) {  
+      fullPrompt += `\n--- Conversación del equipo durante la videollamada ---\n${formattedTranscript}\n\n`;  
+    }
+
+  
     fullPrompt += `Usuario: ${text}\nScrum AI:`;
 
     this.aiService.setChatResponse("\nUsuario: " + text);
@@ -184,5 +162,12 @@ export class ChatbotComponent implements OnInit {
         this.loading = false;
       }
     });
+    
+  }
+  public addAIMessage(title: string, content: string) {
+  this.messages.push({
+    from: title,
+    prompt: content
+  });
   }
 }
