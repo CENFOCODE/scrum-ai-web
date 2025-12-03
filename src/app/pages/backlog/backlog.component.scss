@@ -76,3 +76,13 @@ select {
     outline: none !important;
   }
 }
+
+/* Botones Enviar y Terminar */
+.d-flex.align-items-center.gap-2 > .primary-btn {
+  height: 42px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
