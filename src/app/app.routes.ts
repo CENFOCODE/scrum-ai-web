@@ -14,7 +14,6 @@ import { LandingCenfoComponent } from './pages/landing-cenfo/landing-cenfo.compo
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
 import { WebsocketTestComponent } from './components/websocketTest/websocketTestComponent';
-import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
 import { HistoryComponent } from './pages/history/history.component';
@@ -204,19 +203,6 @@ export const routes: Routes = [
           ],
           name: 'WebSocket Test',
           showInSidebar: false 
-        }
-      },
-      {
-        path: 'videoRoom',
-        component: VideoRoomComponent,
-        data: {
-          authorities: [
-            IRoleType.admin,
-            IRoleType.superAdmin,
-            IRoleType.user,
-          ],
-          name: 'Video Room',
-          showInSidebar: false
         }
       },
       {
