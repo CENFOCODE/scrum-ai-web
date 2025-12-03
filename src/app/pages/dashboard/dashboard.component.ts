@@ -21,6 +21,7 @@ export class DashboardComponent implements OnInit {
   scenario: IScenario | null = null;
   simulationUser: ISimulationUser | null = null;
   aiTemplate: IScenarioTemplate | null = null;
+  currentRoomId = '';
 
   constructor(private router: Router,private callService: CallService) {
     // Obtenemos los datos pasados desde create-session
@@ -35,7 +36,10 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    
+    this.callService.roomId$.subscribe(roomId => {
+      console.log('Nuevo room ID recibido:', roomId);
+      this.currentRoomId = roomId; // <- lo guardás para mostrarlo
+    });
   }
   sendInviteToCall(){
     this.callService.call("sendInvite");

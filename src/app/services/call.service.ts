@@ -5,8 +5,14 @@ import { Subject } from 'rxjs';
 export class CallService {
   private trigger = new Subject<{ action: string, payload?: any }>();
   trigger$ = this.trigger.asObservable();
+  private roomIdSource = new Subject<string>();
+  roomId$ = this.roomIdSource.asObservable();
 
   call(action: string, payload?: any) {
     this.trigger.next({ action, payload });
+  }
+
+  sendRoomId(roomId: string) {
+    this.roomIdSource.next(roomId);
   }
 }

@@ -429,6 +429,8 @@ export class FloatingVideoComponent implements OnInit {
     this.role = 'Scrum Master';
     this.isRoomCreator = true;
 
+    this.callService.sendRoomId(this.room);
+
     this.socketService.sendMessage({
       type: 'create-room',
       room: this.room,
