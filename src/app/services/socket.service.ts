@@ -22,7 +22,7 @@ import { Injectable } from '@angular/core';
 @Injectable({ providedIn: 'root' })
 export class SocketService {
   /** URL del WebSocket remoto (ngrok/Cloudflare del backend) */
-  private readonly WS_URL = 'wss://frore-paz-comprehensibly.ngrok-free.dev/webrtc';
+  private readonly WS_URL = 'wss://bedazzlingly-unantagonising-levi.ngrok-free.dev/webrtc';
 
   /** Instancia WebSocket */
   private socket!: WebSocket;
@@ -48,8 +48,22 @@ export class SocketService {
   /** Reintentos para backoff exponencial */
   private reconnectAttempts = 0;
 
+  /**
+   * Retraso base para reconexión (1 segundo).
+   * Se usa en backoff exponencial.
+   */
   private readonly baseDelayMs = 1000;
+
+  /**
+   * Retraso máximo de reconexión (30 segundos).
+   * Evita esperas infinitas en caso de servidor caído.
+   */
   private readonly maxDelayMs = 30000;
+
+  /**
+   * Intervalo de ping keep-alive (20 segundos).
+   * Mantiene la conexión WebSocket activa en proxies/load balancers.
+   */
   private readonly pingIntervalMs = 20000;
 
   /**

@@ -2,7 +2,8 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AiService } from '../../services/ai.service';
 import { SimulationService } from '../../services/simulation.service';
-import {IScenarioTemplate, ISimulationUser} from '../../interfaces';
+import { TranscriptStateService } from '../../services/transcript-state.service';
+import { IScenario, IScenarioTemplate, ISimulationUser } from '../../interfaces';
 
 /**
  * ============================================================
@@ -43,7 +44,7 @@ import {IScenarioTemplate, ISimulationUser} from '../../interfaces';
 })
 export class ChatbotComponent implements OnInit {
 
-  /** Plantilla proveniente de scenario_templates (Planning/Review/Retro) */
+  /** Input para recibir la plantilla de IA desde el dashboard */
   @Input() aiTemplate: IScenarioTemplate | null = null;
   @Input() scenario: ISimulationUser | null = null;
 
@@ -55,13 +56,14 @@ export class ChatbotComponent implements OnInit {
 
   loading = false;
 
-  /** Mostrar/ocultar chatbot */
+
   visible = false;
 
   constructor(
     private aiService: AiService,
+    private transcriptState: TranscriptStateService,
     private simulationService: SimulationService
-  ) {}
+  ) { }
 
   toggleChatbot() {
     this.visible = !this.visible;
@@ -163,6 +165,12 @@ export class ChatbotComponent implements OnInit {
       fullPrompt += `${this.aiTemplate.promptTemplate}\n\n`;
     }
 
+    const formattedTranscript = this.transcriptState.getFormattedTranscript();
+    if (formattedTranscript.length > 0) {
+      fullPrompt += `\n--- Conversación del equipo durante la videollamada ---\n${formattedTranscript}\n\n`;
+    }
+
+
     fullPrompt += `Usuario: ${text}\nScrum AI:`;
 
     this.aiService.setChatResponse("\nUsuario: " + text);
@@ -183,6 +191,13 @@ export class ChatbotComponent implements OnInit {
         });
         this.loading = false;
       }
+    });
+
+  }
+  public addAIMessage(title: string, content: string) {
+    this.messages.push({
+      from: title,
+      prompt: content
     });
   }
 }

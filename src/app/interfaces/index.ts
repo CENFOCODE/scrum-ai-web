@@ -174,6 +174,14 @@ export interface ISimulationFeedback {
   simulation?: ISimulations;
 }
 
+export interface ICeremonySession {
+  id?: number;
+  ceremonyType?: string;
+  simulationId?: number;
+  startTime?: Date;
+  endTime?: Date;
+  simulation?: ISimulations;
+}
 
 export interface IParticipant {
   email: string;
