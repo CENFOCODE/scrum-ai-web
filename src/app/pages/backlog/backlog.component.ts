@@ -58,14 +58,14 @@ export class BacklogComponent implements OnInit {
   ngOnInit(): void {
     this.itemsMenu = [
       { label: 'Planning Paso 1', route: '/app/scenario' },
-      { label: 'Planning Paso 2', route: '/app/backlog' },
-      { label: 'Planning Paso 3', route: '/app/planning' }
+      { label: 'Planning Paso 2', route: '/app/planning' },
+      { label: 'Planning Paso 3', route: '/app/history' }
     ];
     this.home = { label: 'Home', routerLink: '/' };
   }
 
   goBack() {
-    this.router.navigate(['/app/backlog']);
+    this.router.navigate(['/app/scenario']);
   }
 
   planData: any = null;
