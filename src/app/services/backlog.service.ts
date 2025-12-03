@@ -352,13 +352,16 @@ export class BacklogService {
     );
 
     this.http.put<IResponse<any>>(
-      `${this.baseUrl}/items/${Number(itemId)}`,
-      { status }
-    ).subscribe({
-  next: () => this.loadFromApi(),
-  error: () => this.alerts.error('Error actualizando historia')
-});
-  }
+    `${this.baseUrl}/items/${Number(itemId)}`,
+    { status }
+  ).subscribe({
+    next: () => {
+      this.alerts.success('Estado actualizado correctamente');
+      this.loadFromApi();
+    },
+    error: () => this.alerts.error('Error actualizando historia')
+  });
+}
 
   updateModule(sprintId: string, itemId: string, module: string) {
     this.sprintsSignal.update(sprints =>
@@ -420,10 +423,15 @@ export class BacklogService {
     );
 
     this.http.put<IResponse<any>>(
-      `${this.baseUrl}/items/${Number(itemId)}`,
-      { storyPoints }
-    ).subscribe();
-  }
+    `${this.baseUrl}/items/${Number(itemId)}`,
+    { storyPoints }
+  ).subscribe({
+    next: () => {
+      this.alerts.success('Story points actualizados correctamente');
+      this.loadFromApi();
+    }
+  });
+}
 
   /* Actualizar historia */
   updateItemDetails(
