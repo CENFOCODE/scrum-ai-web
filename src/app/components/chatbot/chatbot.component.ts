@@ -1,7 +1,38 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AiService } from '../../services/ai.service';
-import { IScenario, IScenarioTemplate, ISimulationUser } from '../../interfaces';
+import { SimulationService } from '../../services/simulation.service';
+import {IScenarioTemplate, ISimulationUser} from '../../interfaces';
+
+/**
+ * ============================================================
+ * 🧠 COMPONENTE UNIVERSAL DE CHAT (Scrum AI)
+ * ============================================================
+ * Este componente permite interacción con la IA en cualquier ceremonia.
+ * Funciona en dos modos:
+ *
+ *   - "general" → Planning, Review, Retrospective y entrenamiento
+ *   - "daily"   → Daily con lógica especial (roles, tablero, impedimentos)
+ *
+ * Ambos modos conviven de forma independiente.
+ *
+ * ============================================================
+ * ¿CÓMO USARLO EN TU CEREMONIA?
+ * ============================================================
+ * 1) Si tu ceremonia usa plantillas desde `scenario_templates`:
+ *
+ *      <app-chatbot [aiTemplate]="template"></app-chatbot>
+ *
+ * 2) Si tu ceremonia solo necesita mensajes libres:
+ *
+ *      <app-chatbot></app-chatbot>
+ *
+ * 3) Para Daily:
+ *
+ *      <app-chatbot mode="daily"></app-chatbot>
+ *
+ * ============================================================
+ */
 
 @Component({
   selector: 'app-chatbot',
@@ -12,30 +43,49 @@ import { IScenario, IScenarioTemplate, ISimulationUser } from '../../interfaces'
 })
 export class ChatbotComponent implements OnInit {
 
-  /** Input para recibir la plantilla de IA desde el dashboard */
+  /** Plantilla proveniente de scenario_templates (Planning/Review/Retro) */
   @Input() aiTemplate: IScenarioTemplate | null = null;
   @Input() scenario: ISimulationUser | null = null;
 
+  /** Modo de funcionamiento */
+  @Input() mode: 'daily' | 'general' = 'general';
+
+  /** Historial del chat */
   messages: { from: string; prompt?: string }[] = [];
 
   loading = false;
 
-
+  /** Mostrar/ocultar chatbot */
   visible = false;
 
-  constructor(private aiService: AiService) { }
+  constructor(
+    private aiService: AiService,
+    private simulationService: SimulationService
+  ) {}
 
   toggleChatbot() {
     this.visible = !this.visible;
   }
 
-
+  /**
+   * ============================================================
+   * INICIALIZACIÓN
+   * ============================================================
+   * - Modo Daily → mensaje inicial básico
+   * - Modo general → muestra la plantilla del escenario si existe
+   */
   ngOnInit() {
 
-    const contextPrompt = 'Eres un asistente de Scrum donde tienes como objetivo ayudar a los usuarios en los errores más comunes en Scrum, el usuario tiene que seleccionar la ceremonia, ya sea Planning, Daily, Review o Retrospective y tiene que seleccionar tambien la dificultad.';
+    // Modo general (Planning/Review/Retro o Training)
+    const contextPrompt =
+      'Eres un asistente de Scrum y debes ayudar según la ceremonia seleccionada.';
 
     if (this.aiTemplate?.promptTemplate) {
-
+      // Mostrar la plantilla como primer mensaje
+      this.messages.push({
+        from: 'Usuario',
+        prompt: this.aiTemplate.promptTemplate
+      });
 
       // Enviar automáticamente el prompt a la IA con el contexto
       this.loading = true;
@@ -48,6 +98,8 @@ export class ChatbotComponent implements OnInit {
             prompt: response.data.answer
           });
           this.loading = false;
+          this.aiService.setResponse(response.data.answer || '');
+          this.aiService.setChatResponse(response.data.answer || '');
         },
         error: () => {
           this.messages.push({
@@ -86,17 +138,69 @@ export class ChatbotComponent implements OnInit {
     input.value = '';
     this.loading = true;
 
-    // Contexto del asistente
-    const contextPrompt = 'Eres un asistente de Scrum donde tienes como objetivo ayudar a los usuarios en los errores más comunes en Scrum, el usuario tiene que seleccionar la ceremonia, ya sea Planning, Daily, Review o Retrospective y con su dificultad. Si el usuario no elige ser Scrum Master por defecto debes tomar este rol.';
+    /**
+     * ============================================================
+     * MODO DAILY
+     * ============================================================
+     * Usa un request estructurado para que la IA analice roles,
+     * impedimentos, tablero y respuestas tipo "ayer / hoy / blockers".
+     */
+    if (this.mode === 'daily') {
 
-    // Combinar contexto + prompt inicial + mensaje del usuario
+      // 🚀 Tomamos valores reales de SimulationService (Signals)
+      const ceremonyInfo = this.simulationService.dailyCeremonyInfo$();
+      const board = this.simulationService.dailyBoard$();
+      const answers = this.simulationService.dailyAnswers$();
+
+      const payload = {
+        message: text,
+        answers: answers,
+        board: board,
+        activeRoles: ceremonyInfo?.activeRoles || [],
+        userRole: ceremonyInfo?.userRole || 'Scrum Master',
+        simulationId: ceremonyInfo?.simulationId || null,
+        difficulty: ceremonyInfo?.difficulty || 1
+      };
+      this.aiService.setChatResponse("\nUsuario: " + text);
+
+      this.aiService.dailyChat(payload).subscribe({
+        next: (response: string) => {
+          this.messages.push({ from: 'Scrum AI', prompt: response });
+          this.loading = false;
+          this.aiService.setChatResponse("\nScrum AI: " + response);
+        },
+        error: () => {
+          this.messages.push({
+            from: 'Scrum AI',
+            prompt: '⚠️ Hubo un error procesando el Daily.'
+          });
+          this.loading = false;
+        }
+      });
+
+      return;
+    }
+
+    /**
+     * ============================================================
+     * MODO GENERAL
+     * ============================================================
+     * Para Planning, Review y Retrospective:
+     * Se arma un prompt libre, con contexto + plantilla (si existe).
+     */
+    const contextPrompt =
+      'Eres un asistente experto en Scrum y debes guiar según la ceremonia.';
+
     let fullPrompt = `${contextPrompt}\n\n`;
 
+    // Si existe plantilla del escenario → agregarla
     if (this.aiTemplate?.promptTemplate) {
       fullPrompt += `${this.aiTemplate.promptTemplate}\n\n`;
     }
 
     fullPrompt += `Usuario: ${text}\nScrum AI:`;
+
+    this.aiService.setChatResponse("\nUsuario: " + text);
 
     // Solicitud al backend → GroqService con contexto completo
     this.aiService.askAI({ prompt: fullPrompt }).subscribe({
@@ -106,6 +210,7 @@ export class ChatbotComponent implements OnInit {
           prompt: response.data.answer
         });
         this.loading = false;
+        this.aiService.setChatResponse("\nScrum AI: " + response.data.answer);
       },
       error: () => {
         this.messages.push({

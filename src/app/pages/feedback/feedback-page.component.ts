@@ -45,7 +45,8 @@ export class FeedbackPageComponent {
 
     this.feedbackService.getFeedbackBySimulation(this.simulationId)
       .subscribe(res => {
-        this.feedback = res.message;
+        this.feedback = res.message || res.message;
+
       });
   }
 }
