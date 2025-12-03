@@ -20,3 +20,59 @@ a {
 ::ng-deep .p-menuitem-link {
   color: #1C3B44;
 }
+
+/* ============================
+   INPUT CONSULTA IA
+============================ */
+.csd-ai-input {
+  border: 1px solid #1C3844 !important; /* petroleo */
+  color: #1C3844 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  height: 34px;
+
+  &::placeholder {
+    color: #1C3844 !important;
+    opacity: 0.7;
+  }
+
+  &:focus,
+  &:active {
+    border: 1px solid #1C3844 !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+}
+
+/* QUITAR OUTLINES AZULES GLOBALES */
+button,
+input,
+textarea,
+select {
+  &:focus,
+  &:active {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
+:host ::ng-deep .csd-ai-input {
+  border: 1px solid #1C3844 !important; 
+  color: #1C3844 !important;
+  box-shadow: none !important;
+  outline: none !important;
+
+  height: 42px !important;        
+  padding: 6px 12px !important;   
+  &::placeholder {
+    color: #1C3844 !important;
+    opacity: 0.7;
+  }
+
+  &:focus,
+  &:active {
+    border: 1px solid #1C3844 !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+}

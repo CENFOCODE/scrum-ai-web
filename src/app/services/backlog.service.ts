@@ -83,6 +83,7 @@ interface IBacklogSprintApi {
 @Injectable({ providedIn: 'root' })
 export class BacklogService {
   private readonly baseUrl = 'backlog';
+  private simulationURL = 'simulation/';
 
   private sprintsSignal = signal<IBacklogSprint[]>([]);
   private searchTermSignal = signal<string>('');
@@ -469,5 +470,9 @@ export class BacklogService {
     }
   ).subscribe(() => this.loadFromApi());
 }
+
+completeSimulation(simulationId: number) {
+    return this.http.put(`${this.simulationURL}${simulationId}/complete`, {});
+  }
 
 }

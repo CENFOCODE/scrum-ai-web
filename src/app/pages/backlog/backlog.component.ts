@@ -2,16 +2,18 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { BacklogBoardComponent } from '../../components/backlog-board/backlog-board.component';
 import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
 import { IScenario, ISimulationUser, IScenarioTemplate, ISimulations, ISimulationFeedback } from '../../interfaces';
 import { ViewChild } from '@angular/core';
+import { BacklogService } from '../../services/backlog.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-backlog',
   standalone: true,
-  imports: [CommonModule, RouterModule, BreadcrumbModule, BacklogBoardComponent, ChatbotComponent],
+  imports: [CommonModule, RouterModule, BreadcrumbModule, FormsModule, BacklogBoardComponent, ChatbotComponent],
   templateUrl: './backlog.component.html',
   styleUrls: ['./backlog.component.scss']
 })
@@ -24,11 +26,16 @@ export class BacklogComponent implements OnInit {
       simulationId: number | null = null;
       simulationUser: ISimulationUser | null = null;
       aiTemplate: IScenarioTemplate | null = null;
+      aiQuery: string = '';
+
 
   itemsMenu: MenuItem[] | undefined;
   home: MenuItem | undefined;
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router, 
+    private backlogService: BacklogService
+  ) {
     const nav = this.router.getCurrentNavigation();
     if(nav?.extras?.state) {
       this.scenario = nav.extras.state['scenario'] || null;
@@ -51,13 +58,42 @@ export class BacklogComponent implements OnInit {
   ngOnInit(): void {
     this.itemsMenu = [
       { label: 'Planning Paso 1', route: '/app/scenario' },
-      { label: 'Planning Paso 2', route: '/app/poker' },
+      { label: 'Planning Paso 2', route: '/app/backlog' },
       { label: 'Planning Paso 3', route: '/app/planning' }
     ];
     this.home = { label: 'Home', routerLink: '/' };
   }
 
   goBack() {
-    this.router.navigate(['/app/poker']);
+    this.router.navigate(['/app/backlog']);
+  }
+
+  finishSimulation() {
+  if (!this.simulationId) {
+    return;
+  }
+  this.backlogService.completeSimulation(this.simulationId)
+    .subscribe({
+      next: (res) => {
+  
+         const feedback = this.feedbackText;
+         this.router.navigate(['/app/feedback'], {
+          state: {
+            simulationId: this.simulationId,
+            scenario: this.scenario,
+            simulationUser: this.simulationUser,
+            simulation: this.simulation,
+            feedback: feedback
+          }
+        });
+      },
+      error: (err) => {
+        if (err.status === 409) {
+  
+      } else {
+        
+      }
+    }
+    });
   }
 }

@@ -36,8 +36,19 @@
         (click)="goBack()">
         Anterior
       </button>
-      <button class="primary-btn px-4">
-        Siguiente
+      <div class="d-flex align-items-center gap-2">
+      <input
+        type="text"
+        class="form-control csd-ai-input"
+        style="width: 240px;"
+        placeholder="Consulta con la IA"
+        [(ngModel)]="aiQuery"
+      />
+    <button class="primary-btn px-4" type="button">
+      Enviar
+    </button>
+      <button class="primary-btn px-4" (click)="finishSimulation()">
+        Terminar
       </button>
     </div>
   </div>
