@@ -9,13 +9,22 @@ import { IScenario, ISimulationUser, IScenarioTemplate, ISimulations, ISimulatio
 import { ViewChild } from '@angular/core';
 import { BacklogService } from '../../services/backlog.service';
 import { FormsModule } from '@angular/forms';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-backlog',
   standalone: true,
-  imports: [CommonModule, RouterModule, BreadcrumbModule, FormsModule, BacklogBoardComponent, ChatbotComponent],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    BreadcrumbModule, 
+    FormsModule, 
+    BacklogBoardComponent,
+    ToastModule, 
+    ChatbotComponent],
   templateUrl: './backlog.component.html',
-  styleUrls: ['./backlog.component.scss']
+  styleUrls: ['./backlog.component.scss'],
+  providers: [MessageService]
 })
 export class BacklogComponent implements OnInit {
   @ViewChild(ChatbotComponent) chatbot!: ChatbotComponent;
@@ -34,7 +43,8 @@ export class BacklogComponent implements OnInit {
 
   constructor(
     private router: Router, 
-    private backlogService: BacklogService
+    private backlogService: BacklogService,
+    private messageService: MessageService
   ) {
     const nav = this.router.getCurrentNavigation();
     if(nav?.extras?.state) {
@@ -90,6 +100,9 @@ export class BacklogComponent implements OnInit {
           prompt: feedback
         });
       }, 0);
+      this.messageService.clear();
+      this.messageService.add({severity:'success', summary: 'Éxito', detail: 'Retrospectiva guardada correctamente.'});
+
     },
     error: () => {
     }
@@ -104,7 +117,6 @@ export class BacklogComponent implements OnInit {
   this.backlogService.completeSimulation(this.simulationId)
     .subscribe({
       next: (res) => {
-  
          const feedback = this.feedbackText;
          this.router.navigate(['/app/feedback'], {
           state: {
