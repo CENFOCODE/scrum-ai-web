@@ -222,25 +222,24 @@ export class BacklogBoardComponent {
   }
 
   handleStartSprint(sprint: IBacklogSprint) {
-    if (this.isBacklogSprint(sprint) || this.isCompletedContainer(sprint)) {
-      return;
-    }
-    if (sprint.status === 'COMPLETED') {
-      return;
-    }
-    if (sprint.status === 'ACTIVE') {
-      const confirmComplete = confirm(
-        `¿Marcar el sprint "${sprint.name}" como completado?`
-      );
-      if (confirmComplete) {
-        sprint.status = 'COMPLETED';
-        this.backlogService.completeSprint(sprint.id);
-      }
-    } else {
-      sprint.status = 'ACTIVE';
-      this.backlogService.startSprint(sprint.id);
-    }
+  if (this.isBacklogSprint(sprint) || this.isCompletedContainer(sprint)) {
+    return;
   }
+
+  if (sprint.status === 'COMPLETED') {
+    return;
+  }
+
+  if (sprint.status === 'ACTIVE') {
+    sprint.status = 'COMPLETED';
+    this.backlogService.completeSprint(sprint.id);
+    return;
+  }
+
+  sprint.status = 'ACTIVE';
+  this.backlogService.startSprint(sprint.id);
+}
+
 
   openSprintMenu(sprint: IBacklogSprint) {
     this.menuSprintId = this.menuSprintId === sprint.id ? null : sprint.id;
@@ -252,12 +251,9 @@ export class BacklogBoardComponent {
   }
 
   handleDeleteSprintFromMenu(sprint: IBacklogSprint) {
-    this.menuSprintId = null;
-    const confirmDelete = confirm(`¿Eliminar el sprint "${sprint.name}"?`);
-    if (confirmDelete) {
-      this.backlogService.deleteSprint(sprint.id);
-    }
-  }
+  this.menuSprintId = null;
+  this.backlogService.deleteSprint(sprint.id);
+}
 
   openEditSprintDialog(sprint: IBacklogSprint) {
     this.editingSprint = sprint;
@@ -345,13 +341,11 @@ export class BacklogBoardComponent {
   }
 
   handleDeleteItemFromMenu(sprint: IBacklogSprint, item: IBacklogItem) {
-    this.itemMenuId = null;
-    const confirmDelete = confirm(`¿Eliminar la historia "${item.title}"?`);
-    if (confirmDelete) {
-      this.backlogService.deleteItem(sprint.id, item.id);
-      this.recomputeSprintStoryPoints(sprint);
-    }
-  }
+  this.itemMenuId = null;
+  this.backlogService.deleteItem(sprint.id, item.id);
+  this.recomputeSprintStoryPoints(sprint);
+}
+
 
   handleMoveItemFromMenu(sprint: IBacklogSprint, item: IBacklogItem) {
     this.itemMenuId = null;
@@ -366,15 +360,17 @@ export class BacklogBoardComponent {
   }
 
   confirmMoveItem() {
-    if (!this.movingItem || !this.targetSprintId) return;
-    this.backlogService.moveItemToSprint(
-      this.movingItem.sprintId,
-      this.targetSprintId,
-      this.movingItem.item.id
-    );
-    this.movingItem = null;
-    this.targetSprintId = '';
-  }
+  if (!this.movingItem || !this.targetSprintId) return;
+
+  this.backlogService.moveItemToSprint(
+    this.movingItem.sprintId,
+    this.targetSprintId,
+    this.movingItem.item.id
+  );
+
+  this.movingItem = null;
+  this.targetSprintId = '';
+}
 
   openEditItemDialog(sprint: IBacklogSprint, item: IBacklogItem) {
     this.editingItem = { sprintId: sprint.id, item };
