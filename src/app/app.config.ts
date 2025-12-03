@@ -11,12 +11,14 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
 import { importProvidersFrom } from '@angular/core';
 import { provideMarkdown } from 'ngx-markdown';
+import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes), 
     provideClientHydration(),
     provideMarkdown(),
+    MessageService,
     provideHttpClient(
       withInterceptors([
         baseUrlInterceptor,
