@@ -13,17 +13,18 @@ import {MatFormField, MatLabel} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
-import {MessageService} from "primeng/api";
+import {ConfirmationService, MessageService} from "primeng/api";
 import {UserService} from "../../services/user.service";
 import {CallService} from "../../services/call.service";
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-call',
   standalone: true,
-  imports: [CommonModule, DragDropModule, FormsModule, DialogModule, ButtonModule, InputTextModule, MatFormField, MatInput, MatLabel, ToastModule, RippleModule],
-  templateUrl: './floating-video.component.html',
-  styleUrls: ['floating-video.component.scss'],
-  providers: [MessageService],
+  imports: [CommonModule, DragDropModule, FormsModule, DialogModule, ButtonModule, InputTextModule, MatFormField, MatInput, MatLabel, ToastModule, RippleModule, ConfirmDialogModule],
+  templateUrl: 'floating-video.component.html',
+  styleUrl: 'floating-video.component.scss',
+  providers: [MessageService, ConfirmationService],
   encapsulation: ViewEncapsulation.None,
 })
 export class FloatingVideoComponent implements OnInit {
@@ -71,17 +72,17 @@ export class FloatingVideoComponent implements OnInit {
   // Streams remotos por usuario
   remoteStreams = new Map<string, MediaStream>();
 
-  constructor(private socketService: SocketService, private route: ActivatedRoute, private messageService: MessageService, private callService: CallService) {}
+  constructor(private socketService: SocketService, private route: ActivatedRoute, private messageService: MessageService, private callService: CallService, private confirmationService: ConfirmationService) {}
 
   async ngOnInit() {
     this.callService.trigger$.subscribe(async event => {
       switch (event.action) {
         case 'sendInvite':
-          await this.showInviteDialog();
+          this.showInviteDialog();
           break;
 
         case 'joinCall':
-          await this.showJoinDialog();
+          this.showJoinDialog();
           break;
       }
     });
@@ -429,6 +430,9 @@ export class FloatingVideoComponent implements OnInit {
     this.role = 'Scrum Master';
     this.isRoomCreator = true;
 
+    this.callService.sendRoomId(this.room);
+    this.callService.isCreatorRoom(this.isRoomCreator)
+
     this.socketService.sendMessage({
       type: 'create-room',
       room: this.room,
@@ -562,7 +566,6 @@ export class FloatingVideoComponent implements OnInit {
         break;
 
       case 'endCall':
-        // alert(msg.message || 'La llamada fue finalizada por el organizador.');
         this.cleanupAndReset();
         break;
 
@@ -707,14 +710,50 @@ export class FloatingVideoComponent implements OnInit {
     this.isRoomCreator = false;
   }
 
+  confirmLeaveCall(event: Event){
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: '¿Estás seguro de que quieres salir de la llamada?',
+      header: 'Salir de la llamada',
+      icon: 'pi pi-exclamation-triangle',
+      acceptIcon:"none",
+      rejectIcon:"none",
+      rejectButtonStyleClass:"p-button-text",
+      accept: () => {
+        this.messageService.add({ severity: 'info', summary: 'Videollamada terminada', detail: 'Haz salido de la llamada' });
+        this.leaveCall();
+      },
+      reject: () => {
+      }
+    });
+  }
+
+  confirmEndCall(event: Event){
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: '¿Finalizar la llamada para todos los participantes?',
+      header: 'Finalizar llamada',
+      acceptIcon:"none",
+      rejectIcon:"none",
+      rejectButtonStyleClass:"p-button-text",
+      accept: () => {
+        this.messageService.add({ severity: 'info', summary: 'Videollamada finalizada', detail: 'Haz finalizado la llamada a todos los participantes' });
+        this.endCall();
+      },
+      reject: () => {
+      }
+    });
+  }
+
   leaveCall() {
     if (!this.room) {
-      alert('No estás en ninguna sala.');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Sala no encontrada',
+        detail: 'No estas en ninguna sala'
+      });
       return;
     }
-
-    const confirm = window.confirm('¿Estás seguro de que quieres salir de la llamada?');
-    if (!confirm) return;
 
     this.socketService.sendMessage({
       type: 'leave-room',
@@ -724,11 +763,6 @@ export class FloatingVideoComponent implements OnInit {
 
     this.cleanupAndReset();
 
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Llamada abandonada',
-      detail: 'Has salido de la llamada'
-    });
   }
 
   endCall() {
@@ -741,21 +775,12 @@ export class FloatingVideoComponent implements OnInit {
       return;
     }
 
-    const confirm = window.confirm('¿Finalizar la llamada para TODOS los participantes?');
-    if (!confirm) return;
-
-    // Notificar al servidor que finalizas la llamada
     this.socketService.sendMessage({
       type: 'end-call',
       room: this.room
     });
 
     this.cleanupAndReset();
-
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Llamada finalizada',
-      detail: 'La llamada ha sido finalizada para todos'
-    });
+    this.callService.resetCallState();
   }
 }

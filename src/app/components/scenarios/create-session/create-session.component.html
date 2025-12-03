@@ -1,30 +1,8 @@
 <div id="csd-session" *ngIf="selectedScenario">
   <div>
+    <p-toast position="top-right"></p-toast>
     <section id="csd-session-col" class="container my-4">
       <div id="csd-session-card" class="card p-3 shadow-sm">
-
-        <div *ngIf="notice() as n" class="csd-notice" [ngClass]="'csd-notice--' + n.type" role="alert">
-          <div class="csd-notice__icon" aria-hidden="true">
-            <svg *ngIf="n.type === 'success'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
-              <path d="M7 12l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <svg *ngIf="n.type === 'warning'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
-              <line x1="12" y1="7" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <circle cx="12" cy="17" r="1.5" fill="currentColor"/>
-            </svg>
-            <svg *ngIf="n.type === 'error'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
-              <path d="M8 8l8 8M16 8l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div class="csd-notice__text">{{ n.text }}</div>
-
-          <button type="button" class="csd-notice__close" (click)="closeNotice()">Cerrar</button>
-        </div>
-
-
 
         <!-- Header -->
         <header id="csd-session-header" class="mb-3">
@@ -82,14 +60,17 @@
         </div>
 
         <div id="csd-actions" class="d-flex justify-content-between mt-3">
-          <button (click)="onReturnPressed()" class="btn btn-outline-secondary">
-            Volver
-          </button>
-          <button (click)="createSimulation()" [disabled]="isLoading" class="primary-btn">
-          {{ isLoading ? 'Creando...' : 'Iniciar Ceremonia' }}
-          </button>
+            <button (click)="onReturnPressed()" class="btn btn-outline-secondary">
+              Volver
+            </button>
+            <div>
+              <button (click)="createSimulation()" [disabled]="isLoading" class="primary-btn me-3">
+                {{ isLoading ? 'Creando...' : 'Iniciar Ceremonia' }}
+              </button>
+              <button  (click)="redirectToDashboard()" class="primary-btn btn-success px-4" >Iniciar Ceremonia Grupal</button>
+            </div>
+          </div>
         </div>
-      </div>
     </section>
   </div>
 </div>
