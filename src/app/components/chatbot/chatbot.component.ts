@@ -67,27 +67,10 @@ export class ChatbotComponent implements OnInit {
     this.visible = !this.visible;
   }
 
-  /**
-   * ============================================================
-   * INICIALIZACIÓN
-   * ============================================================
-   * - Modo Daily → mensaje inicial básico
-   * - Modo general → muestra la plantilla del escenario si existe
-   */
   ngOnInit() {
-
-    // Modo general (Planning/Review/Retro o Training)
     const contextPrompt =
       'Eres un asistente de Scrum y debes ayudar según la ceremonia seleccionada.';
-
     if (this.aiTemplate?.promptTemplate) {
-      // Mostrar la plantilla como primer mensaje
-      this.messages.push({
-        from: 'Usuario',
-        prompt: this.aiTemplate.promptTemplate
-      });
-
-      // Enviar automáticamente el prompt a la IA con el contexto
       this.loading = true;
       const fullPrompt = `${contextPrompt}\n\n${this.aiTemplate.promptTemplate}`;
       
@@ -104,14 +87,13 @@ export class ChatbotComponent implements OnInit {
         error: () => {
           this.messages.push({
             from: 'Scrum AI',
-            prompt: '⚠️ Error al comunicarse con la IA.'
+            prompt: 'Error al comunicarse con la IA.'
           });
           this.loading = false;
         }
       });
 
     } else {
-      // Mensaje por defecto de la IA si no hay plantilla
       this.messages.push({
         from: 'Scrum AI',
         prompt: '¡Hola! Soy tu asistente de Scrum. ¿En qué puedo ayudarte hoy?'
@@ -133,21 +115,12 @@ export class ChatbotComponent implements OnInit {
     const text = input.value.trim();
     if (!text) return;
 
-    // Registrar mensaje local
     this.messages.push({ from: 'Usuario', prompt: text });
     input.value = '';
     this.loading = true;
 
-    /**
-     * ============================================================
-     * MODO DAILY
-     * ============================================================
-     * Usa un request estructurado para que la IA analice roles,
-     * impedimentos, tablero y respuestas tipo "ayer / hoy / blockers".
-     */
     if (this.mode === 'daily') {
 
-      // 🚀 Tomamos valores reales de SimulationService (Signals)
       const ceremonyInfo = this.simulationService.dailyCeremonyInfo$();
       const board = this.simulationService.dailyBoard$();
       const answers = this.simulationService.dailyAnswers$();
@@ -181,19 +154,11 @@ export class ChatbotComponent implements OnInit {
       return;
     }
 
-    /**
-     * ============================================================
-     * MODO GENERAL
-     * ============================================================
-     * Para Planning, Review y Retrospective:
-     * Se arma un prompt libre, con contexto + plantilla (si existe).
-     */
     const contextPrompt =
       'Eres un asistente experto en Scrum y debes guiar según la ceremonia.';
 
     let fullPrompt = `${contextPrompt}\n\n`;
 
-    // Si existe plantilla del escenario → agregarla
     if (this.aiTemplate?.promptTemplate) {
       fullPrompt += `${this.aiTemplate.promptTemplate}\n\n`;
     }
@@ -202,7 +167,6 @@ export class ChatbotComponent implements OnInit {
 
     this.aiService.setChatResponse("\nUsuario: " + text);
 
-    // Solicitud al backend → GroqService con contexto completo
     this.aiService.askAI({ prompt: fullPrompt }).subscribe({
       next: (response) => {
         this.messages.push({
@@ -215,7 +179,7 @@ export class ChatbotComponent implements OnInit {
       error: () => {
         this.messages.push({
           from: 'Scrum AI',
-          prompt: '⚠️ Error al comunicarse con la IA.'
+          prompt: 'Error al comunicarse con la IA.'
         });
         this.loading = false;
       }
