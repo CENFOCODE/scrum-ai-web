@@ -78,11 +78,11 @@ export class FloatingVideoComponent implements OnInit {
     this.callService.trigger$.subscribe(async event => {
       switch (event.action) {
         case 'sendInvite':
-          await this.showInviteDialog();
+          this.showInviteDialog();
           break;
 
         case 'joinCall':
-          await this.showJoinDialog();
+          this.showJoinDialog();
           break;
       }
     });
@@ -566,7 +566,6 @@ export class FloatingVideoComponent implements OnInit {
         break;
 
       case 'endCall':
-        // alert(msg.message || 'La llamada fue finalizada por el organizador.');
         this.cleanupAndReset();
         break;
 
@@ -782,6 +781,6 @@ export class FloatingVideoComponent implements OnInit {
     });
 
     this.cleanupAndReset();
-
+    this.callService.resetCallState();
   }
 }

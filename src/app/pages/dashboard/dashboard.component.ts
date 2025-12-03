@@ -4,13 +4,14 @@ import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
 import { Router } from '@angular/router';
 import { IScenario, ISimulationUser, IScenarioTemplate } from '../../interfaces';
 import {CallService} from "../../services/call.service";
+import {MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     CommonModule,
-    ChatbotComponent
+    ChatbotComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -22,8 +23,9 @@ export class DashboardComponent implements OnInit {
   simulationUser: ISimulationUser | null = null;
   aiTemplate: IScenarioTemplate | null = null;
   currentRoomId = '';
+  isCreator = false;
 
-  constructor(private router: Router,private callService: CallService) {
+  constructor(private router: Router,private callService: CallService, private messageService: MessageService) {
     // Obtenemos los datos pasados desde create-session
     const nav = this.router.getCurrentNavigation();
     if(nav?.extras?.state) {
@@ -38,8 +40,11 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.callService.roomId$.subscribe(roomId => {
       console.log('Nuevo room ID recibido:', roomId);
-      this.currentRoomId = roomId; // <- lo guardás para mostrarlo
+      this.currentRoomId = roomId;
     });
+    this.callService.creatorRoom$.subscribe(isCreator => {
+      this.isCreator = isCreator;
+    })
   }
   sendInviteToCall(){
     this.callService.call("sendInvite");
@@ -47,5 +52,16 @@ export class DashboardComponent implements OnInit {
 
   joinToCall(){
     this.callService.call("joinCall")
+  }
+
+  copyRoomId() {
+    navigator.clipboard.writeText(this.currentRoomId)
+      .catch(() => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo copiar el ID'
+        });
+      });
   }
 }

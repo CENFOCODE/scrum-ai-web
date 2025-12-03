@@ -22,4 +22,8 @@ export class CallService {
     this.creatorRoom.next(isCreatorRoom);
   }
 
+  resetCallState() {
+    this.roomIdSource.next('');
+    this.creatorRoom.next(false);
+  }
 }
