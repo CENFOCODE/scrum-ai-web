@@ -44,7 +44,7 @@
         placeholder="Consulta con la IA"
         [(ngModel)]="aiQuery"
       />
-    <button class="primary-btn px-4" type="button">
+    <button class="primary-btn px-4" type="button" (click)="savePlanning()">
       Enviar
     </button>
       <button class="primary-btn px-4" (click)="finishSimulation()">

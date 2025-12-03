@@ -68,6 +68,35 @@ export class BacklogComponent implements OnInit {
     this.router.navigate(['/app/backlog']);
   }
 
+  planData: any = null;
+
+  savePlanning() {
+  const payload = {
+    simulationUserId: this.simulationUser?.id,
+    simulationId: this.simulationId,
+    planning: this.aiQuery
+  };
+
+  this.planData = payload;
+
+  this.backlogService.savePlanning(payload).subscribe({
+    next: (res) => {
+
+      const feedback = res.feedbackMessage;
+
+      setTimeout(() => {
+        this.chatbot.messages.push({
+          from: 'Scrum AI',
+          prompt: feedback
+        });
+      }, 0);
+    },
+    error: () => {
+    }
+  });
+}
+
+
   finishSimulation() {
   if (!this.simulationId) {
     return;
