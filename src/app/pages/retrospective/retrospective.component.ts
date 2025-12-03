@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
-import { MenuItem } from 'primeng/api';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -9,7 +8,6 @@ import { ConfirmDialogComponent } from '../../components/confirm/confirm-dialog.
 import { RetrospectiveService } from '../../services/retrospective.service';
 import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
 import { IScenario, ISimulationUser, IScenarioTemplate, ISimulations, ISimulationFeedback } from '../../interfaces';
-import { SimulationService } from '../../services/simulation.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
@@ -24,8 +22,6 @@ interface RetroSection {
   title: string;
   notes: RetroNote[];
 }
-
-
 
 @Component({
   selector: 'app-retrospective',

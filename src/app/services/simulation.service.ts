@@ -36,4 +36,69 @@ completeSimulation(id: number) {
   return this.http.put(`${this.baseUrl}/simulation/${id}/complete`, {});
 }
 
+  // -----------------------
+// NUEVOS SIGNALS PARA DAILY
+// -----------------------
+private selectedUserSignal = signal<ISimulationUser | null>(null);
+
+get selectedUser$() {
+  return this.selectedUserSignal;
+}
+
+private dailyBoardSignal = signal<any | null>(null);
+private dailyAnswersSignal = signal<any | null>(null);
+
+// -----------------------
+// GETTERS
+// -----------------------
+
+get dailyBoard$() {
+  return this.dailyBoardSignal;
+}
+
+getDailyBoard() {
+  return this.dailyBoardSignal();
+}
+
+
+get dailyAnswers$() {
+  return this.dailyAnswersSignal;
+}
+
+// -----------------------
+// SETTERS
+// -----------------------
+setSelectedUser(user: ISimulationUser) {
+  this.selectedUserSignal.set(user);
+}
+
+setDailyBoard(board: any) {
+  this.dailyBoardSignal.set(board);
+}
+
+setDailyAnswers(answers: any) {
+  this.dailyAnswersSignal.set(answers);
+}
+
+// -----------------------
+// RESET DEL DAILY
+// -----------------------
+clearDaily() {
+  this.dailyBoardSignal.set(null);
+  this.dailyAnswersSignal.set(null);
+}
+
+// -----------------------------------------
+// INFO DE CEREMONIA (roles activos + sala + rol del usuario)
+// -----------------------------------------
+private dailyCeremonyInfoSignal = signal<any | null>(null);
+
+get dailyCeremonyInfo$() {
+  return this.dailyCeremonyInfoSignal;
+}
+
+setDailyCeremonyInfo(info: any) {
+  this.dailyCeremonyInfoSignal.set(info);
+}
+
 }
