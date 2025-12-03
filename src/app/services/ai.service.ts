@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BaseService } from './base-service';
 import { IAIResponse, IResponse } from '../interfaces';
@@ -43,6 +43,16 @@ export class AiService extends BaseService<IAIResponse> {
   /** Endpoint raíz del backend para IA → /ai */
   protected override source: string = 'ai';
 
+  aiResponse$ = signal<string | null>(null);
+  aiChat$=signal<string>("");
+
+  setResponse(answer: string) {
+    this.aiResponse$.set(answer);
+  }
+  setChatResponse(text: string) {
+    this.aiChat$.set(this.aiChat$ + "\n" + text);
+  }
+
   /**
    * Envía un prompt al backend y retorna la respuesta generada por Groq.
    *
@@ -56,4 +66,15 @@ export class AiService extends BaseService<IAIResponse> {
   askAI(body: { prompt: string }): Observable<IResponse<IAIResponse>> {
     return this.addCustomSource("ask", body);
   }
+
+  dailyChat(payload: any): Observable<string> {
+  return this.http.post(
+    `http://localhost:8080/api/daily/chat`,
+    payload,
+    { responseType: 'text' } // El backend devuelve STRING
+  );
+}
+
+
+
 }

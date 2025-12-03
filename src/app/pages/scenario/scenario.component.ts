@@ -9,40 +9,62 @@ import { SimulationService } from "../../services/simulation.service";
 @Component({
   selector: 'app-scenario',
   standalone: true,
-  imports: [CommonModule, ScenarioListComponent, CreateSessionComponent],
+  imports: [
+    CommonModule,
+    ScenarioListComponent,
+    CreateSessionComponent
+  ],
   templateUrl: './scenario.component.html',
   styleUrls: ['./scenario.component.scss'],
 })
-
 export class ScenarioComponent {
   @Input() autoJoinRoom: string | null = null;
 
-    private simulationService = inject(SimulationService);
-    public scenarioService: ScenarioService = inject(ScenarioService);
-    
-    // Estado para controlar qué componente mostrar
-    selectedCeremony: IScenario | null = null;
-    showCreateSession = false;
+  // Servicios inyectados
+  private simulationService = inject(SimulationService);
+  public scenarioService: ScenarioService = inject(ScenarioService);
 
-    constructor() {
-        this.scenarioService.getAll();
+  // Estado de UI
+  selectedCeremony: IScenario | null = null;
+  showCreateSession = false;
 
-        // Efecto para monitorear cambios en los escenarios
-        effect(() => {
-            const scenarios = this.scenarioService.scenario$();
-        });
-    }
+  constructor() {
 
-    // Manejar la selección de ceremonia desde scenario-list
-    onCeremonySelected(ceremony: IScenario) {
-        this.selectedCeremony = ceremony;
-        this.simulationService.setSelectedScenario(ceremony);
-        this.showCreateSession = true;
-    }
+    // 1) Cargar escenarios desde el backend
+    this.scenarioService.getAll();
 
-    onReturnPressed(){
+    // 2) Escuchar cuando un escenario sea seleccionado desde scenario-list
+    effect(() => {
+      const scenarios = this.scenarioService.scenario$();
+      // no hacemos nada, solo reaccionamos para mantenerlo vivo
+    });
+
+    // 3) 🔥 Escuchar los cambios DINÁMICOS hechos por CreateSession
+    //    (goals, backlog, etc.) 
+    effect(() => {
+      const updatedScenario = this.simulationService.selectedScenario$();
+
+      if (updatedScenario) {
+        this.selectedCeremony = updatedScenario;   // ← refresca la UI automáticamente
+      }
+    });
+  }
+
+  /**
+   * Ejecutado cuando el usuario selecciona un escenario desde ScenarioList
+   */
+  onCeremonySelected(ceremony: IScenario) {
+    this.selectedCeremony = ceremony;
+    this.showCreateSession = true;
+
+    // Guardar en estado global
+    this.simulationService.setSelectedScenario(ceremony);
+  }
+
+   onReturnPressed(){
       this.selectedCeremony = null;
       this.simulationService.setSelectedScenario(null);
       this.showCreateSession = false;
     }
+
 }

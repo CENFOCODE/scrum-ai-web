@@ -13,35 +13,36 @@ import { IScenario, IScenarioTemplate, ISimulationUser } from '../../interfaces'
 })
 export class ChatbotComponent implements OnInit {
 
-  /** Input para recibir la plantilla de IA desde el dashboard */
+  /** Plantilla proveniente de scenario_templates (Planning/Review/Retro) */
   @Input() aiTemplate: IScenarioTemplate | null = null;
   @Input() scenario: ISimulationUser | null = null;
 
+  /** Modo de funcionamiento */
+  @Input() mode: 'daily' | 'general' = 'general';
+
+  /** Historial del chat */
   messages: { from: string; prompt?: string }[] = [];
 
   loading = false;
 
-
+  /** Mostrar/ocultar chatbot */
   visible = false;
 
   constructor(
     private aiService: AiService,
     private transcriptState: TranscriptStateService
   ) { }
+    private simulationService: SimulationService
+  ) {}
 
   toggleChatbot() {
     this.visible = !this.visible;
   }
 
-
   ngOnInit() {
-
-    const contextPrompt = 'Eres un asistente de Scrum donde tienes como objetivo ayudar a los usuarios en los errores más comunes en Scrum, el usuario tiene que seleccionar la ceremonia, ya sea Planning, Daily, Review o Retrospective y tiene que seleccionar tambien la dificultad.';
-
+    const contextPrompt =
+      'Eres un asistente de Scrum y debes ayudar según la ceremonia seleccionada.';
     if (this.aiTemplate?.promptTemplate) {
-
-
-      // Enviar automáticamente el prompt a la IA con el contexto
       this.loading = true;
       const fullPrompt = `${contextPrompt}\n\n${this.aiTemplate.promptTemplate}`;
       
@@ -52,18 +53,19 @@ export class ChatbotComponent implements OnInit {
             prompt: response.data.answer
           });
           this.loading = false;
+          this.aiService.setResponse(response.data.answer || '');
+          this.aiService.setChatResponse(response.data.answer || '');
         },
         error: () => {
           this.messages.push({
             from: 'Scrum AI',
-            prompt: '⚠️ Error al comunicarse con la IA.'
+            prompt: 'Error al comunicarse con la IA.'
           });
           this.loading = false;
         }
       });
 
     } else {
-      // Mensaje por defecto de la IA si no hay plantilla
       this.messages.push({
         from: 'Scrum AI',
         prompt: '¡Hola! Soy tu asistente de Scrum. ¿En qué puedo ayudarte hoy?'
@@ -85,15 +87,48 @@ export class ChatbotComponent implements OnInit {
     const text = input.value.trim();
     if (!text) return;
 
-    // Registrar mensaje local
     this.messages.push({ from: 'Usuario', prompt: text });
     input.value = '';
     this.loading = true;
 
-    // Contexto del asistente
-    const contextPrompt = 'Eres un asistente de Scrum donde tienes como objetivo ayudar a los usuarios en los errores más comunes en Scrum, el usuario tiene que seleccionar la ceremonia, ya sea Planning, Daily, Review o Retrospective y con su dificultad. Si el usuario no elige ser Scrum Master por defecto debes tomar este rol.';
+    if (this.mode === 'daily') {
 
-    // Combinar contexto + prompt inicial + mensaje del usuario
+      const ceremonyInfo = this.simulationService.dailyCeremonyInfo$();
+      const board = this.simulationService.dailyBoard$();
+      const answers = this.simulationService.dailyAnswers$();
+
+      const payload = {
+        message: text,
+        answers: answers,
+        board: board,
+        activeRoles: ceremonyInfo?.activeRoles || [],
+        userRole: ceremonyInfo?.userRole || 'Scrum Master',
+        simulationId: ceremonyInfo?.simulationId || null,
+        difficulty: ceremonyInfo?.difficulty || 1
+      };
+      this.aiService.setChatResponse("\nUsuario: " + text);
+
+      this.aiService.dailyChat(payload).subscribe({
+        next: (response: string) => {
+          this.messages.push({ from: 'Scrum AI', prompt: response });
+          this.loading = false;
+          this.aiService.setChatResponse("\nScrum AI: " + response);
+        },
+        error: () => {
+          this.messages.push({
+            from: 'Scrum AI',
+            prompt: '⚠️ Hubo un error procesando el Daily.'
+          });
+          this.loading = false;
+        }
+      });
+
+      return;
+    }
+
+    const contextPrompt =
+      'Eres un asistente experto en Scrum y debes guiar según la ceremonia.';
+
     let fullPrompt = `${contextPrompt}\n\n`;
 
     if (this.aiTemplate?.promptTemplate) {
@@ -108,7 +143,8 @@ export class ChatbotComponent implements OnInit {
   
     fullPrompt += `Usuario: ${text}\nScrum AI:`;
 
-    // Solicitud al backend → GroqService con contexto completo
+    this.aiService.setChatResponse("\nUsuario: " + text);
+
     this.aiService.askAI({ prompt: fullPrompt }).subscribe({
       next: (response) => {
         this.messages.push({
@@ -116,11 +152,12 @@ export class ChatbotComponent implements OnInit {
           prompt: response.data.answer
         });
         this.loading = false;
+        this.aiService.setChatResponse("\nScrum AI: " + response.data.answer);
       },
       error: () => {
         this.messages.push({
           from: 'Scrum AI',
-          prompt: '⚠️ Error al comunicarse con la IA.'
+          prompt: 'Error al comunicarse con la IA.'
         });
         this.loading = false;
       }

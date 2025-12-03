@@ -80,12 +80,6 @@ export interface ISearch {
   totalPages?:number;
 }
 
-
-
-
-
-
-
 export interface IGiftList {
   id?: number;
   name?: string;
@@ -117,7 +111,7 @@ export interface ICeremony {
 
 export interface IScenario {
   id?: number;
-  backlog?: string;
+  backlog?: string | string[];
   ceremonyType?: string;
   description?: string;
   difficultyLevel?: string;
@@ -125,6 +119,12 @@ export interface IScenario {
   goals?: string;
   name?: string;
   team?: string;
+  initialTasks?: {
+    title: string;
+    description?: string;
+  }[];
+  templates?: IScenarioTemplate[];
+ 
 }
 
 export interface ISimulations {
@@ -153,6 +153,7 @@ export interface IScenarioTemplate {
   scenario?: IScenario;      
   createdAt?: string;        
   updatedAt?: string;        
+  answers?: string[];
 }
 export interface ICeremonySession {
   id?: number;

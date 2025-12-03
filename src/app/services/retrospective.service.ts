@@ -1,8 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { ISimulations } from '../interfaces';
-import { ISimulationFeedback } from '../interfaces';
 
 
 @Injectable({
