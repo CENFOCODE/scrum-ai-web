@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
 import { Router } from '@angular/router';
 import { IScenario, ISimulationUser, IScenarioTemplate } from '../../interfaces';
+import {CallService} from "../../services/call.service";
 
 @Component({
   selector: 'app-dashboard',
@@ -21,7 +22,7 @@ export class DashboardComponent implements OnInit {
   simulationUser: ISimulationUser | null = null;
   aiTemplate: IScenarioTemplate | null = null;
 
-  constructor(private router: Router) {
+  constructor(private router: Router,private callService: CallService) {
     // Obtenemos los datos pasados desde create-session
     const nav = this.router.getCurrentNavigation();
     if(nav?.extras?.state) {
@@ -29,11 +30,18 @@ export class DashboardComponent implements OnInit {
       this.simulationUser = nav.extras.state['simulationUser'] || null;
       this.aiTemplate = nav.extras.state['aiTemplate'] || null;
     }
-    
-    
+
+
   }
 
   ngOnInit() {
     
+  }
+  sendInviteToCall(){
+    this.callService.call("sendInvite");
+  }
+
+  joinToCall(){
+    this.callService.call("joinCall")
   }
 }
