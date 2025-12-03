@@ -61,13 +61,6 @@
                 </mat-select>
               </mat-form-field>
             </div>
-            <!-- Email para invitar -->
-            <div class="mt-2">
-              <p class="invite-label">Invita a tu equipo</p>
-              <mat-form-field id="csd-invite-email-ff" appearance="outline" class="csd-ff">
-                <input matInput placeholder="Email" type="email" name="inviteEmail" />
-              </mat-form-field>
-            </div>
           </div>
 
           <!-- Scene -->
@@ -85,7 +78,10 @@
           </aside>
         </div>
 
-      <div id="csd-actions" class="d-flex justify-content-between mt-4">
+        <div id="csd-actions" class="d-flex justify-content-between mt-3">
+          <button (click)="onReturnPressed()" class="btn btn-outline-secondary">
+            Volver
+          </button>
           <button (click)="createSimulation()" [disabled]="isLoading" class="primary-btn">
           {{ isLoading ? 'Creando...' : 'Iniciar Ceremonia' }}
           </button>

@@ -67,7 +67,7 @@ export class LoginComponent {
       this.authService.login(this.loginForm).subscribe({
         next: () => {
             this.manualDetector.markForCheck();
-            this.router.navigateByUrl('/app/dashboard');
+            this.router.navigateByUrl('/app/home');
         },
         error: (err: any) => {
             this.manualDetector.markForCheck();
@@ -125,7 +125,7 @@ export class LoginComponent {
   this.authService.loginWithGoogle(response.credential).subscribe({
     next: () => {
       this.ngZone.run(() => {
-        this.router.navigateByUrl('/app/dashboard').then(success => {
+        this.router.navigateByUrl('/app/home').then(success => {
           console.log('Navigation success:', success);
         });
       });

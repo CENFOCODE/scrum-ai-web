@@ -1,0 +1,81 @@
+<div>
+  <div class="controls">
+    <p-toast/>
+    <p-dialog header="Enviar invitación" [modal]="true" [(visible)]="inviteVisible" resizable="false" draggable="false">
+      <div class="d-flex flex-column">
+        <span class="p-text-secondary block mb-3">Ingrese el correo de la persona que quiere invitar</span>
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input
+                  matInput
+                  type="text"
+                  id="email"
+                  name="email"
+                  autocomplete="off"
+                  placeholder="Email a invitar"
+                  [(ngModel)]="emailToInvite"
+
+          />
+        </mat-form-field>
+        <div class="d-flex justify-content-end gap-2">
+          <button (click)="inviteVisible = false" class="btn btn-outline-secondary">Cancelar</button>
+          <button class="primary-btn" (click)="inviteByEmail()">Enviar</button>
+        </div>
+      </div>
+    </p-dialog>
+
+    <p-dialog header="Unirse a sesión" [modal]="true" [(visible)]="joinVisible" resizable="false" draggable="false">
+      <div class="d-flex flex-column">
+        <span class="p-text-secondary block mb-3">Ingrese el id de la sesión a la quiere unirse</span>
+        <mat-form-field appearance="outline">
+          <mat-label>Id de sesión</mat-label>
+          <input
+                  matInput
+                  type="text"
+                  id="email"
+                  name="email"
+                  autocomplete="off"
+                  placeholder="room-000000"
+                  [(ngModel)]="roomToJoin"
+          />
+        </mat-form-field>
+        <div class="d-flex justify-content-end gap-2">
+          <button (click)="joinVisible = false" class="btn btn-outline-secondary">Cancelar</button>
+          <button class="primary-btn" (click)="joinRoomById()">Enviar</button>
+        </div>
+      </div>
+    </p-dialog>
+  </div>
+
+  <div
+          *ngIf="showVideo"
+          id="video"
+          class="floating-video"
+          cdkDrag
+          [style.width.px]="videoWidth"
+          [style.height.px]="videoHeight">
+
+    <span class="minimize-window" (click)="toggleMinimize()">
+      <i class="fa-solid fa-window-minimize"></i>
+    </span>
+
+    <div id="videoGrid" class="video-grid">
+    </div>
+
+    <div class="controls-overlay">
+      <button class="btn-icon" (click)="toggleMic()">
+        <i [ngClass]="micOn ? 'fa-solid fa-microphone' : 'fa-solid fa-microphone-slash'"></i>
+      </button>
+      <button class="btn-icon" (click)="toggleCam()">
+        <i [ngClass]="camOn ? 'fa-solid fa-video' : 'fa-solid fa-video-slash'"></i>
+      </button>
+      <button *ngIf="room && !isRoomCreator" (click)="leaveCall()" class="btn-icon bg-red">
+        <i class="fa-solid fa-phone"></i>
+      </button>
+      <button *ngIf="room && isRoomCreator" (click)="endCall()" class="btn-icon bg-red">
+        <i class="fa-solid fa-phone"></i>
+      </button>
+    </div>
+    <div class="resize-handle" (mousedown)="startResize($event)"></div>
+  </div>
+</div>

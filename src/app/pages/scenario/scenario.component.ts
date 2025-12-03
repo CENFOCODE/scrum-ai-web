@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, effect, inject } from "@angular/core";
+import {Component, effect, inject, Input} from "@angular/core";
 import { ScenarioService } from "../../services/scenario.service";
 import { ScenarioListComponent } from "../../components/scenarios/scenario-list/scenario-list.component";
 import { CreateSessionComponent } from "../../components/scenarios/create-session/create-session.component";
@@ -15,6 +15,7 @@ import { SimulationService } from "../../services/simulation.service";
 })
 
 export class ScenarioComponent {
+  @Input() autoJoinRoom: string | null = null;
 
     private simulationService = inject(SimulationService);
     public scenarioService: ScenarioService = inject(ScenarioService);
@@ -37,5 +38,11 @@ export class ScenarioComponent {
         this.selectedCeremony = ceremony;
         this.simulationService.setSelectedScenario(ceremony);
         this.showCreateSession = true;
+    }
+
+    onReturnPressed(){
+      this.selectedCeremony = null;
+      this.simulationService.setSelectedScenario(null);
+      this.showCreateSession = false;
     }
 }

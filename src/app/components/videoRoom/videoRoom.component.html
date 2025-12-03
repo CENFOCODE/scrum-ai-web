@@ -1,50 +1,103 @@
-<div class="video-room-container">
-
-  <!-- ================================
-       CONTROLES PRINCIPALES
-       ================================ -->
+<div>
   <div class="controls">
-    <button (click)="createRoom()" class="btn-control">Crear Sala</button>
-    <button (click)="joinRoom()" class="btn-control">Unirse a Sala</button>
-    <button (click)="inviteUser()" class="btn-control">Invitar Usuario</button>
-    <button (click)="endCall()" class="btn-danger">Finalizar Llamada</button>
+    <p-toast/>
+    <button (click)="showInviteDialog()" class="primary-btn">Invitar</button>
+      <p-dialog header="Enviar invitación" [modal]="true" [(visible)]="inviteVisible" resizable="false" draggable="false">
+        <div class="d-flex flex-column">
+          <span class="p-text-secondary block mb-3">Ingrese el correo de la persona que quiere invitar</span>
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input
+                    matInput
+                    type="text"
+                    id="email"
+                    name="email"
+                    autocomplete="off"
+                    placeholder="Email a invitar"
+                    [(ngModel)]="emailToInvite"
+
+            />
+          </mat-form-field>
+          <div class="d-flex justify-content-end gap-2">
+            <button (click)="inviteVisible = false" class="btn btn-outline-secondary">Cancelar</button>
+            <button class="primary-btn" (click)="inviteByEmail()">Enviar</button>
+          </div>
+        </div>
+      </p-dialog>
+
+    <button (click)="showJoinDialog()" class="primary-btn">Unirse</button>
+    <p-dialog header="Unirse a sesión" [modal]="true" [(visible)]="joinVisible" resizable="false" draggable="false">
+      <div class="d-flex flex-column">
+        <span class="p-text-secondary block mb-3">Ingrese el id de la sesión a la quiere unirse</span>
+        <mat-form-field appearance="outline">
+          <mat-label>Id de sesión</mat-label>
+          <input
+                  matInput
+                  type="text"
+                  id="email"
+                  name="email"
+                  autocomplete="off"
+                  placeholder="room-000000"
+                  [(ngModel)]="roomToJoin"
+          />
+        </mat-form-field>
+        <div class="d-flex justify-content-end gap-2">
+          <button (click)="joinVisible = false" class="btn btn-outline-secondary">Cancelar</button>
+          <button class="primary-btn" (click)="joinRoomById()">Enviar</button>
+        </div>
+      </div>
+    </p-dialog>
+
+<!--    <button (click)="joinRoom()" class="btn-control">Unirse a Sala</button>-->
+<!--    <button (click)="inviteUser()" class="btn-control">Invitar Usuario</button>-->
+    <button
+            *ngIf="room"
+            (click)="leaveCall()"
+            class="btn btn-warning">
+      Salir de la llamada
+    </button>
+
+    <button
+            *ngIf="room && isRoomCreator"
+            (click)="endCall()"
+            class="btn btn-outline-secondary">
+      Finalizar llamada
+    </button>
+
   </div>
 
-  <!-- ================================
-       ESTADO
-       ================================ -->
   <div class="status-box">
     <p><strong>Usuario:</strong> {{ username }}</p>
-    <p><strong>Rol:</strong> {{ role || 'Ninguno' }}</p>
+    <p><strong>Rol:</strong> {{ selectedRole || 'Ninguno' }}</p>
     <p><strong>Sala:</strong> {{ room || 'No conectado' }}</p>
-    <p><strong>WebSocket:</strong>
-      <span [ngClass]="isConnected ? 'ok' : 'fail'">
-        {{ isConnected ? 'Conectado' : 'Desconectado' }}
-      </span>
-    </p>
+    <p><strong>WebSocket:</strong> <span [ngClass]="isConnected ? 'ok' : 'fail'">{{ isConnected ? 'Conectado' : 'Desconectado' }}</span></p>
   </div>
 
-  <!-- ================================
-       VIDEO LOCAL
-       ================================ -->
-  <div class="local-video-wrapper">
-    <p class="label">Tú</p>
-    <video id="localVideo" autoplay playsinline muted></video>
-  </div>
+  <div
+          *ngIf="showVideo"
+          id="video"
+          class="floating-video"
+          cdkDrag
+          [style.width.px]="videoWidth"
+          [style.height.px]="videoHeight">
 
-  <!-- ================================
-       VIDEOS REMOTOS
-       ================================ -->
-  <div id="remoteContainer" class="remote-grid">
-    <!--
-      Los videos remotos se agregan
-      dinámicamente desde attachRemoteAV():
-      
-        remote-video-USER → VIDEO
-        remote-audio-USER → AUDIO limpio
+    <span class="minimize-window" (click)="toggleMinimize()">
+      <i class="fa-solid fa-window-minimize"></i>
+    </span>
 
-      No va nada aquí. Es intentional.
-    -->
+    <div id="videoGrid" class="video-grid">
+    </div>
+
+    <div class="controls-overlay">
+      <button class="btn-icon" (click)="toggleMic()">
+        <i [ngClass]="micOn ? 'fa-solid fa-microphone' : 'fa-solid fa-microphone-slash'"></i>
+      </button>
+      <button class="btn-icon" (click)="toggleCam()">
+        <i [ngClass]="camOn ? 'fa-solid fa-video' : 'fa-solid fa-video-slash'"></i>
+      </button>
+    </div>
+
+    <div class="resize-handle" (mousedown)="startResize($event)"></div>
   </div>
 <app-chatbot 
     [aiTemplate]="null" 
