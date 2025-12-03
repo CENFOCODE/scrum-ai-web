@@ -1,0 +1,66 @@
+.card {
+  border: none;
+  border-radius: 10px;
+}
+
+.room-info {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 10px 14px;
+  border: 1px solid #1C3B44;
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  min-width: 160px;
+  transition: all 0.2s ease;
+
+  p{
+    padding: 0;
+    margin: 0;
+  }
+
+  .label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1C3B44;
+    letter-spacing: 0.5px;
+  }
+
+  .copy-btn{
+    background: none;
+    border: none;
+    font-weight: 700;
+    color: #D26A5D;
+  }
+}
+
+.value-row{
+  .value {
+    transition: color 0.25s ease;
+  }
+
+  &:has(.copy-btn:hover) .value {
+    color: #D26A5D;
+  }
+}
+
+.copy-btn {
+  background: none;
+  border: none;
+  font-weight: 700;
+  color: #D26A5D;
+  transition: color 0.25s ease;
+
+  &:hover {
+    color: #D26A5D;
+  }
+}

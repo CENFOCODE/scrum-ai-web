@@ -1,19 +1,31 @@
-<div>
-  <h1></h1>
-
-  <div class="mt-2">
-    <p class="invite-label">Invita a tu equipo</p>
-    <div class="d-flex">
-      <button class="primary-btn me-3" (click)="sendInviteToCall()">Invitar</button>
-      <button class="btn btn-outline-secondary" (click)="joinToCall()">Unirse</button>
+<div class="container my-4">
+  <div class="card p-4 shadow-sm">
+    <div>
+      <div class="room-info" *ngIf="currentRoomId != ''">
+        <p class="label">Id de sala</p>
+        <div class="d-flex value-row">
+          <p class="value">{{ currentRoomId }}</p>
+          <button
+            #copyButton
+            class="copy-btn"
+            (click)="copyRoomId()"
+            [pTooltip]="tooltipText"
+            tooltipPosition="top"
+            tooltipEvent="hover"
+            [showDelay]="0"
+            [hideDelay]="0">
+            <i class="fa-regular fa-copy"></i>
+          </button>
+        </div>
+      </div>
+      <h2>Ceremonia grupal</h2>
+      <p class="invite-label">Invita a tu equipo</p>
+      <div class="d-flex">
+        <button class="primary-btn me-3" (click)="sendInviteToCall()">Invitar</button>
+        <button class="btn btn-outline-secondary" (click)="joinToCall()" [disabled]="isCreator">Unirse</button>
+      </div>
     </div>
   </div>
- <app-chatbot 
-    #dashboardChatbot
-    [aiTemplate]="aiTemplate"/>
 
-  <!-- ✅ Floating video emite análisis al dashboard -->
-  <app-call 
-    (aiAnalysisReady)="onAIAnalysis($event)">
-  </app-call>
+  <app-chatbot [aiTemplate]="aiTemplate"/>
 </div>
