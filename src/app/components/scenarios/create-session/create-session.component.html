@@ -60,14 +60,17 @@
         </div>
 
         <div id="csd-actions" class="d-flex justify-content-between mt-3">
-          <button (click)="onReturnPressed()" class="btn btn-outline-secondary">
-            Volver
-          </button>
-          <button (click)="createSimulation()" [disabled]="isLoading" class="primary-btn">
-          {{ isLoading ? 'Creando...' : 'Iniciar Ceremonia' }}
-          </button>
+            <button (click)="onReturnPressed()" class="btn btn-outline-secondary">
+              Volver
+            </button>
+            <div>
+              <button (click)="createSimulation()" [disabled]="isLoading" class="primary-btn me-3">
+                {{ isLoading ? 'Creando...' : 'Iniciar Ceremonia' }}
+              </button>
+              <button  (click)="redirectToDashboard()" class="primary-btn btn-success px-4" >Iniciar Ceremonia Grupal</button>
+            </div>
+          </div>
         </div>
-      </div>
     </section>
   </div>
 </div>

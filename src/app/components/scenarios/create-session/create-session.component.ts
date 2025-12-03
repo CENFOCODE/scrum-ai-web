@@ -390,7 +390,7 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
 
     }
 
-    private redirectToDashboard() {
+    protected redirectToDashboard() {
 
         this.router.navigate(['/app/dashboard'], {
             state: {
