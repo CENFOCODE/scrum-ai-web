@@ -13,15 +13,12 @@ import { AuthService } from '../../../services/auth.service';
 import { switchMap, map } from 'rxjs/operators';
 import { ScenarioTemplateService } from '../../../services/scenario-template.service';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { CeremonySessionService } from '../../../services/ceremony-session.service';
-
 type NoticeType = 'success' | 'warning' | 'error';
 interface Notice {
   type: NoticeType;
   text: string;
 }
-
 @Component({
   selector: 'app-create-session',
   standalone: true,
@@ -33,41 +30,32 @@ interface Notice {
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    ToastModule   
+    ToastModule
   ],
   templateUrl: './create-session.component.html',
   styleUrls: ['./create-session.component.scss']
 })
-
-
 export class CreateSessionComponent {
   @Input() ceremonyData!: IScenario;
   @Output() backToSelection = new EventEmitter<void>();
   @Output() sessionCreated = new EventEmitter<any>();
-  
-
   notice = signal<Notice | null>(null);
-
   selectedScenario: IScenario | null = null
-
   difficultyLevels = ['Baja', 'Media', 'Alta'];
   scrumRoles  = ['Scrum Master', 'Developer', 'Product Owner', 'QA'];
-
   selectedDifficulty = '';
   selectedRole = '';
   scenario?: IScenario;
   simulation: ISimulations = {};
   simulationUser: ISimulationUser = {};
   scenarioTemplate: IScenarioTemplate = {};
-ceremonySession: ICeremonySession = {};
-
+  ceremonySession: ICeremonySession = {};
  constructor(
     private simulationService: SimulationService,
     public authService: AuthService,
     private router: Router,
     private scenarioTemplateService: ScenarioTemplateService,
     private ceremonySessionService: CeremonySessionService
-   
   ) {
   effect(() => {
       const ceremonyData = this.simulationService.selectedScenario$();
@@ -78,16 +66,135 @@ ceremonySession: ICeremonySession = {};
     const nav = this.router.getCurrentNavigation();
     this.ceremonyData = nav?.extras?.state?.['scenario'];
   }
-
-
   isLoading = false;
-
-  
-
   closeNotice() {
     this.notice.set(null);
   }
 createGroupSimulation() {
+  if (!this.selectedDifficulty || !this.selectedRole) {
+    this.notice.set({
+      type: 'warning',
+      text: 'Atención: Debes seleccionar un rol y dificultad'
+    });
+    return;
+  }
+
+  if (this.selectedDifficulty.trim() === '') {
+    this.notice.set({
+      type: 'warning',
+      text: 'Atención: Debes seleccionar una dificultad'
+    });
+    return;
+  }
+
+  if (this.selectedRole.trim() === '') {
+    this.notice.set({
+      type: 'warning',
+      text: 'Atención: Debes seleccionar un rol'
+    });
+    return;
+  }
+
+  const currentUserId = this.authService.getUserId();
+  if (!currentUserId) {
+    alert('Error: no se encontró el usuario actual.');
+    return;
+  }
+
+  this.isLoading = true;
+  const userId = this.authService.getUser().id;
+  const now = new Date();
+
+  const newSimulation: ISimulations = {
+    difficultyLevel: this.selectedDifficulty,
+    startDate: now,
+    endDate: new Date(now.getTime() + 60 * 60000),
+    createdBy: { id: userId },
+    scenario: { id: this.selectedScenario?.id }
+  };
+
+  this.scenarioTemplateService.getTemplate(
+    this.selectedScenario?.id || 0,
+    this.scenarioTemplateService.mapDifficultyToNumber(this.selectedDifficulty),
+    this.selectedRole
+  ).pipe(
+    switchMap((templateResponse: any) => {
+      if (templateResponse && templateResponse.promptTemplate) {
+        this.scenarioTemplate = templateResponse;
+      } else if (templateResponse && templateResponse.data) {
+        if (Array.isArray(templateResponse.data) && templateResponse.data.length > 0) {
+          this.scenarioTemplate = templateResponse.data[0];
+        } else if (templateResponse.data.promptTemplate) {
+          this.scenarioTemplate = templateResponse.data;
+        }
+      } else {
+        this.scenarioTemplate = {};
+      }
+
+      return this.simulationService.createSimulation(newSimulation);
+    }),
+
+    switchMap((createdSim) => {
+      if (!createdSim.id) {
+        alert('Error: el backend no devolvió el id de la Simulation.');
+        throw new Error('Simulation sin id');
+      }
+
+      this.simulation = createdSim;
+
+      const newSimUser: ISimulationUser = {
+        scrumRole: this.selectedRole,
+        assignedAt: new Date(),
+        simulation: { id: createdSim.id },
+        user: { id: currentUserId }
+      };
+
+      return this.simulationService.createSimulationUser(newSimUser);
+    }),
+
+    switchMap((simUser) => {
+   
+      this.simulationUser = simUser;
+
+      if (!this.simulation.id) {
+        throw new Error('Simulation sin id');
+      }
+
+
+      if (!this.selectedScenario?.name) {
+        throw new Error('Scenario sin nombre');
+      }
+
+      const newCeremonySession = {
+        ceremonyType: this.selectedScenario.name,
+        simulationId: this.simulation.id, 
+        startTime: new Date()
+      };
+
+      return this.ceremonySessionService.createCeremonySession(newCeremonySession);
+    })
+  ).subscribe({
+    next: (ceremonySessionResponse) => {
+      this.isLoading = false;
+
+      if (ceremonySessionResponse.data) {
+        this.ceremonySession = ceremonySessionResponse.data;
+      } else if (ceremonySessionResponse.id) {
+        this.ceremonySession = ceremonySessionResponse;
+      } else {
+        this.ceremonySession = { id: 1 };
+      }
+
+      this.redirectToDashboard();
+      this.sessionCreated.emit(ceremonySessionResponse);
+    },
+    error: (err) => {
+      console.error('Error en el flujo', err);
+      this.isLoading = false;
+    }
+  });
+}
+  createSimulation() {
     if (!this.selectedDifficulty|| !this.selectedRole) {
       this.notice.set({
         type: 'warning',
@@ -148,187 +255,33 @@ createGroupSimulation() {
       alert('Error: el backend no devolvió el id de la Simulation.');
       throw new Error('Simulation sin id');
     }
-      const newSimUser: ISimulationUser = {
-        scrumRole: this.selectedRole,
-        assignedAt: new Date(),
-        simulation: { id: createdSim.id },
-        user: { id : userId}
-      };
-      return this.simulationService.createSimulationUser(newSimUser);
-    }),
-    // :marca_de_verificación_blanca: NUEVO: Crear CeremonySession
-    switchMap((simUser) => {
-      if (!simUser.simulation?.id) {
-    throw new Error('SimulationUser sin simulation.id');
-  }
-  // Validar que selectedScenario existe
-  if (!this.selectedScenario?.name) {
-    throw new Error('Scenario sin nombre');
-  }
-      const newCeremonySession = {
-        ceremonyType: this.selectedScenario.name,
-        simulationId: simUser.simulation.id,
-        startTime: new Date()
-      };
-      return this.ceremonySessionService.createCeremonySession(newCeremonySession);
-    })
- ).subscribe({
-      next: (ceremonySessionResponse) => {
-        this.isLoading = false;
-        if (ceremonySessionResponse.data) {
-          this.ceremonySession = ceremonySessionResponse.data;
-        } else if (ceremonySessionResponse.id) {
-          this.ceremonySession = ceremonySessionResponse;
-        } else {
-          this.ceremonySession = { id: 1 };
-        }
-        this.redirectToDashboard();
-        this.sessionCreated.emit(ceremonySessionResponse);
-      },
-    error: (err) => {
-      console.error('Error en el flujo', err);
-      this.isLoading = false;
-    }
-  });
-}
-
-
-
-
-
-
-  
-  createSimulation() {
-    if (!this.selectedDifficulty|| !this.selectedRole) {
-      this.notice.set({
-        type: 'warning',
-        text: 'Atención: Debes seleccionar un rol'
-      });
-    }
-
-    if (this.selectedDifficulty.trim() === '') {
-    this.notice.set({
-        type: 'warning',
-        text: 'Atención: Debes seleccionar una dificultad'
-      });
-    return;
-  }
-
-  if (this.selectedRole.trim() === '') {
-    this.notice.set({
-        type: 'warning',
-        text: 'Atención: Debes seleccionar un rol'
-      });
-    return;
-  }
-
-    const currentUserId = this.authService.getUserId();
-    if (!currentUserId) {
-      alert('Error: no se encontró el usuario actual.');
-      return;
-    }
-
-    
-
-
- this.isLoading = true;
-  const userId = this.authService.getUser().id;
-  const now = new Date();
-  const newSimulation: ISimulations = {
-    difficultyLevel: this.selectedDifficulty,
-    startDate: now,
-    endDate: new Date(now.getTime() + 60 * 60000),
-    createdBy: { id : userId },
-    scenario: { id: this.selectedScenario?.id}
-  };
-
-  
-  this.scenarioTemplateService.getTemplate(
-    this.selectedScenario?.id || 0,
-    this.scenarioTemplateService.mapDifficultyToNumber(this.selectedDifficulty),
-    this.selectedRole
-  ).pipe(
-    switchMap((templateResponse: any) => {
-    
-      if (templateResponse && templateResponse.promptTemplate) {
-        this.scenarioTemplate = templateResponse;
-      } 
-
-      else if (templateResponse && templateResponse.data) {
-        if (Array.isArray(templateResponse.data) && templateResponse.data.length > 0) {
-          this.scenarioTemplate = templateResponse.data[0];
-        } else if (templateResponse.data.promptTemplate) {
-          this.scenarioTemplate = templateResponse.data;
-        }
-      } else {
-        this.scenarioTemplate = {}; 
-      }
-      
-     
-      return this.simulationService.createSimulation(newSimulation);
-    }),
-
-    switchMap((createdSim) => {
-      if (!createdSim.id) {
-      alert('Error: el backend no devolvió el id de la Simulation.');
-      throw new Error('Simulation sin id');
-    }
-
     this.simulation = createdSim;
-
-
       const newSimUser: ISimulationUser = {
         scrumRole: this.selectedRole,
         assignedAt: new Date(),
         simulation: { id: createdSim.id },
         user: { id: currentUserId }
       };
-
-      
       return this.simulationService.createSimulationUser(newSimUser);
-    }),
-    // ✅ NUEVO: Crear CeremonySession
-    switchMap((simUser) => {
-      if (!simUser.simulation?.id) {
-    throw new Error('SimulationUser sin simulation.id');
-  }
-
-  // Validar que selectedScenario existe
-  if (!this.selectedScenario?.name) {
-    throw new Error('Scenario sin nombre');
-  }
-      const newCeremonySession = {
-        ceremonyType: this.selectedScenario.name,
-        simulationId: simUser.simulation.id,
-        startTime: new Date()
-      };
-      
-      return this.ceremonySessionService.createCeremonySession(newCeremonySession);
     })
   ).subscribe({
     next: (res) => {
   this.isLoading = false;
-
   this.simulationUser = res;
-
   this.redirectToScenarioPage(this.selectedScenario?.name, {
     scenario: this.selectedScenario,
     simulationUser: res
   });
-
   this.sessionCreated.emit(res);
 },
     error: (err) => {
       console.error('Error en el flujo', err);
       this.isLoading = false;
-      
-
       if (err.status === 404) {
         this.notice.set({
           type: 'warning',
           text: `No se encontró una plantilla para ${this.selectedScenario?.name} con dificultad ${this.selectedDifficulty} y rol ${this.selectedRole}. Continuando sin plantilla específica.`
         });
-        
         // Redirigir al dashboard sin plantilla
         this.scenarioTemplate = {};
         this.redirectToDashboard();
@@ -346,24 +299,20 @@ createGroupSimulation() {
         alert('Error: el escenario no tiene nombre definido.');
         return;
       }
-
        const normalizedName = scenarioName.trim().toLowerCase();
-
        const routes: Record<string, string> = {
     'daily': '/app/daily',
     'planning': '/app/planning',
     'review': '/app/review',
     'retrospective': '/app/retrospective'
   };
-
   const routePath = routes[normalizedName];
-
   if (routePath) {
-    console.log(`➡️ Redirigiendo a: ${routePath}`);
-    this.router.navigate([routePath], { 
+    console.log(` Redirigiendo a: ${routePath}`);
+    this.router.navigate([routePath], {
       state: {
         ...(stateData || {}),
-        simulation: this.simulation,    
+        simulation: this.simulation,
         simulationId: this.simulation?.id,
         scenario: this.selectedScenario,
         simulationUser: this.simulationUser,
@@ -379,24 +328,19 @@ createGroupSimulation() {
     this.isLoading = false;
     return;
   }
-
 }
-
 private redirectToDashboard() {
   if (this.ceremonySession.id) {
       localStorage.setItem('ceremonySessionId', this.ceremonySession.id.toString());
     }
-   
-    this.router.navigate(['/app/dashboard'], { 
+    this.router.navigate(['/app/dashboard'], {
       state: {
         scenario: this.selectedScenario,
         simulationUser: this.simulationUser,
         aiTemplate: this.scenarioTemplate,
         ceremonySessionId: this.ceremonySession.id
       }
-    }); 
-    
- 
+    });
     console.log('Datos enviados al dashboard:', {
       scenario: this.selectedScenario,
       simulationUser: this.simulationUser,
@@ -404,6 +348,4 @@ private redirectToDashboard() {
       ceremonySessionId: this.ceremonySession.id
     });
   }
-
-
 }
