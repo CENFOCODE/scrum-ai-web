@@ -155,14 +155,6 @@ export interface IScenarioTemplate {
   updatedAt?: string;        
   answers?: string[];
 }
-export interface ICeremonySession {
-  id?: number;
-  ceremonyType?: string;
-  simulationId?: number;
-  startTime?: Date;
-  endTime?: Date;
-  simulation?: ISimulations;
-}
 
 export interface IHistory {
   id?: number;

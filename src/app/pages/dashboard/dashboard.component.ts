@@ -1,23 +1,22 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
 import { Router } from '@angular/router';
 import { IScenario, ISimulationUser, IScenarioTemplate } from '../../interfaces';
 import {CallService} from "../../services/call.service";
-import { FloatingVideoComponent } from '../../components/floating-video/floating-video.component';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     CommonModule,
-    ChatbotComponent,
-    FloatingVideoComponent
+    ChatbotComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
-    @ViewChild('dashboardChatbot') chatbot!: ChatbotComponent;
+  
   // Datos recibidos del create-session
   scenario: IScenario | null = null;
   simulationUser: ISimulationUser | null = null;
@@ -32,6 +31,7 @@ export class DashboardComponent implements OnInit {
       this.aiTemplate = nav.extras.state['aiTemplate'] || null;
     }
 
+
   }
 
   ngOnInit() {
@@ -43,10 +43,5 @@ export class DashboardComponent implements OnInit {
 
   joinToCall(){
     this.callService.call("joinCall")
-  }
-    onAIAnalysis(analysis: string) {
-    if (this.chatbot) {
-      this.chatbot.addAIMessage('Análisis Automático', analysis);
-    }
   }
 }
