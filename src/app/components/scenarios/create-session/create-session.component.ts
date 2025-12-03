@@ -12,12 +12,13 @@ import { Router } from '@angular/router';
 import { SimulationService } from '../../../services/simulation.service';
 import { IScenario, IScenarioTemplate, ISimulations, ISimulationUser, IParticipant } from '../../../interfaces';
 import { AuthService } from '../../../services/auth.service';
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { ScenarioTemplateService } from '../../../services/scenario-template.service';
 import { ToastModule } from 'primeng/toast';
 import {InvitationService} from "../../../services/invitation.service";
 import {SocketService} from "../../../services/socket.service";
 import {UserService} from "../../../services/user.service";
+import {MessageService} from "primeng/api";
 
 type NoticeType = 'success' | 'warning' | 'error';
 interface Notice {
@@ -36,10 +37,13 @@ interface Notice {
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    ToastModule,
+    MatIconModule,
     ToastModule
   ],
   templateUrl: './create-session.component.html',
-  styleUrls: ['./create-session.component.scss']
+  styleUrls: ['./create-session.component.scss'],
+  providers:[MessageService]
 })
 
 
@@ -74,21 +78,22 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
   private userService = inject(UserService);
   private messageSubscription: (() => void) | null = null;
 
-    constructor(
-        private simulationService: SimulationService,
-        public authService: AuthService,
-        private router: Router,
-        private scenarioTemplateService: ScenarioTemplateService
-    ) {
-        effect(() => {
-            const ceremonyData = this.simulationService.selectedScenario$();
-            if (ceremonyData) {
-                this.selectedScenario = ceremonyData;
-            }
-        });
-        const nav = this.router.getCurrentNavigation();
-        this.ceremonyData = nav?.extras?.state?.['scenario'];
-    }
+ constructor(
+    private simulationService: SimulationService,
+    public authService: AuthService,
+    private router: Router,
+    private scenarioTemplateService: ScenarioTemplateService,
+    private messageService: MessageService
+  ) {
+  effect(() => {
+      const ceremonyData = this.simulationService.selectedScenario$();
+      if (ceremonyData) {
+        this.selectedScenario = ceremonyData;
+      }
+    });
+    const nav = this.router.getCurrentNavigation();
+    this.ceremonyData = nav?.extras?.state?.['scenario'];
+  }
 
   async ngOnInit(){
     await this.connectToRoom();
@@ -197,29 +202,33 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
     // ---------------------------
     createSimulation() {
         // VALIDACIONES
-        if (!this.selectedDifficulty|| !this.selectedRole) {
-          this.notice.set({
-          type: 'warning',
-          text: 'Atención: Debes seleccionar un rol'
-       });
-      }
-      if (this.selectedDifficulty.trim() === '') {
-        this.notice.set({
-          type: 'warning',
-          text: 'Atención: Debes seleccionar una dificultad'
-      });
-      return;
-      }
-      if (this.selectedRole.trim() === '') {
-      this.notice.set({
-          type: 'warning',
-          text: 'Atención: Debes seleccionar un rol'
+      if (!this.selectedDifficulty || this.selectedDifficulty.trim() === '') {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Atención',
+          detail: 'Debes seleccionar una dificultad',
+          life: 3000
         });
-      return;
+        return;
+      }
+
+      if (!this.selectedRole || this.selectedRole.trim() === '') {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Atención',
+          detail: 'Debes seleccionar un rol',
+          life: 3000
+        });
+        return;
       }
       const currentUserId = this.authService.getUserId();
       if (!currentUserId) {
-          alert('Error: no se encontró el usuario actual.');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se encontró el usuario actual',
+          life: 3000
+        });
           return;
       }
 
@@ -269,8 +278,13 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
             }),
             switchMap((createdSim) => {
                 if (!createdSim.id) {
-                    alert('Error: el backend no devolvió el id de la Simulation.');
-                    throw new Error('Simulation sin id');
+                  this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'El backend no devolvió el ID de la simulación',
+                    life: 3000
+                  });
+                  throw new Error('Simulation sin id');
                 }
 
                 this.simulation = createdSim;
@@ -313,19 +327,23 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
 
 
                 if (err.status === 404) {
-                    this.notice.set({
-                        type: 'warning',
-                        text: `No se encontró una plantilla para ${this.selectedScenario?.name} con dificultad ${this.selectedDifficulty} y rol ${this.selectedRole}. Continuando sin plantilla específica.`
-                    });
+                  this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Plantilla no encontrada',
+                    detail: `No se encontró una plantilla para ${this.selectedScenario?.name} con dificultad ${this.selectedDifficulty} y rol ${this.selectedRole}. Continuando sin plantilla específica.`,
+                    life: 5000
+                  });
 
                     // Redirigir al dashboard sin plantilla
                     this.scenarioTemplate = {};
                     this.redirectToDashboard();
                 } else {
-                    this.notice.set({
-                        type: 'error',
-                        text: 'Error al crear la sesión. Por favor, intenta nuevamente.'
-                    });
+                  this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error al crear la sesión. Por favor, intenta nuevamente.',
+                    life: 3000
+                  });
                 }
             }
         });

@@ -22,8 +22,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   selector: 'app-call',
   standalone: true,
   imports: [CommonModule, DragDropModule, FormsModule, DialogModule, ButtonModule, InputTextModule, MatFormField, MatInput, MatLabel, ToastModule, RippleModule, ConfirmDialogModule],
-  templateUrl: './floating-video.component.html',
-  styleUrls: ['floating-video.component.scss'],
+  templateUrl: 'floating-video.component.html',
+  styleUrl: 'floating-video.component.scss',
   providers: [MessageService, ConfirmationService],
   encapsulation: ViewEncapsulation.None,
 })

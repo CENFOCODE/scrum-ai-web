@@ -5,7 +5,15 @@
         <p class="label">Id de sala</p>
         <div class="d-flex value-row">
           <p class="value">{{ currentRoomId }}</p>
-          <button class="copy-btn" (click)="copyRoomId()">
+          <button
+            #copyButton
+            class="copy-btn"
+            (click)="copyRoomId()"
+            [pTooltip]="tooltipText"
+            tooltipPosition="top"
+            tooltipEvent="hover"
+            [showDelay]="0"
+            [hideDelay]="0">
             <i class="fa-regular fa-copy"></i>
           </button>
         </div>

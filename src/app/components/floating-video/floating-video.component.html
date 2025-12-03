@@ -1,7 +1,10 @@
 <div>
   <div class="controls">
     <p-toast/>
-    <p-confirmDialog />
+    <p-confirmDialog
+            rejectButtonStyleClass="primary-btn"
+            acceptButtonStyleClass="primary-btn"
+    />
     <p-dialog header="Enviar invitación" [modal]="true" [(visible)]="inviteVisible" resizable="false" draggable="false">
       <div class="d-flex flex-column">
         <span class="p-text-secondary block mb-3">Ingrese el correo de la persona que quiere invitar</span>
