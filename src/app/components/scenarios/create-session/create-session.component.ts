@@ -115,9 +115,9 @@ export class CreateSessionComponent implements OnInit, OnDestroy{
     }
   }
 
-  onReturnPressed(){
-    this.returnToMainScreen.emit();
-  }
+  // onReturnPressed(){
+  //   this.returnToMainScreen.emit();
+  // }
   createGroupSimulation() {
     if (!this.selectedDifficulty || !this.selectedRole) {
       this.notice.set({

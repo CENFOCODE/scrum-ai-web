@@ -16,6 +16,10 @@ import { RippleModule } from 'primeng/ripple';
 import {ConfirmationService, MessageService} from "primeng/api";
 import {UserService} from "../../services/user.service";
 import {CallService} from "../../services/call.service";
+import { TranscriptService } from '../../services/transcript.service';
+import { TranscriptStateService } from '../../services/transcript-state.service';
+import { AiService } from '../../services/ai.service';
+import { Router } from '@angular/router';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
@@ -34,12 +38,17 @@ export class FloatingVideoComponent implements OnInit {
   @Input() selectedScenario?: string;
   @Output() participantJoined = new EventEmitter<{email: string, role: string}>();
   @Output() participantLeft = new EventEmitter<string>();
+  @Output() aiAnalysisReady = new EventEmitter<string>();
 
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private invitationService = inject(InvitationService);
   private userNamesCache = new Map<string, string>();
   private remoteCameraStates = new Map<string, boolean>();
+  private transcriptionService = inject(TranscriptService);
+  private transcriptState = inject(TranscriptStateService);
+  private aiService = inject(AiService);
+  private router = inject(Router);
 
   videoWidth = 260;
   videoHeight = 160;
@@ -49,7 +58,8 @@ export class FloatingVideoComponent implements OnInit {
   isMinimized = false;
 
   user = this.authService.getUser();
-  username = this.user.email;
+  username = this.user.name || this.user.email
+  userId = this.authService.getUserId() || 0;
 
   role = '';
   room = '';
@@ -63,6 +73,11 @@ export class FloatingVideoComponent implements OnInit {
   joinVisible: boolean = false;
   showVideo: boolean = false;
 
+  isTranscribing = false;
+  private transcriptionInterval?: any;
+  private aiAnalysisInterval?: any;
+  ceremonySessionId = 0;
+  private lastAnalyzedTranscriptCount=0;
   // Stream local (cámara + micrófono)
   localStream!: MediaStream;
 
@@ -75,14 +90,26 @@ export class FloatingVideoComponent implements OnInit {
   constructor(private socketService: SocketService, private route: ActivatedRoute, private messageService: MessageService, private callService: CallService, private confirmationService: ConfirmationService) {}
 
   async ngOnInit() {
+        const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras?.state;
+
+    if (state && state['ceremonySessionId']) {
+      this.ceremonySessionId = state['ceremonySessionId'];
+    } else {
+      const storedId = localStorage.getItem('ceremonySessionId');
+      if (storedId) {
+        this.ceremonySessionId = parseInt(storedId, 10);
+      }
+    }
+
     this.callService.trigger$.subscribe(async event => {
       switch (event.action) {
         case 'sendInvite':
-          this.showInviteDialog();
+          await this.showInviteDialog();
           break;
 
         case 'joinCall':
-          this.showJoinDialog();
+          await this.showJoinDialog();
           break;
       }
     });
@@ -445,7 +472,11 @@ export class FloatingVideoComponent implements OnInit {
       summary: 'Sala creada',
       detail: `Id de la sala: ${this.room}`,
     });
-
+    setTimeout(() => {
+      if (!this.isTranscribing && this.localStream) {
+        this.startTranscription();
+      }
+    }, 1000);
   }
 
   async joinRoom(manualRoomId?: string) {
@@ -480,6 +511,11 @@ export class FloatingVideoComponent implements OnInit {
       role: this.role,
       camOn: this.camOn
     });
+        setTimeout(() => {
+      if (!this.isTranscribing && this.localStream) {
+        this.startTranscription();
+      }
+    }, 1500);
   }
 
   async startPeerConnection(targetUser: string) {
@@ -536,6 +572,11 @@ export class FloatingVideoComponent implements OnInit {
       case 'joinSuccess':
         if (msg.user && msg.user !== this.username) {
           await this.startPeerConnection(msg.user);
+
+        if (msg.ceremonySessionId) {
+        this.ceremonySessionId = msg.ceremonySessionId;
+        }
+
         }
         break;
 
@@ -564,6 +605,17 @@ export class FloatingVideoComponent implements OnInit {
           this.updateRemoteCameraState(msg.user, msg.camOn);
         }
         break;
+
+      case 'transcript':
+      if (msg.userId !== this.userId) {
+     this.transcriptState.addTranscript(msg.username, msg.text, msg.userId);
+      }
+      break;
+      case 'ai-analysis':
+      if (!this.isRoomCreator) {
+      this.aiAnalysisReady.emit(msg.analysis);
+      }
+      break;
 
       case 'endCall':
         this.cleanupAndReset();
@@ -687,6 +739,196 @@ export class FloatingVideoComponent implements OnInit {
     }
     this.updateVideoLayout();
   }
+ async startTranscription() {
+    if (this.isTranscribing) {
+      return;
+    }
+
+
+    if (!this.localStream) {
+      alert('Primero activa tu micrófono');
+      return;
+    }
+
+
+    this.isTranscribing = true;
+
+
+    this.captureAndTranscribeChunk();
+
+
+    this.transcriptionInterval = setInterval(() => {
+      this.captureAndTranscribeChunk();
+    }, 15000);
+
+
+    if(this.isRoomCreator){
+    this.aiAnalysisInterval = setInterval(() => {
+      this.analyzeConversationWithAI();
+    }, 35000);
+  }
+  }
+
+
+  private captureAndTranscribeChunk() {
+    if (!this.localStream || !this.isTranscribing) {
+      return;
+    }
+
+
+    try {
+      const audioStream = new MediaStream(this.localStream.getAudioTracks());
+
+      const recorder = new MediaRecorder(audioStream, {
+        mimeType: 'audio/webm;codecs=opus',
+        audioBitsPerSecond: 128000
+      });
+
+
+      const audioChunks: Blob[] = [];
+
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      };
+
+
+      recorder.onstop = () => {
+        if (audioChunks.length > 0) {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm;codecs=opus' });
+
+          if (audioBlob.size > 1000) {
+            this.transcribeChunk(audioBlob);
+          }
+        }
+      };
+
+
+      recorder.start();
+
+      setTimeout(() => {
+        if (recorder.state === 'recording') {
+          recorder.stop();
+        }
+      }, 15000);
+
+
+    } catch (err) {
+      console.error('Error capturando audio:', err);
+    }
+  }
+
+
+private analyzeConversationWithAI() {
+  const allTranscripts = this.transcriptState.getAllTranscripts();
+
+
+  if (allTranscripts.length === 0) {
+    console.log('No hay transcripciones, saltando análisis');
+    return;
+  }
+
+  if (allTranscripts.length === this.lastAnalyzedTranscriptCount) {
+    console.log('No hay transcripciones nuevas desde el último análisis');
+    return;
+  }
+
+
+  if (allTranscripts.length < 2) {
+    console.log(`Solo hay ${allTranscripts.length} transcripciones, esperando al menos 2`);
+    return;
+  }
+
+  const formattedTranscript = this.transcriptState.getFormattedTranscript();
+
+
+  this.lastAnalyzedTranscriptCount = allTranscripts.length;
+
+  console.log(`Analizando ${allTranscripts.length} transcripciones...`);
+
+  const prompt = `Eres un Scrum Master virtual. Analiza esta conversación del equipo durante la ceremonia y proporciona feedback breve y constructivo (máximo 3 puntos):
+
+--- Conversación del equipo ---
+${formattedTranscript}
+
+Proporciona:
+1. ¿Qué está yendo bien?
+2. ¿Qué se puede mejorar?
+3. Una sugerencia específica para el equipo.
+
+Sé específico con los nombres de los participantes.`;
+
+  this.aiService.askAI({ prompt }).subscribe({
+    next: (response) => {
+      const answer = response?.data?.answer;
+
+      if (answer) {
+        this.aiAnalysisReady.emit(answer);
+
+        if (this.isRoomCreator && this.room) {
+          this.socketService.sendMessage({
+            type: 'ai-analysis',
+            room: this.room,
+            analysis: answer,
+            timestamp: new Date().toISOString()
+          });
+        }
+      }
+    },
+    error: (err) => {
+      console.error('Error en análisis IA:', err);
+    }
+  });
+}
+
+
+  private isDuplicateText(newText: string): boolean {
+    const recentTranscripts = this.transcriptState.getFormattedTranscript();
+    const lastChars = recentTranscripts.slice(-200);
+
+    return lastChars.includes(newText.trim());
+  }
+
+  private transcribeChunk(audioBlob: Blob) {
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const base64Audio = (reader.result as string).split(',')[1];
+
+
+      this.transcriptionService.transcribeChunkOnly(base64Audio).subscribe({
+        next: (response) => {
+          const text = response.data;
+
+
+          if (text && text.trim().length > 0) {
+            if (!this.isDuplicateText(text)) {
+              const displayName = this.user?.name || this.username || 'Usuario';
+               this.transcriptState.addTranscript(displayName, text, this.userId);
+
+
+              this.socketService.sendMessage({
+                type: 'transcript',
+                username: this.user.name,
+                userId: this.userId,
+                text: text,
+                timestamp: new Date().toISOString(),
+                room: this.room
+              });
+            }
+          }
+        },
+        error: (err) => {
+          console.error('Error transcribiendo:', err);
+        }
+      });
+    };
+
+
+    reader.readAsDataURL(audioBlob);
+  }
 
   private cleanupAndReset() {
     this.showVideo = false;
@@ -704,6 +946,19 @@ export class FloatingVideoComponent implements OnInit {
       const remoteCells = videoGrid.querySelectorAll('.video-cell');
       remoteCells.forEach(cell => cell.remove());
     }
+    if (this.transcriptionInterval) {
+      clearInterval(this.transcriptionInterval);
+      this.transcriptionInterval = undefined;
+    }
+
+    if (this.aiAnalysisInterval) {
+      clearInterval(this.aiAnalysisInterval);
+      this.aiAnalysisInterval = undefined;
+    }
+
+    this.isTranscribing = false;
+
+    this.lastAnalyzedTranscriptCount = 0;
 
     this.room = '';
     this.role = '';
@@ -775,6 +1030,40 @@ export class FloatingVideoComponent implements OnInit {
       return;
     }
 
+       if (this.isTranscribing) {
+      this.isTranscribing = false;
+
+
+      const allTranscripts = this.transcriptState.getAllTranscripts();
+
+
+      if (allTranscripts.length > 0) {
+        const transcriptsFormatted = allTranscripts.map(t => ({
+          username: t.username,
+          text: t.text,
+          userId: t.userId,
+          timestamp: t.timestamp.toISOString()
+        }));
+
+
+        this.transcriptionService.saveBatchTranscripts({
+          ceremonySessionId: this.ceremonySessionId,
+          roomId: this.room,
+          transcripts: transcriptsFormatted
+        }).subscribe({
+          next: () => {
+            this.transcriptState.clearTranscripts();
+            localStorage.removeItem('ceremonySessionId');
+          },
+          error: (err) => {
+            console.error('Error guardando transcripciones:', err);
+          }
+        });
+      } else {
+        localStorage.removeItem('ceremonySessionId');
+      }
+    }
+    // Notificar al servidor que finalizas la llamada
     this.socketService.sendMessage({
       type: 'end-call',
       room: this.room
@@ -782,5 +1071,10 @@ export class FloatingVideoComponent implements OnInit {
 
     this.cleanupAndReset();
     this.callService.resetCallState();
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Llamada finalizada',
+      detail: 'La llamada ha sido finalizada para todos'
+    });
   }
 }

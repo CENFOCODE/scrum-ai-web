@@ -6,6 +6,7 @@ import { IScenario, ISimulationUser, IScenarioTemplate } from '../../interfaces'
 import {CallService} from "../../services/call.service";
 import {MessageService} from "primeng/api";
 import { TooltipModule } from 'primeng/tooltip';
+import { FloatingVideoComponent } from '../../components/floating-video/floating-video.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,7 +14,8 @@ import { TooltipModule } from 'primeng/tooltip';
   imports: [
     CommonModule,
     ChatbotComponent,
-    TooltipModule
+    TooltipModule,
+    FloatingVideoComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -21,6 +23,7 @@ import { TooltipModule } from 'primeng/tooltip';
 export class DashboardComponent implements OnInit, OnDestroy {
 
   @ViewChild('copyButton') copyButton!: ElementRef;
+  @ViewChild('dashboardChatbot') chatbot!: ChatbotComponent;
   scenario: IScenario | null = null;
   simulationUser: ISimulationUser | null = null;
   aiTemplate: IScenarioTemplate | null = null;
@@ -30,9 +33,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private resetTimeout: any;
 
 
-  constructor(private router: Router,private callService: CallService, private messageService: MessageService) {
+  constructor(private router: Router, private callService: CallService, private messageService: MessageService) {
     const nav = this.router.getCurrentNavigation();
-    if(nav?.extras?.state) {
+    if (nav?.extras?.state) {
       this.scenario = nav.extras.state['scenario'] || null;
       this.simulationUser = nav.extras.state['simulationUser'] || null;
       this.aiTemplate = nav.extras.state['aiTemplate'] || null;
@@ -50,11 +53,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.isCreator = isCreator;
     })
   }
-  sendInviteToCall(){
+
+  sendInviteToCall() {
     this.callService.call("sendInvite");
   }
 
-  joinToCall(){
+  joinToCall() {
     this.callService.call("joinCall")
   }
 
@@ -93,6 +97,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.resetTimeout) {
       clearTimeout(this.resetTimeout);
+    }
+  }
+
+  onAIAnalysis(analysis: string) {
+    if (this.chatbot) {
+      this.chatbot.addAIMessage('Análisis Automático', analysis);
     }
   }
 }
