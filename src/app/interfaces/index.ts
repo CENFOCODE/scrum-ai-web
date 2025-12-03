@@ -162,7 +162,7 @@ export interface IHistory {
   createdAt?: Date;
   transcript?: string;
   finalScore?: number;
-  simulationUser?: ISimulationUser; 
+  simulationUser?: ISimulationUser;
 }
 
 export interface ISimulationFeedback {
@@ -171,4 +171,13 @@ export interface ISimulationFeedback {
   user?: IUser;
   message?: string;
   simulation?: ISimulations;
+}
+
+
+export interface IParticipant {
+  email: string;
+  name: string;
+  role: string;
+  difficulty?: string; // Solo el creador tiene esto
+  isCreator?: boolean;
 }

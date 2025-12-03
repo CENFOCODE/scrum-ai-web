@@ -1,0 +1,101 @@
+<div id="csd-home-wrapper">
+  <div id="csd-home-card">
+
+    <!-- Título principal -->
+    <h1 id="csd-home-title">
+      ¡Hola, {{ authService.getUser().name }}! Bienvenido a Scrum AI
+    </h1>
+
+    <!-- Subtítulo -->
+    <p id="csd-home-subtitle">
+      Tienes acceso inmediato a todas las herramientas esenciales de tu flujo de trabajo ágil 
+      para la planificación, seguimiento y revisión. Selecciona la actividad que necesitas realizar a 
+      continuación para empezar a trabajar de inmediato y optimiza la productividad de tu equipo.
+    </p>
+
+    <!-- Texto intro -->
+    <h2 id="csd-home-intro">Inicia tu ceremonia acompañada de la AI</h2>
+
+    <!-- Contenedor de las 4 ceremonias -->
+    <div id="csd-home-ceremonies">
+
+      <!-- Sprint Planning -->
+      <div class="csd-home-box">
+        <div class="csd-home-icon">
+          <i class="fa-solid fa-check-square"></i>
+        </div>
+
+        <h3 class="csd-home-box-title">Sprint Planning</h3>
+
+        <p class="csd-home-box-text">
+          Define el objetivo y Historias.
+          El equipo selecciona tareas del 
+          Backlog y planifica 
+          el trabajo por hacer.
+        </p>
+
+        <button class="csd-secondary-btn" (click)="goToScenario()">
+          Iniciar Planning
+        </button>
+      </div>
+
+      <!-- Daily -->
+      <div class="csd-home-box">
+        <div class="csd-home-icon">
+          <i class="fa-solid fa-clock"></i>
+        </div>
+
+        <h3 class="csd-home-box-title">Daily</h3>
+
+        <p class="csd-home-box-text">
+          Sincroniza y revisa el progreso del equipo.
+          Inspecciona el avance y planifica el día siguiente.
+        </p>
+
+        <button class="csd-secondary-btn" (click)="goToScenario()">
+          Iniciar Daily
+        </button>
+      </div>
+
+      <!-- Sprint Review -->
+      <div class="csd-home-box">
+        <div class="csd-home-icon">
+          <i class="fa-solid fa-search"></i>
+        </div>
+
+        <h3 class="csd-home-box-title">Sprint Review</h3>
+
+        <p class="csd-home-box-text">
+          El equipo presenta los resultados del Sprint, 
+          solicitando retroalimentación para refinar el Proyecto.
+        </p>
+
+        <button class="csd-secondary-btn" (click)="goToScenario()">
+          Iniciar Review
+        </button>
+      </div>
+
+      <!-- Retrospective -->
+      <div class="csd-home-box">
+        <div class="csd-home-icon">
+          <i class="fa-solid fa-people-group"></i>
+        </div>
+
+        <h3 class="csd-home-box-title">Retrospective</h3>
+
+        <p class="csd-home-box-text">
+          Identifica formas de mejorar calidad y efectividad. 
+          Explora procesos y herramientas para 
+          el siguiente Sprint.
+        </p>
+
+        <button class="csd-secondary-btn" (click)="goToScenario()">
+          Iniciar Retrospective
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <app-chatbot></app-chatbot>
+</div>

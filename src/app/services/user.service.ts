@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { BaseService } from './base-service';
-import { ISearch, IUser } from '../interfaces';
+import { ISearch, IUser,IResponse } from '../interfaces';
 import { Observable, catchError, tap, throwError } from 'rxjs';
 import { AlertService } from './alert.service';
 
@@ -71,5 +71,9 @@ export class UserService extends BaseService<IUser> {
         console.error('error', err);
       }
     });
+  }
+
+  getUserByEmail(email: string): Observable<IResponse<IUser>> {
+    return this.http.get<IResponse<IUser>>(`${this.source}/${email}`);
   }
 }
