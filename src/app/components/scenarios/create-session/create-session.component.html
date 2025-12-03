@@ -37,7 +37,7 @@
           <div id="csd-objectives" class="csd-surface">
             <h3 id="csd-objectives-title" class="mb-2">Objetivos</h3>
             <p id="csd-objectives-text" class="mb-0">
-              {{ selectedScenario.goals || selectedScenario.description }}
+              {{ selectedScenario.goals?.split(".")?.[0] }}
             </p>
 
           </div>

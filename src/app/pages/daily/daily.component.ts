@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, effect, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { RouterModule } from '@angular/router';
@@ -7,19 +7,22 @@ import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from 
 import { Router } from '@angular/router';
 import { SimulationService } from '../../services/simulation.service';
 import { ViewChild } from '@angular/core';
-
-// Componentes hijos
+import { FormsModule } from '@angular/forms';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { AuthService } from '../../services/auth.service';
 import { VideoRoomComponent } from '../../components/videoRoom/videoRoom.component';
 import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
-
-// Interfaces
 import { IScenarioTemplate } from '../../interfaces';
 import { IScenario } from '../../interfaces';
 import { ISimulations } from '../../interfaces';
 import { ISimulationUser } from '../../interfaces'; 
+import { Ripple, RippleModule } from 'primeng/ripple';
+import { ISimulationFeedback } from '../../interfaces';
+import { AiService } from '../../services/ai.service';
 
 interface Task {
-  title: string;
+  title?: string;
   description?: string;
 }
 
@@ -28,20 +31,25 @@ interface Task {
   standalone: true,
   imports: [
     BreadcrumbModule,
+    FormsModule,
     RouterModule,
     CommonModule,
     DragDropModule,
     VideoRoomComponent,
     ChatbotComponent,
+    RippleModule,
+    ToastModule,
   ],
   templateUrl: './daily.component.html',
-  styleUrls: ['./daily.component.scss']
+  styleUrls: ['./daily.component.scss'],
+  providers: [MessageService]
 })
 export class DailyComponent implements OnInit {
 
   @ViewChild(ChatbotComponent) chatbot!: ChatbotComponent;
 
   /** datos del create-scenario */
+  feedbackText: ISimulationFeedback[] = [];
   simulation: ISimulations = {};
   scenario: IScenario | null = null;
   simulationId: number | null = null;
@@ -60,7 +68,9 @@ export class DailyComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private simulationService: SimulationService
+    private simulationService: SimulationService,
+    private messageService: MessageService,
+    private aiService: AiService,
   ) {
     const nav = this.router.getCurrentNavigation();
     if(nav?.extras?.state) {
@@ -79,62 +89,95 @@ export class DailyComponent implements OnInit {
         this.simulationId = this.simulationUser.simulation.id;
       }
     }
+    effect(() => {
+        const resp = this.aiService.aiResponse$();
+        if (resp) {
+          console.log("🔥 Respuesta de la IA en Daily:", resp);
+          // this.handleIaResponse(resp);
+           const tasks = resp
+        .split("\n")
+        .map(line => line.trim())
+        .filter(line =>
+          /(TODO|IN_PROGRESS|QA|DONE)\s*-\s*/i.test(line)
+        )
+        .map(line => {
+          // Elimina bullets como "1." o "*" o "-"
+          line = line.replace(/^\d+\.\s*/, "").replace(/^\*\s*/, "").trim();
+
+          // Extrae status y descripción
+          const match = line.match(/(TODO|IN_PROGRESS|QA|DONE)\s*-\s*(.+)/i);
+
+          if (!match) return null;
+
+          return {
+            status: match[1].toUpperCase(),
+            title: match[2].trim()
+          };
+        })
+        .filter((t): t is { status: string; title: string } => t !== null);
+          
+          console.log("Tareas parseadas:", tasks);
+          
+          this.todo = tasks.filter(t => t?.status === 'TODO') as Task[];
+          this.inProgress = tasks.filter(t => t?.status === 'IN_PROGRESS') as Task[];
+          this.qa = tasks.filter(t => t?.status === 'QA') as Task[];
+          this.done = tasks.filter(t => t?.status === 'DONE') as Task[];
+
+          console.log("Tableros actualizados:", this.todo, this.inProgress, this.qa, this.done);
+      }});
   }
+
+  private generateTasksFromPrompt(prompt: string): Task[] {
+  if (!prompt) return [];
+
+  const sentences = prompt
+    .split(/[\.\n]/)
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
+
+    return sentences.map(s => ({
+      title: s,
+      description: ""
+  }));
+}
+
 
   ngOnInit() {
 
-    // const navigation = this.router.getCurrentNavigation();
-    // const state = navigation?.extras?.state;
+  console.log(this.scenario, this.simulationUser);
 
-    // this.scenario = state?.['scenario'] || this.simulationService.selectedScenario$();
-    
-    // this.aiTemplate = state?.['aiTemplate'] || null;
-
-    console.log(this.scenario, this.simulationUser);
-
-    if (!this.scenario || !this.simulationUser) {
-      console.warn("No hay datos cargados. Redirigiendo.");
-      this.router.navigate(['app/scenario']);
-      return;
-    }
-
-    console.log("🟣 DailyComponent scenario recibido:", this.scenario);
-
-    // --------------------------------------------
-    // 1️⃣ Si hay board previo, restaurarlo
-    // --------------------------------------------
-    const savedBoard = this.simulationService.dailyBoard$();
-    if (savedBoard) {
-      this.todo = savedBoard.todo || [];
-      this.inProgress = savedBoard.inProgress || [];
-      this.qa = savedBoard.qa || [];
-      this.done = savedBoard.done || [];
-      return;
-    }
-
-    // --------------------------------------------
-    // 2️⃣ SI HAY initialTasks DINÁMICAS → construir Kanban
-    // --------------------------------------------
-    if (Array.isArray(this.scenario.initialTasks) && this.scenario.initialTasks.length > 0) {
-      console.log("✔ Cargando tareas dinámicas desde initialTasks:", this.scenario.initialTasks);
-
-      this.todo = this.scenario.initialTasks.map((t: any) => ({
-        title: t.title,
-        description: t.description || ""
-      }));
-
-      this.inProgress = [];
-      this.qa = [];
-      this.done = [];
-      return;
-    }
-
-    // --------------------------------------------
-    // 3️⃣ Si no hay tareas dinámicas → fallback
-    // --------------------------------------------
-    console.warn("⚠ No hay initialTasks dinámicas. Usando default.");
-    this.setDefaultBoard();
+  if (!this.scenario || !this.simulationUser) {
+    console.warn("No hay datos cargados. Redirigiendo.");
+    this.router.navigate(['app/scenario']);
+    return;
   }
+
+  // // 1️⃣ Restaurar board previo
+  // const savedBoard = this.simulationService.dailyBoard$();
+  // if (savedBoard) {
+  //   this.todo = savedBoard.todo || [];
+  //   this.inProgress = savedBoard.inProgress || [];
+  //   this.qa = savedBoard.qa || [];
+  //   this.done = savedBoard.done || [];
+  //   return;
+  // }
+
+  // 2️⃣ SI HAY promptTemplate → generar tareas dinámicas
+  // if (this.aiTemplate?.promptTemplate) {
+  //   console.log("🟣 Generando tareas del template IA");
+  //   this.todo = this.generateTasksFromPrompt(this.aiTemplate.promptTemplate);
+  //   console.log("Tareas generadas:", this.todo);
+  //   this.inProgress = [];
+  //   this.qa = [];
+  //   this.done = [];
+  //   return;
+  // }
+
+  // 3️⃣ fallback
+  // console.warn("⚠ No hay tareas dinámicas ni template IA. Usando default.");
+  // this.setDefaultBoard();
+}
+
 
   // BOARD DEFAULT
   private setDefaultBoard() {

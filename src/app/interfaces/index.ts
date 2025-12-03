@@ -80,12 +80,6 @@ export interface ISearch {
   totalPages?:number;
 }
 
-
-
-
-
-
-
 export interface IGiftList {
   id?: number;
   name?: string;
@@ -159,6 +153,7 @@ export interface IScenarioTemplate {
   scenario?: IScenario;      
   createdAt?: string;        
   updatedAt?: string;        
+  answers?: string[];
 }
 
 export interface IHistory {

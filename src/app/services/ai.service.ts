@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BaseService } from './base-service';
 import { IAIResponse, IResponse } from '../interfaces';
@@ -42,6 +42,12 @@ export class AiService extends BaseService<IAIResponse> {
 
   /** Endpoint raíz del backend para IA → /ai */
   protected override source: string = 'ai';
+
+  aiResponse$ = signal<string | null>(null);
+
+  setResponse(answer: string) {
+    this.aiResponse$.set(answer);
+  }
 
   /**
    * Envía un prompt al backend y retorna la respuesta generada por Groq.

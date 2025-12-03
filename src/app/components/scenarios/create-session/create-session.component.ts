@@ -15,7 +15,6 @@ import { AuthService } from '../../../services/auth.service';
 import { switchMap, map } from 'rxjs/operators';
 import { ScenarioTemplateService } from '../../../services/scenario-template.service';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 
 type NoticeType = 'success' | 'warning' | 'error';
 interface Notice {

@@ -98,6 +98,7 @@ export class ChatbotComponent implements OnInit {
             prompt: response.data.answer
           });
           this.loading = false;
+          this.aiService.setResponse(response.data.answer || '');
         },
         error: () => {
           this.messages.push({
