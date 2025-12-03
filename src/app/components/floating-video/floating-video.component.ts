@@ -15,17 +15,18 @@ import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
 import {MessageService} from "primeng/api";
 import {UserService} from "../../services/user.service";
+import {CallService} from "../../services/call.service";
 
 @Component({
-  selector: 'videoRoom',
+  selector: 'app-call',
   standalone: true,
   imports: [CommonModule, DragDropModule, FormsModule, DialogModule, ButtonModule, InputTextModule, MatFormField, MatInput, MatLabel, ToastModule, RippleModule],
-  templateUrl: './videoRoom.component.html',
-  styleUrls: ['./videoRoom.component.scss'],
+  templateUrl: './floating-video.component.html',
+  styleUrls: ['floating-video.component.scss'],
   providers: [MessageService],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
-export class VideoRoomComponent implements OnInit {
+export class FloatingVideoComponent implements OnInit {
 
   @Input() autoJoinRoomId?: string | null;
   @Input() selectedRole?: string;
@@ -63,12 +64,27 @@ export class VideoRoomComponent implements OnInit {
 
   // Stream local (cámara + micrófono)
   localStream!: MediaStream;
+
+  // Conexiones WebRTC por usuario remoto
   peerConnections = new Map<string, RTCPeerConnection>();
+
+  // Streams remotos por usuario
   remoteStreams = new Map<string, MediaStream>();
 
-  constructor(private socketService: SocketService, private route: ActivatedRoute, private messageService: MessageService) {}
+  constructor(private socketService: SocketService, private route: ActivatedRoute, private messageService: MessageService, private callService: CallService) {}
 
   async ngOnInit() {
+    this.callService.trigger$.subscribe(async event => {
+      switch (event.action) {
+        case 'sendInvite':
+          await this.showInviteDialog();
+          break;
+
+        case 'joinCall':
+          await this.showJoinDialog();
+          break;
+      }
+    });
     console.log(this.selectedScenario);
     await this.connectSocket();
     // await this.initLocalVideo();
@@ -89,6 +105,54 @@ export class VideoRoomComponent implements OnInit {
 
       if (this.videoHeight > window.innerHeight - 40)
         this.videoHeight = window.innerHeight - 40;
+    });
+  }
+
+  sendInvitation() {
+    if (!this.emailToInvite || !this.emailToInvite.includes('@')) {
+      this.messageService.add({
+        severity: 'warning',
+        detail: 'Por favor ingresa un email válido'
+      });
+      return;
+    }
+
+    // Si aún no se creó la simulación, marcar que habrá usuarios invitados
+    // if (!this.simulation?.id) {
+    //   this.hasInvitedUsers = true;
+    // }
+
+    const roomId = `room-${Date.now()}`;
+    const inviterName = this.authService.getUser()?.name || 'Un usuario';
+    // const ceremonyType = this.selectedScenario?.ceremonyType || 'Ceremonia Scrum';
+    // const scenarioId = this.selectedScenario?.id || 0;
+
+    console.log(roomId);
+    console.log(inviterName)
+
+    this.invitationService.sendInvitation(
+      this.emailToInvite,
+      roomId,
+      inviterName,
+      // ceremonyType,
+      // scenarioId
+    ).subscribe({
+      next: () => {
+        // this.hasInvitedUsers = true; // Marcar que hay invitados
+        this.messageService.add({
+          severity: 'success',
+          detail: `Invitación enviada exitosamente a ${this.emailToInvite}`
+        });
+        this.emailToInvite = '';
+      },
+      //       this.messageService.add({severity:'success', summary: 'Éxito', detail: 'Retrospectiva guardada correctamente.'});
+      error: (err) => {
+        console.error('Error enviando invitación:', err);
+        this.messageService.add({
+          severity: 'error',
+          detail: 'Error al enviar la invitación. Intenta nuevamente.'
+        });
+      }
     });
   }
 
@@ -324,30 +388,31 @@ export class VideoRoomComponent implements OnInit {
 
     const inviterName = this.authService.getUser()?.name || 'Un usuario';
 
-    this.invitationService.sendInvitation(
-      this.emailToInvite,
-      this.room,
-      inviterName,
-    ).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: `Invitación enviada a ${this.emailToInvite}`
-        })
-        this.emailToInvite = '';
-        this.inviteVisible = false;
-        this.showVideo = true;
-      },
-      error: (err) => {
-        console.error('Error:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Error al enviar invitación'
-        })
-      }
-    });
+    // this.invitationService.sendInvitation(
+    //   this.emailToInvite,
+    //   this.room,
+    //   inviterName,
+    // ).subscribe({
+    //   next: () => {
+    //     this.messageService.add({
+    //       severity: 'success',
+    //       summary: 'Éxito',
+    //       detail: `Invitación enviada a ${this.emailToInvite}`
+    //     })
+    //     this.emailToInvite = '';
+    //     this.inviteVisible = false;
+    //     this.showVideo = true;
+    //   },
+    //   error: (err) => {
+    //     console.error('Error:', err);
+    //     this.messageService.add({
+    //       severity: 'error',
+    //       summary: 'Error',
+    //       detail: 'Error al enviar invitación'
+    //     })
+    //   }
+    // });
+    this.sendInvitation();
   }
 
   async createRoom() {
@@ -420,9 +485,8 @@ export class VideoRoomComponent implements OnInit {
     this.peerConnections.set(targetUser, pc);
 
     this.localStream.getTracks().forEach(track => {
-      if (!pc.getSenders().find(s => s.track === track)) {
-        pc.addTrack(track, this.localStream);
-      }
+      const exists = pc.getSenders().find(s => s.track === track);
+      if (!exists) pc.addTrack(track, this.localStream);
     });
 
     pc.onicecandidate = (e) => {
@@ -468,11 +532,6 @@ export class VideoRoomComponent implements OnInit {
       case 'joinSuccess':
         if (msg.user && msg.user !== this.username) {
           await this.startPeerConnection(msg.user);
-        }
-
-        if (msg.role && !this.activeRoles.includes(msg.role)) {
-          this.activeRoles.push(msg.role);
-          this.updateCeremonyInfo();
         }
         break;
 
@@ -534,6 +593,7 @@ export class VideoRoomComponent implements OnInit {
 
   async handleOffer(fromUser: string, offer: RTCSessionDescriptionInit) {
     const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
     const pc = new RTCPeerConnection(config);
     this.peerConnections.set(fromUser, pc);
 
@@ -558,9 +618,8 @@ export class VideoRoomComponent implements OnInit {
     await pc.setRemoteDescription(new RTCSessionDescription(offer));
 
     this.localStream.getTracks().forEach(track => {
-      if (!pc.getSenders().find(s => s.track === track)) {
-        pc.addTrack(track, this.localStream);
-      }
+      const exists = pc.getSenders().find(s => s.track === track);
+      if (!exists) pc.addTrack(track, this.localStream);
     });
 
     const answer = await pc.createAnswer();

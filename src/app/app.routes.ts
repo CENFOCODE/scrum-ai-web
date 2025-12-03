@@ -19,6 +19,7 @@ import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
 import { HistoryComponent } from './pages/history/history.component';
 import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
+import { HomePageComponent } from './pages/home-page/home-page.component';
 import { RetrospectiveComponent} from './pages/retrospective/retrospective.component'
 import { FeedbackPageComponent } from './pages/feedback/feedback-page.component';
 
@@ -70,8 +71,8 @@ export const routes: Routes = [
     children: [
 
       {
-        path: 'app',
-        redirectTo: 'users',
+        path: '',
+        redirectTo: 'home',
         pathMatch: 'full',
       },
 
@@ -88,7 +89,19 @@ export const routes: Routes = [
           showInSidebar: true
         }
       },
-
+      {
+        path: 'home',
+        component: HomePageComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user
+          ],
+          name: 'Home',
+          showInSidebar: true
+        }
+      },
       {
         path: 'dashboard',
         component: DashboardComponent,
