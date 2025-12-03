@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { IResponse } from '../interfaces';
+import { AlertsService } from './alerts-box.service';
 
 export type BacklogStatus = 'TO DO' | 'IN PROGRESS' | 'DONE';
 
@@ -89,7 +90,7 @@ export class BacklogService {
   private sprintsSignal = signal<IBacklogSprint[]>([]);
   private searchTermSignal = signal<string>('');
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private alerts: AlertsService) {
     this.loadFromApi();
   }
 
@@ -101,7 +102,13 @@ export class BacklogService {
     this.http.put<IResponse<any>>(
       `${this.baseUrl}/sprints/${idNum}`,
       { name }
-    ).subscribe(() => this.loadFromApi());
+    ).subscribe({
+  next: () => {
+    this.alerts.success('Sprint actualizado correctamente');
+    this.loadFromApi();
+  },
+  error: () => this.alerts.error('Error actualizando sprint')
+});
   }
 
   updateSprintDates(id: string, dates: string) {
@@ -111,7 +118,13 @@ export class BacklogService {
     this.http.put<IResponse<any>>(
       `${this.baseUrl}/sprints/${idNum}`,
       { dates }
-    ).subscribe(() => this.loadFromApi());
+    ).subscribe({
+  next: () => {
+  this.alerts.success('Fechas de sprint actualizadas correctamente');
+  this.loadFromApi();
+},
+  error: () => this.alerts.error('Error actualizando fechas del sprint')
+});
   }
 
   updateSprintFromDialog(
@@ -131,7 +144,13 @@ export class BacklogService {
     this.http.put<IResponse<any>>(
       `${this.baseUrl}/sprints/${idNum}`,
       payload
-    ).subscribe(() => this.loadFromApi());
+    ).subscribe({
+  next: () => {
+  this.alerts.success('Sprint actualizado correctamente');
+  this.loadFromApi();
+},
+  error: () => this.alerts.error('Error actualizando sprint')
+});
   }
 
   /* Start / Complete Sprint */
@@ -141,7 +160,13 @@ export class BacklogService {
     this.http.put<IResponse<any>>(
       `${this.baseUrl}/sprints/${idNum}/start`,
       {}
-    ).subscribe(() => this.loadFromApi());
+    ).subscribe({
+  next: () => {
+    this.alerts.success('Sprint iniciado correctamente');
+    this.loadFromApi();
+  },
+  error: () => this.alerts.error('Error iniciando sprint')
+});
   }
 
   completeSprint(id: string) {
@@ -150,7 +175,13 @@ export class BacklogService {
     this.http.put<IResponse<any>>(
       `${this.baseUrl}/sprints/${idNum}/complete`,
       {}
-    ).subscribe(() => this.loadFromApi());
+    ).subscribe({
+  next: () => {
+    this.alerts.success('Sprint completado correctamente');
+    this.loadFromApi();
+  },
+  error: () => this.alerts.error('Error completando sprint')
+});
   }
 
   get sprints$() {
@@ -222,7 +253,7 @@ export class BacklogService {
           const mapped = (res.data || []).map(s => this.mapSprint(s));
           this.sprintsSignal.set(mapped);
         },
-        error: err => console.error('Error cargando backlog', err)
+        error: () => this.alerts.error('Error cargando backlog')
       });
   }
 
@@ -244,7 +275,13 @@ export class BacklogService {
     this.http.post<IResponse<any>>(
       `${this.baseUrl}/sprints`,
       {}
-    ).subscribe(() => this.loadFromApi());
+    ).subscribe({
+  next: () => {
+    this.alerts.success('Sprint creado correctamente');
+    this.loadFromApi();
+  },
+  error: () => this.alerts.error('Error creando sprint')
+});
   }
 
   deleteSprint(sprintId: string) {
@@ -252,7 +289,13 @@ export class BacklogService {
     if (!idNum) return;
     this.http.delete<IResponse<null>>(
       `${this.baseUrl}/sprints/${idNum}`
-    ).subscribe(() => this.loadFromApi());
+    ).subscribe({
+  next: () => {
+    this.alerts.success('Sprint eliminado correctamente');
+    this.loadFromApi();
+  },
+  error: () => this.alerts.error('Error eliminando sprint')
+});
   }
 
   /* HISTORIAS */
@@ -263,7 +306,13 @@ export class BacklogService {
     this.http.post<IResponse<any>>(
       `${this.baseUrl}/items`,
       { sprintId: idNum }
-    ).subscribe(() => this.loadFromApi());
+    ).subscribe({
+  next: () => {
+    this.alerts.success('Historia creada correctamente');
+    this.loadFromApi();
+  },
+  error: () => this.alerts.error('Error creando historia')
+});
   }
 
   deleteItem(sprintId: string, itemId: string) {
@@ -279,7 +328,13 @@ export class BacklogService {
 
   this.http.delete<IResponse<null>>(
     `${this.baseUrl}/items/${itemNum}`
-  ).subscribe(() => this.loadFromApi());
+  ).subscribe({
+  next: () => {
+    this.alerts.success('Historia eliminada correctamente');
+    this.loadFromApi();
+  },
+  error: () => this.alerts.error('Error eliminando historia')
+});
 }
 
   updateStatus(sprintId: string, itemId: string, status: BacklogStatus) {
@@ -299,7 +354,10 @@ export class BacklogService {
     this.http.put<IResponse<any>>(
       `${this.baseUrl}/items/${Number(itemId)}`,
       { status }
-    ).subscribe();
+    ).subscribe({
+  next: () => this.loadFromApi(),
+  error: () => this.alerts.error('Error actualizando historia')
+});
   }
 
   updateModule(sprintId: string, itemId: string, module: string) {
@@ -429,7 +487,13 @@ export class BacklogService {
     this.http.put<IResponse<any>>(
       `${this.baseUrl}/items/${num}`,
       body
-    ).subscribe(() => this.loadFromApi());
+    ).subscribe({
+  next: () => {
+    this.alerts.success('Historia actualizada correctamente');
+    this.loadFromApi();
+  },
+  error: () => this.alerts.error('Error actualizando historia')
+});
   }
 
   /* Mover historia */
@@ -469,7 +533,13 @@ export class BacklogService {
     {
       sprintId: toId
     }
-  ).subscribe(() => this.loadFromApi());
+  ).subscribe({
+  next: () => {
+    this.alerts.success('Historia movida correctamente');
+    this.loadFromApi();
+  },
+  error: () => this.alerts.error('Error moviendo historia')
+});
 }
 
 savePlanning(payload: any) {
