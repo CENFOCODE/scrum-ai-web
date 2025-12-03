@@ -29,17 +29,14 @@
         <!-- Header -->
         <header id="csd-session-header" class="mb-3">
           <h2 id="csd-title" class="mb-2">{{ selectedScenario.ceremonyType }}</h2>
-           Usuario actual: <strong>{{ authService.getUser().name }}</strong>
+          Usuario actual: <strong>{{ authService.getUser().name }}</strong>
         </header>
 
         <div id="csd-grid" class="csd-grid">
           <!-- Objectives -->
           <div id="csd-objectives" class="csd-surface">
             <h3 id="csd-objectives-title" class="mb-2">Objetivos</h3>
-            <p id="csd-objectives-text" class="mb-0">
-              {{ selectedScenario.goals?.split(".")?.[0] }}
-            </p>
-
+            <p id="csd-objectives-text" class="mb-0">{{ selectedScenario.description }}</p>
           </div>
 
           <!-- Rol / difficulty -->
@@ -48,7 +45,7 @@
             <div id="csd-selects" class="csd-selects">
               <!-- Difficulty -->
               <mat-form-field id="csd-select-difficulty-ff" appearance="outline" class="csd-ff">
-                <mat-select (selectionChange)="onDifficultyAndRolSelected()" id="csd-select-difficulty" [(ngModel)]="selectedDifficulty" panelClass="csd-select-panel" disableOptionCentering placeholder="Dificultad" required>
+                <mat-select id="csd-select-difficulty" [(ngModel)]="selectedDifficulty" panelClass="csd-select-panel" disableOptionCentering placeholder="Dificultad" required>
                   <mat-option *ngFor="let diff of difficultyLevels" [value]="diff" >
                     {{ diff }}
                   </mat-option>
@@ -57,7 +54,7 @@
 
               <!-- Role -->
               <mat-form-field id="csd-select-role-ff" appearance="outline" class="csd-ff">
-                <mat-select (selectionChange)="onDifficultyAndRolSelected()" id="csd-select-role" [(ngModel)]="selectedRole" panelClass="csd-select-panel" disableOptionCentering placeholder="Rol" required>
+                <mat-select id="csd-select-role" [(ngModel)]="selectedRole" panelClass="csd-select-panel" disableOptionCentering placeholder="Rol" required>
                   <mat-option *ngFor="let role of scrumRoles" [value]="role">
                     {{ role }}
                   </mat-option>
@@ -86,7 +83,7 @@
             Volver
           </button>
           <button (click)="createSimulation()" [disabled]="isLoading" class="primary-btn">
-          {{ isLoading ? 'Creando...' : 'Iniciar Ceremonia' }}
+            {{ isLoading ? 'Creando...' : 'Iniciar Ceremonia' }}
           </button>
           <button  (click)="createGroupSimulation()" class="primary-btn btn-success px-4" >Iniciar Ceremonia Grupal</button>
         </div>
