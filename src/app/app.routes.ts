@@ -14,10 +14,18 @@ import { LandingCenfoComponent } from './pages/landing-cenfo/landing-cenfo.compo
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
 import { WebsocketTestComponent } from './components/websocketTest/websocketTestComponent';
-import { VideoRoomComponent } from './components/videoRoom/videoRoom.component';
 import { DailyComponent } from './pages/daily/daily.component';
 import { ScenarioComponent } from './pages/scenario/scenario.component';
+import { HistoryComponent } from './pages/history/history.component';
 import { CreateSessionComponent } from './components/scenarios/create-session/create-session.component';
+import { PlanningComponent } from './pages/planning-poker/planning.component';
+import { BacklogComponent } from './pages/backlog/backlog.component';
+import { HomePageComponent } from './pages/home-page/home-page.component';
+import { RetrospectiveComponent} from './pages/retrospective/retrospective.component'
+import { FeedbackPageComponent } from './pages/feedback/feedback-page.component';
+
+import { DailyQuestionsComponent } from './pages/daily-questions/daily-questions.component';
+import { DailySummaryComponent } from './pages/daily-summary/daily-summary.component';
 
 
 export const routes: Routes = [
@@ -50,26 +58,59 @@ export const routes: Routes = [
     path: 'access-denied',
     component: AccessDeniedComponent,
   },
-
+{
+    path: 'landingcenfo',
+    component: LandingCenfoComponent,
+    canActivate: [GuestGuard],
+  },
   {
     path: '',
     redirectTo: 'landingpage',
     pathMatch: 'full',
   },
+
   {
     path: 'app',
     component: AppLayoutComponent,
     canActivate: [AuthGuard],
     children: [
+
       {
-        path: 'app',
-        redirectTo: 'users',
+        path: '',
+        redirectTo: 'home',
         pathMatch: 'full',
       },
+       {
+        path: 'backlog',
+        component: PlanningComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'backlog',
+          showInSidebar: false 
+        }
+      },
+       {
+        path: 'planning',
+        component: BacklogComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'planning',
+          showInSidebar: false 
+        }
+      },
+
       {
         path: 'users',
         component: UsersComponent,
-        canActivate:[AdminRoleGuard],
+        canActivate: [AdminRoleGuard],
         data: {
           authorities: [
             IRoleType.admin,
@@ -79,8 +120,19 @@ export const routes: Routes = [
           showInSidebar: true
         }
       },
-
-
+      {
+        path: 'home',
+        component: HomePageComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user
+          ],
+          name: 'Home',
+          showInSidebar: true
+        }
+      },
       {
         path: 'dashboard',
         component: DashboardComponent,
@@ -94,6 +146,7 @@ export const routes: Routes = [
           showInSidebar: true
         }
       },
+
       {
         path: 'profile',
         component: ProfileComponent,
@@ -107,6 +160,7 @@ export const routes: Routes = [
           showInSidebar: false
         }
       },
+
       {
         path: 'daily',
         component: DailyComponent,
@@ -114,9 +168,51 @@ export const routes: Routes = [
           authorities: [
             IRoleType.admin,
             IRoleType.superAdmin,
-            IRoleType.user,
+            IRoleType.user
           ],
           name: 'daily',
+          showInSidebar: false
+        }
+      },
+
+      {
+        path: 'daily-questions',
+        component: DailyQuestionsComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user
+          ],
+          name: 'Daily Questions',
+          showInSidebar: false
+        }
+      },
+
+      {
+        path: 'daily-summary',
+        component: DailySummaryComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user
+          ],
+          name: 'Daily Summary',
+          showInSidebar: false
+        }
+      },
+
+      {
+        path: 'retrospective',
+        component: RetrospectiveComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'retrospective',
           showInSidebar: false
         }
       },
@@ -127,12 +223,13 @@ export const routes: Routes = [
           authorities: [
             IRoleType.admin,
             IRoleType.superAdmin,
-            IRoleType.user,
+            IRoleType.user
           ],
           name: 'Scenario',
           showInSidebar: true
         }
       },
+
       {
         path: 'websocketTest',
         component: WebsocketTestComponent,
@@ -140,26 +237,39 @@ export const routes: Routes = [
           authorities: [
             IRoleType.admin,
             IRoleType.superAdmin,
-            IRoleType.user,
+            IRoleType.user
           ],
           name: 'WebSocket Test',
-          showInSidebar: false // si no querés que aparezca en el menú lateral
+          showInSidebar: false 
         }
       },
       {
-        path: 'videoRoom',
-        component: VideoRoomComponent,
+        path: 'history',
+        component: HistoryComponent,
         data: {
           authorities: [
             IRoleType.admin,
             IRoleType.superAdmin,
             IRoleType.user,
           ],
-          name: 'Video Room',
-          showInSidebar: false
+          name: 'History',
+          showInSidebar: true
+        }
+      },
+      {
+        path: 'feedback',
+        component: FeedbackPageComponent,
+        data: {
+          authorities: [
+            IRoleType.admin,
+            IRoleType.superAdmin,
+            IRoleType.user,
+          ],
+          name: 'Feedback',
+          showInSidebar: true
         }
       }
-
+      
 
     ],
   },

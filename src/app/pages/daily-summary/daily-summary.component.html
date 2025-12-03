@@ -1,0 +1,54 @@
+<div class="container my-4">
+
+  <div class="card p-4 shadow-sm">
+    
+    <!-- Título -->
+    <div class="mb-3">
+      <h2 class="fw-semibold mb-1">Resumen del Daily</h2>
+      <small class="text-muted">Revisión de lo trabajado y análisis con IA</small>
+    </div>
+
+    <!-- Resumen manual -->
+    <div class="mt-3">
+      <h6 class="fw-bold mb-2">Lo que hiciste ayer</h6>
+      <p>{{ answers.yesterday || 'Sin información' }}</p>
+
+      <h6 class="fw-bold mb-2">Lo que harás hoy</h6>
+      <p>{{ answers.today || 'Sin información' }}</p>
+
+      <h6 class="fw-bold mb-2">Impedimentos</h6>
+      <p>{{ answers.impediments || 'Sin impedimentos reportados' }}</p>
+    </div>
+
+    <hr class="my-4">
+
+    <!-- IA Summary -->
+    <div>
+      <h5 class="fw-semibold mb-3">Resumen generado por IA</h5>
+
+      <!-- Loader -->
+      <div *ngIf="loadingAI" class="alert alert-info">
+        Analizando tu Daily con IA…
+      </div>
+
+      <!-- Resultado -->
+      <div *ngIf="!loadingAI && summaryAI"
+           class="alert alert-secondary p-3"
+           style="white-space: pre-wrap;">
+        {{ summaryAI }}
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="d-flex justify-content-between mt-4">
+      <button mat-flat-button color="primary" class="px-4" (click)="goBack()">
+        Volver
+      </button>
+
+      <button mat-flat-button color="accent" class="px-4" (click)="finish()">
+        Finalizar
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -11,7 +11,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^17.3.0",
-    "@angular/cdk": "^17.3.9",
+    "@angular/cdk": "^17.3.10",
     "@angular/common": "^17.3.0",
     "@angular/compiler": "^17.3.0",
     "@angular/core": "^17.3.0",
@@ -22,6 +22,8 @@
     "@angular/router": "^17.3.0",
     "@ctrl/ngx-emoji-mart": "^9.2.0",
     "@ng-bootstrap/ng-bootstrap": "^16.0.0",
+    "ngx-markdown": "^17.2.1",
+    "ngx-logger": "^5.0.12",
     "primeicons": "^7.0.0",
     "primeng": "^17.18.15",
     "rxjs": "~7.8.0",

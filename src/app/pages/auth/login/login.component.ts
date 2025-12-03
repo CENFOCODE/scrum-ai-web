@@ -8,6 +8,8 @@ import { MatFormFieldModule} from "@angular/material/form-field";
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule} from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
+import { NGXLogger } from 'ngx-logger';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -28,6 +30,7 @@ import { MatButtonModule } from "@angular/material/button";
 })
 
 export class LoginComponent {
+  
   public loginError!: string;
   private manualDetector: ChangeDetectorRef = inject(ChangeDetectorRef);
   @ViewChild('email') emailModel!: NgModel;
@@ -40,6 +43,7 @@ export class LoginComponent {
   };
 
   constructor(
+    private logger: NGXLogger,
     private router: Router,
     private authService: AuthService,
     private ngZone: NgZone
@@ -63,7 +67,7 @@ export class LoginComponent {
       this.authService.login(this.loginForm).subscribe({
         next: () => {
             this.manualDetector.markForCheck();
-            this.router.navigateByUrl('/app/dashboard');
+            this.router.navigateByUrl('/app/home');
         },
         error: (err: any) => {
             this.manualDetector.markForCheck();
@@ -76,7 +80,7 @@ export class LoginComponent {
   ngOnInit(): void {
     (window as any).handleCredentialResponse = (response: any) =>
       this.handleGoogleCredential(response);
-    console.log('Google callback set');
+      this.logger.log('Google callback setup complete');
     this.initializeGoogleSignIn();
 
   }
@@ -93,8 +97,7 @@ export class LoginComponent {
     try{
      
     (window as any).google.accounts.id.initialize({
-      client_id:
-        '316836742682-8qljm4bfpqheogsg5eq7v96hl1gn4q65.apps.googleusercontent.com',
+      client_id: environment.googleClientId,
       callback: (response: any) => this.handleGoogleCredential(response),
     });
     (window as any).google.accounts.id.renderButton(
@@ -122,7 +125,7 @@ export class LoginComponent {
   this.authService.loginWithGoogle(response.credential).subscribe({
     next: () => {
       this.ngZone.run(() => {
-        this.router.navigateByUrl('/app/dashboard').then(success => {
+        this.router.navigateByUrl('/app/home').then(success => {
           console.log('Navigation success:', success);
         });
       });

@@ -29,7 +29,7 @@ export class AuthService {
 
   private load(): void {
     let token = localStorage.getItem('access_token');
-    if (token) this.accessToken = token;
+    if (token) this.accessToken = JSON.parse(token);
     let exp = localStorage.getItem('expiresIn');
     if (exp) this.expiresIn = JSON.parse(exp);
     const user = localStorage.getItem('auth_user');
@@ -37,7 +37,7 @@ export class AuthService {
     
   }
 
-  public getUser(): IUser | undefined {
+  public getUser(): IUser {
     return this.user;
   }
 

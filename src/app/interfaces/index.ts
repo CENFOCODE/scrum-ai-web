@@ -80,12 +80,6 @@ export interface ISearch {
   totalPages?:number;
 }
 
-
-
-
-
-
-
 export interface IGiftList {
   id?: number;
   name?: string;
@@ -117,7 +111,7 @@ export interface ICeremony {
 
 export interface IScenario {
   id?: number;
-  backlog?: string;
+  backlog?: string | string[];
   ceremonyType?: string;
   description?: string;
   difficultyLevel?: string;
@@ -125,6 +119,12 @@ export interface IScenario {
   goals?: string;
   name?: string;
   team?: string;
+  initialTasks?: {
+    title: string;
+    description?: string;
+  }[];
+  templates?: IScenarioTemplate[];
+ 
 }
 
 export interface ISimulations {
@@ -133,8 +133,9 @@ export interface ISimulations {
   difficultyLevel?: string;
   endDate?: Date;
   startDate?: Date;
-  createdBy?: IUser; // id del usuario que lo creo
+  createdBy?: IUser;
   scenario?: IScenario;
+  simulationUsers?: ISimulationUser[];
 }
 
 export interface ISimulationUser {
@@ -142,4 +143,42 @@ export interface ISimulationUser {
   assignedAt?: Date;
   scrumRole?: string;
   simulation?: ISimulations;
+  user?: IUser;
+}
+
+export interface IScenarioTemplate {
+  id?: number;
+  stepOrder?: number;       
+  promptTemplate?: string;     
+  scenario?: IScenario;      
+  createdAt?: string;        
+  updatedAt?: string;        
+  answers?: string[];
+}
+
+export interface IHistory {
+  id?: number;
+  user?: IUser;
+  simulation?: ISimulations;
+  createdAt?: Date;
+  transcript?: string;
+  finalScore?: number;
+  simulationUser?: ISimulationUser;
+}
+
+export interface ISimulationFeedback {
+  id?: number;
+  createdAt?: Date;
+  user?: IUser;
+  message?: string;
+  simulation?: ISimulations;
+}
+
+
+export interface IParticipant {
+  email: string;
+  name: string;
+  role: string;
+  difficulty?: string; // Solo el creador tiene esto
+  isCreator?: boolean;
 }
