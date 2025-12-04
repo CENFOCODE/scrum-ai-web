@@ -7,7 +7,6 @@ import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from 
 import { SimulationService } from '../../services/simulation.service';
 import { FormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
-import { VideoRoomComponent } from '../../components/videoRoom/videoRoom.component';
 import { ChatbotComponent } from '../../components/chatbot/chatbot.component';
 import { IScenarioTemplate, IScenario, ISimulations, ISimulationUser, ISimulationFeedback } from '../../interfaces';
 import { RippleModule } from 'primeng/ripple';
@@ -28,7 +27,6 @@ interface Task {
     RouterModule,
     CommonModule,
     DragDropModule,
-    VideoRoomComponent,
     ChatbotComponent,
     RippleModule,
     ToastModule,
